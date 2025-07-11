@@ -4,6 +4,7 @@ import { GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import LoadingSplash from "./LoadingSplash";
 
 interface VerificationFormProps {
   email: string;
@@ -15,6 +16,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     if (resendCountdown > 0) {
@@ -31,12 +33,27 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
     if (code.length !== 6) return;
     
     setIsVerifying(true);
-    // Simulate API call
+    
+    // Simulate API call for verification
     await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsVerifying(false);
     
     console.log("Verification code:", code);
     console.log("Email:", email);
+    
+    // Simulate role detection (in real app, this would come from backend)
+    const userRole = email.includes('admin') ? 'admin' : 'professor';
+    
+    setIsVerifying(false);
+    setIsRedirecting(true);
+    
+    // Simulate loading before redirect
+    setTimeout(() => {
+      if (userRole === 'admin') {
+        window.location.href = '/admin/dashboard';
+      } else {
+        window.location.href = '/professor/dashboard';
+      }
+    }, 2000);
   };
 
   const handleResendCode = async () => {
@@ -47,6 +64,10 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
     
     console.log("Resending code to:", email);
   };
+
+  if (isRedirecting) {
+    return <LoadingSplash />;
+  }
 
   return (
     <div className="w-full max-w-md mx-auto">
