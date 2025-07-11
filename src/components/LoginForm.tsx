@@ -4,11 +4,13 @@ import { Mail, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import VerificationForm from "./VerificationForm";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -30,7 +32,18 @@ const LoginForm = () => {
     setIsSending(false);
     
     console.log("Verification code sent to:", email);
+    setShowVerification(true);
   };
+
+  const handleBackToLogin = () => {
+    setShowVerification(false);
+    setEmail("");
+    setIsValid(false);
+  };
+
+  if (showVerification) {
+    return <VerificationForm email={email} onBackToLogin={handleBackToLogin} />;
+  }
 
   return (
     <div className="w-full max-w-md mx-auto">
