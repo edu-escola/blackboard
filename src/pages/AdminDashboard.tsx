@@ -1,11 +1,13 @@
 
-import { Bell, ChevronDown, Users, GraduationCap, BookOpen, UserCheck, Plus, UserPlus } from "lucide-react";
+import { Bell, ChevronDown, Users, GraduationCap, BookOpen, UserCheck, Plus, UserPlus, School } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   // Mock data for demonstration
   const stats = [
     { title: "Total Students", value: "1,234", icon: Users, color: "text-blue-600", bgColor: "bg-blue-50" },
@@ -100,6 +102,18 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Quick Navigation */}
+        <div className="mb-6">
+          <Button
+            onClick={() => navigate("/admin/schools")}
+            variant="outline"
+            className="flex items-center space-x-2 text-blue-600 border-blue-200 hover:bg-blue-50"
+          >
+            <School className="h-4 w-4" />
+            <span>Manage Schools</span>
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
