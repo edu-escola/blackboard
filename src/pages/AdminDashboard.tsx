@@ -1,5 +1,5 @@
 
-import { Bell, ChevronDown, Users, GraduationCap, BookOpen, UserCheck, Plus, UserPlus, School, User } from "lucide-react";
+import { Bell, ChevronDown, Users, GraduationCap, BookOpen, UserCheck, Plus, UserPlus, School, User, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -121,6 +121,14 @@ const AdminDashboard = () => {
           >
             <User className="h-4 w-4" />
             <span>Manage Professors</span>
+          </Button>
+          <Button
+            onClick={() => navigate("/admin/students")}
+            variant="outline"
+            className="flex items-center space-x-2 text-purple-600 border-purple-200 hover:bg-purple-50"
+          >
+            <Users className="h-4 w-4" />
+            <span>Manage Students</span>
           </Button>
         </div>
 
