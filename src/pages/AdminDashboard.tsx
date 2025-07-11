@@ -1,5 +1,5 @@
 
-import { Bell, ChevronDown, Users, GraduationCap, BookOpen, UserCheck, Plus, UserPlus, School, User, UserX } from "lucide-react";
+import { Bell, ChevronDown, Users, GraduationCap, BookOpen, UserCheck, Plus, UserPlus, School, User, UserX, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Quick Navigation */}
-        <div className="flex gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Button
             onClick={() => navigate("/admin/schools")}
             variant="outline"
@@ -129,6 +129,14 @@ const AdminDashboard = () => {
           >
             <Users className="h-4 w-4" />
             <span>Manage Students</span>
+          </Button>
+          <Button
+            onClick={() => navigate("/admin/classes")}
+            variant="outline"
+            className="flex items-center space-x-2 text-orange-600 border-orange-200 hover:bg-orange-50"
+          >
+            <Calendar className="h-4 w-4" />
+            <span>Classes & Timetables</span>
           </Button>
         </div>
 
