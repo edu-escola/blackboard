@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { GraduationCap, BookOpen, Users, Calendar, Bell, ClipboardCheck, FileEdit, Award, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 
 const ProfessorDashboard = () => {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [greeting, setGreeting] = useState("");
 
@@ -187,7 +189,10 @@ const ProfessorDashboard = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
               
-              <Card className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+              <Card 
+                className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => navigate("/professor/attendance")}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
                     <div className="p-3 bg-green-100 rounded-lg">
