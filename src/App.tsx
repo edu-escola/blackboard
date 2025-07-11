@@ -12,6 +12,7 @@ import StudentManagement from "./pages/StudentManagement";
 import ClassTimetableManagement from "./pages/ClassTimetableManagement";
 import AttendancePage from "./pages/AttendancePage";
 import EvaluationsPage from "./pages/EvaluationsPage";
+import LessonPlannerPage from "./pages/LessonPlannerPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/admin/classes" element={<ClassTimetableManagement />} />
           <Route path="/professor/attendance" element={<AttendancePage />} />
           <Route path="/professor/evaluations" element={<EvaluationsPage />} />
+          <Route path="/professor/lesson-planner" element={<LessonPlannerPage />} />
           <Route path="/professor/dashboard" element={<ProfessorDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
