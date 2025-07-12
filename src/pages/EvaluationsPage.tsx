@@ -22,19 +22,19 @@ const EvaluationsPage = () => {
 
   // Mock data
   const classes = [
-    { id: "math101", name: "Mathematics 101" },
-    { id: "science102", name: "Science 102" },
-    { id: "english201", name: "English 201" }
+    { id: "math101", name: "Matemática 101" },
+    { id: "science102", name: "Ciências 102" },
+    { id: "english201", name: "Inglês 201" }
   ];
 
-  const subjects = ["Mathematics", "Science", "English", "History", "Physics", "Chemistry"];
+  const subjects = ["Matemática", "Ciências", "Inglês", "História", "Física", "Química"];
 
   const activities = [
     {
       id: 1,
       title: "Algebra Quiz #1",
-      class: "Mathematics 101",
-      subject: "Mathematics",
+      class: "Matemática 101",
+      subject: "Matemática",
       dueDate: "2024-01-20",
       status: "Open",
       avgScore: 8.5,
@@ -44,8 +44,8 @@ const EvaluationsPage = () => {
     {
       id: 2,
       title: "Midterm Exam",
-      class: "Mathematics 101",
-      subject: "Mathematics", 
+      class: "Matemática 101",
+      subject: "Matemática", 
       dueDate: "2024-01-25",
       status: "Graded",
       avgScore: 7.8,
@@ -55,8 +55,8 @@ const EvaluationsPage = () => {
     {
       id: 3,
       title: "Geometry Assignment",
-      class: "Mathematics 101",
-      subject: "Mathematics",
+      class: "Matemática 101",
+      subject: "Matemática",
       dueDate: "2024-01-30",
       status: "Draft",
       avgScore: null,
@@ -109,8 +109,8 @@ const EvaluationsPage = () => {
       
       // Auto-save simulation
       toast({
-        title: "Grade Saved",
-        description: `Grade for ${students.find(s => s.id === studentId)?.name} saved automatically`,
+        title: "Nota Salva",
+        description: `Nota para ${students.find(s => s.id === studentId)?.name} salva automaticamente`,
       });
     }
   };
@@ -118,16 +118,16 @@ const EvaluationsPage = () => {
   const handleCreateActivity = () => {
     if (!newActivity.title || !newActivity.type || !newActivity.class || !newActivity.subject || !newActivity.date || !newActivity.maxScore) {
       toast({
-        title: "Error",
-        description: "Please fill in all required fields",
+        title: "Erro",
+        description: "Por favor, preencha todos os campos obrigatórios",
         variant: "destructive"
       });
       return;
     }
 
     toast({
-      title: "Activity Created Successfully!",
-      description: `${newActivity.title} has been created and is ready for student submissions.`,
+      title: "Atividade criada com sucesso!",
+      description: `${newActivity.title} foi criado e está pronto para envios dos alunos.`,
     });
 
     // Reset form
@@ -158,9 +158,9 @@ const EvaluationsPage = () => {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case "Quiz": return <FileText className="h-4 w-4" />;
-      case "Test": return <GraduationCap className="h-4 w-4" />;
-      case "Assignment": return <Edit className="h-4 w-4" />;
+      case "Atividade": return <FileText className="h-4 w-4" />;
+      case "Avaliação": return <GraduationCap className="h-4 w-4" />;
+      case "Tarefa": return <Edit className="h-4 w-4" />;
       default: return <FileText className="h-4 w-4" />;
     }
   };
@@ -203,7 +203,7 @@ const EvaluationsPage = () => {
                       <TableHead>Título</TableHead>
                       <TableHead>Turma</TableHead>
                       <TableHead>Disciplina</TableHead>
-                      <TableHead>Data limite</TableHead>
+                      <TableHead>Data</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Média</TableHead>
                     </TableRow>
@@ -243,7 +243,7 @@ const EvaluationsPage = () => {
                               {activity.avgScore}/{activity.maxScore}
                             </span>
                           ) : (
-                            <span className="text-gray-400">Not graded</span>
+                            <span className="text-gray-400">Não classificado</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -279,9 +279,9 @@ const EvaluationsPage = () => {
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Quiz">Quiz</SelectItem>
-                        <SelectItem value="Test">Teste</SelectItem>
-                        <SelectItem value="Assignment">Trabalho</SelectItem>
+                        <SelectItem value="Quiz">Atividade</SelectItem>
+                        <SelectItem value="Test">Avaliação</SelectItem>
+                        <SelectItem value="Assignment">Tarefa</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -319,7 +319,7 @@ const EvaluationsPage = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="date">Data limite *</Label>
+                    <Label htmlFor="date">Data *</Label>
                     <Input
                       id="date"
                       type="date"

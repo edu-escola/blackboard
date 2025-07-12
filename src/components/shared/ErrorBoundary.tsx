@@ -39,10 +39,10 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
                 ⚠️
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                Application Error
+                Erro de aplicação
               </h1>
               <p className="text-gray-600 leading-relaxed">
-                Something unexpected happened. Please refresh the page or contact support if the problem persists.
+                Algo inesperado aconteceu. Atualize a página ou entre em contato com o suporte se o problema persistir.
               </p>
             </div>
             
@@ -50,7 +50,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
               onClick={() => window.location.reload()}
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Refresh Page
+              Atualizar página
             </button>
           </div>
         </div>

@@ -78,7 +78,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
               <div className="p-2 bg-blue-600 rounded-lg">
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
-              <span className="text-2xl font-bold text-gray-900">EduCity</span>
+              <span className="text-2xl font-bold text-gray-900">EduEscola</span>
             </div>
           </div>
           <h1 className="text-xl font-semibold text-gray-900 mb-2">
@@ -143,7 +143,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
 
       <footer className="mt-8 text-center">
         <p className="text-xs text-gray-500">
-          © 2024 EduCity. Todos os direitos reservados.
+          © 2025 EduEscola. Todos os direitos reservados.
         </p>
       </footer>
     </div>

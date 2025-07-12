@@ -10,9 +10,9 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   // Mock data for demonstration
   const stats = [
-    { title: "Total Students", value: "1,234", icon: Users, color: "text-blue-600", bgColor: "bg-blue-50" },
-    { title: "Professors", value: "89", icon: GraduationCap, color: "text-green-600", bgColor: "bg-green-50" },
-    { title: "Classes", value: "156", icon: BookOpen, color: "text-purple-600", bgColor: "bg-purple-50" },
+    { title: "Total de Estudantes", value: "1,234", icon: Users, color: "text-blue-600", bgColor: "bg-blue-50" },
+    { title: "Professores", value: "89", icon: GraduationCap, color: "text-green-600", bgColor: "bg-green-50" },
+    { title: "Turma", value: "156", icon: BookOpen, color: "text-purple-600", bgColor: "bg-purple-50" },
     { title: "Pending Verifications", value: "23", icon: UserCheck, color: "text-orange-600", bgColor: "bg-orange-50" }
   ];
 
@@ -41,7 +41,7 @@ const AdminDashboard = () => {
               <div className="p-2 bg-blue-600 rounded-lg">
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">EduCity</span>
+              <span className="text-xl font-bold text-gray-900">EduEscola</span>
             </div>
             
             <Select defaultValue="lincoln">

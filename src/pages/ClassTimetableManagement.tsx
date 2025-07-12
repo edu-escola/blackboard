@@ -160,7 +160,7 @@ const ClassTimetableManagement = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold text-gray-900">Classes & Timetables</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Aulas e Horários</h1>
         </div>
       </header>
 
@@ -168,8 +168,8 @@ const ClassTimetableManagement = () => {
       <main className="p-6 max-w-7xl mx-auto">
         <Tabs defaultValue="classes" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="classes">Classes</TabsTrigger>
-            <TabsTrigger value="rooms">Rooms</TabsTrigger>
+            <TabsTrigger value="classes">Turmas</TabsTrigger>
+            <TabsTrigger value="rooms">Salas</TabsTrigger>
             <TabsTrigger value="timetable">Daily Timetable</TabsTrigger>
           </TabsList>
 
@@ -177,21 +177,21 @@ const ClassTimetableManagement = () => {
           <TabsContent value="classes" className="space-y-6">
             <Card className="border-0 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Classes</CardTitle>
+                <CardTitle>Turmas</CardTitle>
                 <Button onClick={() => setNewClassModalOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  New Class
+                  Nova Turma
                 </Button>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Class Name</TableHead>
-                      <TableHead>Year</TableHead>
-                      <TableHead>Room</TableHead>
-                      <TableHead>Shift</TableHead>
-                      <TableHead>Students</TableHead>
+                      <TableHead>Nome da Turma</TableHead>
+                      <TableHead>Ano</TableHead>
+                      <TableHead>Sala</TableHead>
+                      <TableHead>Período</TableHead>
+                      <TableHead>Estudantes</TableHead>
                       <TableHead>Assigned Professors</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -238,10 +238,10 @@ const ClassTimetableManagement = () => {
           <TabsContent value="rooms" className="space-y-6">
             <Card className="border-0 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Physical Rooms</CardTitle>
+                <CardTitle>Salas</CardTitle>
                 <Button onClick={() => setNewRoomModalOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  New Room
+                  Nova Sala
                 </Button>
               </CardHeader>
               <CardContent>
@@ -354,16 +354,16 @@ const ClassTimetableManagement = () => {
       <Dialog open={newClassModalOpen} onOpenChange={setNewClassModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create New Class</DialogTitle>
+            <DialogTitle>Criar Nova Turma</DialogTitle>
             <DialogDescription>
-              Add a new class with room and schedule assignments.
+              Adicione uma nova turma com atribuições de sala e horário.
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="className">Class Name</Label>
-              <Input id="className" placeholder="Mathematics 101" />
+              <Label htmlFor="className">Nome da Turma</Label>
+              <Input id="className" placeholder="1A" />
             </div>
             
             <div className="space-y-2">
@@ -372,10 +372,10 @@ const ClassTimetableManagement = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="room">Room</Label>
+              <Label htmlFor="room">Sala</Label>
               <Select>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select room" />
+                  <SelectValue placeholder="Selecionar Sala" />
                 </SelectTrigger>
                 <SelectContent>
                   {rooms.map((room) => (
@@ -388,15 +388,15 @@ const ClassTimetableManagement = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="shift">Shift</Label>
+              <Label htmlFor="shift">Período</Label>
               <Select>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select shift" />
+                  <SelectValue placeholder="Selecionar período" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="morning">Morning</SelectItem>
-                  <SelectItem value="afternoon">Afternoon</SelectItem>
-                  <SelectItem value="night">Night</SelectItem>
+                  <SelectItem value="morning">Manhã</SelectItem>
+                  <SelectItem value="afternoon">Tarde</SelectItem>
+                  <SelectItem value="night">Noite</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -408,10 +408,10 @@ const ClassTimetableManagement = () => {
             
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setNewClassModalOpen(false)}>
-                Cancel
+                Cancelar
               </Button>
               <Button onClick={() => setNewClassModalOpen(false)}>
-                Create Class
+                Criar Turma
               </Button>
             </div>
           </div>
@@ -422,15 +422,15 @@ const ClassTimetableManagement = () => {
       <Dialog open={newRoomModalOpen} onOpenChange={setNewRoomModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add New Room</DialogTitle>
+            <DialogTitle>Adicionar Nova Sala</DialogTitle>
             <DialogDescription>
-              Create a new physical room with equipment details.
+              Crie uma Nova Sala
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="roomName">Room Name</Label>
+              <Label htmlFor="roomName">Nome da Sala</Label>
               <Input id="roomName" placeholder="Room A101" />
             </div>
             
@@ -479,10 +479,10 @@ const ClassTimetableManagement = () => {
             
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setNewRoomModalOpen(false)}>
-                Cancel
+                Cancelar
               </Button>
               <Button onClick={() => setNewRoomModalOpen(false)}>
-                Add Room
+                Adicionar Sala
               </Button>
             </div>
           </div>

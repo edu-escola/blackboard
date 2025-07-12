@@ -40,7 +40,7 @@ export function DataTable<T extends { id: string | number }>({
   data,
   columns,
   searchable = true,
-  searchPlaceholder = "Search...",
+  searchPlaceholder = "Pesquisar...",
   onRowClick,
   bulkActions = [],
   filters = [],
