@@ -20,8 +20,8 @@ const EvaluationsPage = () => {
   const [selectedActivity, setSelectedActivity] = useState<any>(null);
   const [studentGrades, setStudentGrades] = useState<{[key: string]: number}>({});
   const [selectedSchool, setSelectedSchool] = useState("");
-  const [classFilter, setClassFilter] = useState("");
-  const [subjectFilter, setSubjectFilter] = useState("");
+  const [classFilter, setClassFilter] = useState("all");
+  const [subjectFilter, setSubjectFilter] = useState("all");
 
   // Mock data
   const classes = [
@@ -174,8 +174,8 @@ const EvaluationsPage = () => {
 
   const filteredActivities = activities.filter(
     (activity) =>
-      (classFilter === "" || activity.class === classFilter) &&
-      (subjectFilter === "" || activity.subject === subjectFilter)
+      (classFilter === "all" || activity.class === classFilter) &&
+      (subjectFilter === "all" || activity.subject === subjectFilter)
   );
 
   return (
@@ -209,7 +209,7 @@ const EvaluationsPage = () => {
               <SelectValue placeholder="Filtrar turma" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas</SelectItem>
+              <SelectItem value="all">Todas</SelectItem>
               {classes.map((cls) => (
                 <SelectItem key={cls.id} value={cls.name}>
                   {cls.name}
@@ -222,7 +222,7 @@ const EvaluationsPage = () => {
               <SelectValue placeholder="Filtrar disciplina" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas</SelectItem>
+              <SelectItem value="all">Todas</SelectItem>
               {subjects.map((subject) => (
                 <SelectItem key={subject} value={subject}>
                   {subject}
