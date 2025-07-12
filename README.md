@@ -48,10 +48,6 @@ src/
 │   ├── shared/       # Shared components (AppShell, DataTable, etc.)
 │   └── ...           # Other components
 ├── pages/            # Application pages
-│   ├── AdminDashboard.tsx
-│   ├── ProfessorDashboard.tsx
-│   ├── StudentManagement.tsx
-│   └── ...           # Other pages
 ├── hooks/            # Custom React hooks
 ├── lib/              # Utility functions and configurations
 ├── App.tsx           # Main application component
@@ -65,21 +61,6 @@ src/
 - `npm run build:dev` - Builds the application in development mode
 - `npm run preview` - Previews the production build locally
 - `npm run lint` - Runs ESLint to check code quality
-
-## 🎯 Features
-
-### Admin Features
-- **Dashboard**: Overview of school statistics and recent activities
-- **School Management**: Manage multiple schools
-- **Professor Management**: Add, edit, and manage professors
-- **Student Management**: Comprehensive student database management
-- **Class & Timetable Management**: Schedule and organize classes
-
-### Professor Features
-- **Attendance Tracking**: Mark and track student attendance
-- **Lesson Planning**: Create and manage lesson plans
-- **Evaluations**: Grade and manage student assessments
-- **Dashboard**: Personalized professor dashboard with upcoming lessons
 
 ## 🛠️ Technologies Used
 
