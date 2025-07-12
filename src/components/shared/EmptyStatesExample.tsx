@@ -27,7 +27,7 @@ const EmptyStatesExample = () => {
     const columns = [
       { key: "name" as const, label: "Nome" },
       { key: "email" as const, label: "Email" },
-      { key: "class" as const, label: "Classe" }
+      { key: "class" as const, label: "Turma" }
     ];
 
     if (isLoading) {
