@@ -140,7 +140,7 @@ const StudentManagement = () => {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">Students</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Alunos</h1>
           </div>
           <div className="flex space-x-2">
             <Button 
@@ -149,11 +149,11 @@ const StudentManagement = () => {
               className="text-green-600 border-green-200 hover:bg-green-50"
             >
               <Upload className="h-4 w-4 mr-2" />
-              Import CSV
+              Importar CSV
             </Button>
             <Button onClick={() => setNewStudentModalOpen(true)} className="bg-blue-600 hover:bg-blue-700">
               <Plus className="h-4 w-4 mr-2" />
-              New Student
+              Novo Aluno
             </Button>
           </div>
         </div>
@@ -179,7 +179,7 @@ const StudentManagement = () => {
                   <SelectValue placeholder="Filter by school" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Schools</SelectItem>
+                  <SelectItem value="all">Todas as Escolas</SelectItem>
                   {schools.map((school) => (
                     <SelectItem key={school.id} value={school.id}>
                       {school.name}
@@ -189,10 +189,10 @@ const StudentManagement = () => {
               </Select>
               <Select value={classFilter} onValueChange={setClassFilter}>
                 <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Filter by class" />
+                  <SelectValue placeholder="Filtrar por turma" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Classes</SelectItem>
+                  <SelectItem value="all">Todas as Turmas</SelectItem>
                   {classes.map((cls) => (
                     <SelectItem key={cls} value={cls}>
                       {cls}
@@ -210,10 +210,10 @@ const StudentManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Enrollment #</TableHead>
-                  <TableHead>School</TableHead>
-                  <TableHead>Class</TableHead>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Matrícula</TableHead>
+                  <TableHead>Escola</TableHead>
+                  <TableHead>Turma</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -248,7 +248,7 @@ const StudentManagement = () => {
         <SheetContent className="w-[400px] sm:w-[540px]">
           <SheetHeader>
             <SheetTitle>{selectedStudent?.name}</SheetTitle>
-            <SheetDescription>Student profile and information</SheetDescription>
+            <SheetDescription>Perfil do aluno e informações</SheetDescription>
           </SheetHeader>
           
           {selectedStudent && (
@@ -256,7 +256,7 @@ const StudentManagement = () => {
               {/* Basic Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium">Enrollment #</Label>
+                  <Label className="text-sm font-medium">Matrícula</Label>
                   <p className="text-sm font-mono mt-1">{selectedStudent.enrollmentNumber}</p>
                 </div>
                 <div>
@@ -276,11 +276,11 @@ const StudentManagement = () => {
                   <p className="text-sm mt-1">{selectedStudent.email}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Phone</Label>
+                  <Label className="text-sm font-medium">Telefone</Label>
                   <p className="text-sm mt-1">{selectedStudent.phone}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Address</Label>
+                  <Label className="text-sm font-medium">Endereço</Label>
                   <p className="text-sm mt-1">{selectedStudent.address}</p>
                 </div>
               </div>
@@ -288,28 +288,28 @@ const StudentManagement = () => {
               {/* Academic Info */}
               <div className="space-y-3">
                 <div>
-                  <Label className="text-sm font-medium">School</Label>
+                  <Label className="text-sm font-medium">Escola</Label>
                   <p className="text-sm mt-1">{selectedStudent.school}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Class</Label>
+                  <Label className="text-sm font-medium">Turma</Label>
                   <p className="text-sm mt-1">{selectedStudent.class}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Enrollment Date</Label>
+                  <Label className="text-sm font-medium">Data de Matrícula</Label>
                   <p className="text-sm mt-1">{new Date(selectedStudent.enrollmentDate).toLocaleDateString()}</p>
                 </div>
               </div>
 
               {/* Parent Info */}
               <div className="space-y-3">
-                <h4 className="font-medium">Parent/Guardian Information</h4>
+                <h4 className="font-medium">Informações dos Responsáveis</h4>
                 <div>
-                  <Label className="text-sm font-medium">Name</Label>
+                  <Label className="text-sm font-medium">Nome</Label>
                   <p className="text-sm mt-1">{selectedStudent.parentName}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Phone</Label>
+                  <Label className="text-sm font-medium">Telefone</Label>
                   <p className="text-sm mt-1">{selectedStudent.parentPhone}</p>
                 </div>
               </div>
@@ -318,11 +318,11 @@ const StudentManagement = () => {
               <div className="space-y-3 pt-4 border-t">
                 <Button className="w-full" variant="outline">
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit Profile
+                  Editar Perfil
                 </Button>
                 <Button className="w-full" variant="destructive">
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Remove Student
+                  Remover Aluno
                 </Button>
               </div>
             </div>
@@ -355,8 +355,8 @@ const StudentManagement = () => {
             >
               <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <div className="space-y-2">
-                <p className="text-lg font-medium">Drop your CSV file here</p>
-                <p className="text-sm text-gray-500">or click to browse</p>
+                  <p className="text-lg font-medium">Solte seu arquivo CSV aqui</p>
+                  <p className="text-sm text-gray-500">ou clique para selecionar</p>
               </div>
               <input
                 type="file"
@@ -376,23 +376,23 @@ const StudentManagement = () => {
               <div className="flex items-center space-x-3">
                 <FileText className="h-5 w-5 text-gray-500" />
                 <div>
-                  <p className="text-sm font-medium">Need a template?</p>
-                  <p className="text-xs text-gray-500">Download our CSV template</p>
+                  <p className="text-sm font-medium">Precisa de um modelo?</p>
+                  <p className="text-xs text-gray-500">Baixe nosso modelo CSV</p>
                 </div>
               </div>
               <Button variant="outline" size="sm">
                 <Download className="h-4 w-4 mr-2" />
-                Download
+                Baixar
               </Button>
             </div>
 
             {/* Actions */}
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setCsvImportModalOpen(false)}>
-                Cancel
+                Cancelar
               </Button>
               <Button>
-                Import Students
+                Importar Alunos
               </Button>
             </div>
           </div>
@@ -403,26 +403,26 @@ const StudentManagement = () => {
       <Dialog open={newStudentModalOpen} onOpenChange={setNewStudentModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add New Student</DialogTitle>
+            <DialogTitle>Adicionar Novo Aluno</DialogTitle>
             <DialogDescription>
-              Create a new student profile.
+              Crie um novo perfil de aluno.
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" placeholder="John" />
+                <Label htmlFor="firstName">Nome</Label>
+                <Input id="firstName" placeholder="João" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" placeholder="Doe" />
+                <Label htmlFor="lastName">Sobrenome</Label>
+                <Input id="lastName" placeholder="Silva" />
               </div>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="enrollmentNumber">Enrollment Number</Label>
+              <Label htmlFor="enrollmentNumber">Número de Matrícula</Label>
               <Input id="enrollmentNumber" placeholder="LN2024001" />
             </div>
             
@@ -432,10 +432,10 @@ const StudentManagement = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="school">School</Label>
+              <Label htmlFor="school">Escola</Label>
               <Select>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select school" />
+                  <SelectValue placeholder="Selecione a escola" />
                 </SelectTrigger>
                 <SelectContent>
                   {schools.map((school) => (
@@ -448,10 +448,10 @@ const StudentManagement = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="class">Class</Label>
+              <Label htmlFor="class">Turma</Label>
               <Select>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select class" />
+                  <SelectValue placeholder="Selecione a turma" />
                 </SelectTrigger>
                 <SelectContent>
                   {classes.map((cls) => (
@@ -465,10 +465,10 @@ const StudentManagement = () => {
             
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setNewStudentModalOpen(false)}>
-                Cancel
+                Cancelar
               </Button>
               <Button onClick={() => setNewStudentModalOpen(false)}>
-                Create Student
+                Criar Aluno
               </Button>
             </div>
           </div>

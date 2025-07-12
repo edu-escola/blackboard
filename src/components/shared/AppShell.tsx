@@ -59,9 +59,9 @@ export const AppShell = ({
                     <SelectValue placeholder={userName} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="profile">View Profile</SelectItem>
-                    <SelectItem value="settings">Settings</SelectItem>
-                    <SelectItem value="logout">Logout</SelectItem>
+                    <SelectItem value="profile">Ver Perfil</SelectItem>
+                    <SelectItem value="settings">Configurações</SelectItem>
+                    <SelectItem value="logout">Sair</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -58,8 +58,8 @@ export const EmptyStates = {
   NoStudents: (props?: Partial<EmptyStateProps>) => (
     <EmptyState
       icon={<Users className="h-12 w-12" />}
-      title="No students found"
-      description="There are no students in this class yet. Add students to get started with managing attendance and grades."
+      title="Nenhum aluno encontrado"
+      description="Ainda não há alunos nesta turma. Adicione estudantes para começar a gerenciar presença e notas."
       {...props}
     />
   ),
@@ -67,8 +67,8 @@ export const EmptyStates = {
   NoProfessors: (props?: Partial<EmptyStateProps>) => (
     <EmptyState
       icon={<GraduationCap className="h-12 w-12" />}
-      title="No professors found"
-      description="No professors have been added to the system yet. Create professor profiles to assign them to classes."
+      title="Nenhum professor encontrado"
+      description="Nenhum professor foi adicionado ao sistema ainda. Crie perfis para atribuí-los às turmas."
       {...props}
     />
   ),
@@ -76,8 +76,8 @@ export const EmptyStates = {
   NoClasses: (props?: Partial<EmptyStateProps>) => (
     <EmptyState
       icon={<BookOpen className="h-12 w-12" />}
-      title="No classes available"
-      description="There are no classes scheduled yet. Create your first class to start organizing your curriculum."
+      title="Nenhuma turma disponível"
+      description="Não há turmas agendadas ainda. Crie a primeira para organizar o currículo."
       {...props}
     />
   ),
@@ -85,8 +85,8 @@ export const EmptyStates = {
   NoEvaluations: (props?: Partial<EmptyStateProps>) => (
     <EmptyState
       icon={<ClipboardList className="h-12 w-12" />}
-      title="No evaluations created"
-      description="You haven't created any quizzes, tests, or assignments yet. Create your first evaluation to assess student progress."
+      title="Nenhuma avaliação criada"
+      description="Você ainda não criou provas ou atividades. Crie a primeira para avaliar o progresso dos alunos."
       {...props}
     />
   ),
@@ -95,10 +95,10 @@ export const EmptyStates = {
   NoSearchResults: (searchTerm?: string, props?: Partial<EmptyStateProps>) => (
     <EmptyState
       icon={<Search className="h-12 w-12" />}
-      title="No results found"
-      description={searchTerm 
-        ? `We couldn't find anything matching "${searchTerm}". Try adjusting your search terms or filters.`
-        : "No results match your current search criteria. Try adjusting your filters or search terms."
+      title="Nenhum resultado encontrado"
+      description={searchTerm
+        ? `Não encontramos nada correspondente a "${searchTerm}". Tente ajustar sua pesquisa ou filtros.`
+        : "Nenhum resultado corresponde aos critérios atuais. Tente ajustar os filtros ou termos de busca."
       }
       {...props}
     />
@@ -108,8 +108,8 @@ export const EmptyStates = {
   NoEvents: (props?: Partial<EmptyStateProps>) => (
     <EmptyState
       icon={<Calendar className="h-12 w-12" />}
-      title="No events scheduled"
-      description="There are no classes or events scheduled for this date. Select a different date or create a new event."
+      title="Nenhum evento agendado"
+      description="Não há aulas ou eventos para esta data. Selecione outra ou crie um novo evento."
       {...props}
     />
   ),
@@ -117,8 +117,8 @@ export const EmptyStates = {
   NoLessons: (props?: Partial<EmptyStateProps>) => (
     <EmptyState
       icon={<FileText className="h-12 w-12" />}
-      title="No lessons planned"
-      description="You haven't planned any lessons for this period yet. Start creating lesson plans to organize your curriculum."
+      title="Nenhuma aula planejada"
+      description="Você ainda não planejou aulas para este período. Comece criando planos de aula para organizar o currículo."
       {...props}
     />
   ),
@@ -127,8 +127,8 @@ export const EmptyStates = {
   NoData: (props?: Partial<EmptyStateProps>) => (
     <EmptyState
       icon={<Database className="h-12 w-12" />}
-      title="No data available"
-      description="There's no data to display at the moment. Check back later or contact your administrator if this seems incorrect."
+      title="Nenhum dado disponível"
+      description="Não há dados para exibir no momento. Volte mais tarde ou contate o administrador se isso parecer incorreto."
       {...props}
     />
   ),
@@ -137,8 +137,8 @@ export const EmptyStates = {
   EmptyInbox: (props?: Partial<EmptyStateProps>) => (
     <EmptyState
       icon={<Inbox className="h-12 w-12" />}
-      title="All caught up!"
-      description="You don't have any new notifications or messages at the moment. We'll let you know when something needs your attention."
+      title="Tudo em dia!"
+      description="Você não tem novas notificações ou mensagens no momento. Avisaremos quando algo precisar da sua atenção."
       {...props}
     />
   )
@@ -150,8 +150,8 @@ interface LoadingStateProps {
   className?: string;
 }
 
-export const LoadingState = ({ 
-  message = "Loading...", 
+export const LoadingState = ({
+  message = "Carregando...",
   className = "" 
 }: LoadingStateProps) => {
   return (
@@ -171,8 +171,8 @@ interface ErrorStateProps {
 }
 
 export const ErrorState = ({
-  title = "Something went wrong",
-  message = "We encountered an error while loading this content. Please try again.",
+  title = "Algo deu errado",
+  message = "Ocorreu um erro ao carregar o conteúdo. Tente novamente.",
   onRetry,
   className = ""
 }: ErrorStateProps) => {
@@ -191,7 +191,7 @@ export const ErrorState = ({
       </p>
       {onRetry && (
         <Button onClick={onRetry} variant="outline">
-          Try Again
+          Tentar novamente
         </Button>
       )}
     </div>

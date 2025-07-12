@@ -15,7 +15,7 @@ const LoadingSplash = () => {
         </div>
         
         <div className="space-y-3">
-          <p className="text-lg text-gray-700 font-medium">Signing you in…</p>
+          <p className="text-lg text-gray-700 font-medium">Entrando…</p>
           <div className="flex justify-center space-x-1">
             <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
             <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>

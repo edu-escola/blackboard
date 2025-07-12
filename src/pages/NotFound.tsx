@@ -29,11 +29,11 @@ const NotFound = () => {
         {/* Error Message */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Oops! Page not found
+            Ops! Página não encontrada
           </h1>
           <p className="text-gray-600 leading-relaxed">
-            The page you're looking for doesn't exist or has been moved. 
-            Let's get you back to where you need to be.
+            A página que você procura não existe ou foi movida.
+            Vamos levá-lo de volta ao início.
           </p>
         </div>
 
@@ -45,7 +45,7 @@ const NotFound = () => {
             size="lg"
           >
             <Home className="h-5 w-5 mr-2" />
-            Return to Dashboard
+            Voltar ao Painel
           </Button>
           
           <Button 
@@ -54,13 +54,13 @@ const NotFound = () => {
             className="w-full"
           >
             <ArrowLeft className="h-5 w-5 mr-2" />
-            Go Back
+            Voltar
           </Button>
         </div>
 
         {/* Help Text */}
         <div className="mt-8 text-sm text-gray-500">
-          <p>Need help? Contact your system administrator.</p>
+          <p>Precisa de ajuda? Entre em contato com o administrador do sistema.</p>
         </div>
       </div>
     </div>

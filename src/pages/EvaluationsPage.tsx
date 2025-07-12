@@ -178,7 +178,7 @@ const EvaluationsPage = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold text-gray-900">Evaluations</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Avaliações</h1>
         </div>
       </header>
 
@@ -186,26 +186,26 @@ const EvaluationsPage = () => {
       <main className="p-6 max-w-7xl mx-auto">
         <Tabs defaultValue="activities" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="activities">Activities List</TabsTrigger>
-            <TabsTrigger value="create">Create New</TabsTrigger>
+            <TabsTrigger value="activities">Lista de Atividades</TabsTrigger>
+            <TabsTrigger value="create">Criar Nova</TabsTrigger>
           </TabsList>
 
           {/* Activities List Tab */}
           <TabsContent value="activities" className="space-y-6">
             <Card className="border-0 shadow-sm">
               <CardHeader>
-                <CardTitle>Activities & Evaluations</CardTitle>
+                <CardTitle>Atividades e Avaliações</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Class</TableHead>
-                      <TableHead>Subject</TableHead>
-                      <TableHead>Due Date</TableHead>
+                      <TableHead>Título</TableHead>
+                      <TableHead>Turma</TableHead>
+                      <TableHead>Disciplina</TableHead>
+                      <TableHead>Data limite</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Avg. Score</TableHead>
+                      <TableHead>Média</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -258,39 +258,39 @@ const EvaluationsPage = () => {
           <TabsContent value="create" className="space-y-6">
             <Card className="border-0 shadow-sm">
               <CardHeader>
-                <CardTitle>Create New Activity</CardTitle>
+                <CardTitle>Criar Nova Atividade</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="title">Title *</Label>
+                    <Label htmlFor="title">Título *</Label>
                     <Input
                       id="title"
                       value={newActivity.title}
                       onChange={(e) => setNewActivity(prev => ({...prev, title: e.target.value}))}
-                      placeholder="e.g. Midterm Exam"
+                      placeholder="ex.: Prova Bimestral"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="type">Type *</Label>
+                    <Label htmlFor="type">Tipo *</Label>
                     <Select value={newActivity.type} onValueChange={(value) => setNewActivity(prev => ({...prev, type: value}))}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
+                        <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Quiz">Quiz</SelectItem>
-                        <SelectItem value="Test">Test</SelectItem>
-                        <SelectItem value="Assignment">Assignment</SelectItem>
+                        <SelectItem value="Test">Teste</SelectItem>
+                        <SelectItem value="Assignment">Trabalho</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="class">Class *</Label>
+                    <Label htmlFor="class">Turma *</Label>
                     <Select value={newActivity.class} onValueChange={(value) => setNewActivity(prev => ({...prev, class: value}))}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select class" />
+                        <SelectValue placeholder="Selecione a turma" />
                       </SelectTrigger>
                       <SelectContent>
                         {classes.map((cls) => (
@@ -303,10 +303,10 @@ const EvaluationsPage = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="subject">Subject *</Label>
+                    <Label htmlFor="subject">Disciplina *</Label>
                     <Select value={newActivity.subject} onValueChange={(value) => setNewActivity(prev => ({...prev, subject: value}))}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select subject" />
+                        <SelectValue placeholder="Selecione a disciplina" />
                       </SelectTrigger>
                       <SelectContent>
                         {subjects.map((subject) => (
@@ -319,7 +319,7 @@ const EvaluationsPage = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="date">Due Date *</Label>
+                    <Label htmlFor="date">Data limite *</Label>
                     <Input
                       id="date"
                       type="date"
@@ -329,7 +329,7 @@ const EvaluationsPage = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="maxScore">Maximum Score *</Label>
+                    <Label htmlFor="maxScore">Nota Máxima *</Label>
                     <Input
                       id="maxScore"
                       type="number"
@@ -341,12 +341,12 @@ const EvaluationsPage = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description (Optional)</Label>
+                    <Label htmlFor="description">Descrição (Opcional)</Label>
                   <Textarea
                     id="description"
                     value={newActivity.description}
                     onChange={(e) => setNewActivity(prev => ({...prev, description: e.target.value}))}
-                    placeholder="Provide instructions or additional details for students..."
+                    placeholder="Instruções ou detalhes adicionais..."
                     rows={4}
                   />
                 </div>
@@ -358,11 +358,11 @@ const EvaluationsPage = () => {
                       title: "", type: "", class: "", subject: "", date: "", maxScore: "", description: ""
                     })}
                   >
-                    Clear Form
+                    Limpar Formulário
                   </Button>
                   <Button onClick={handleCreateActivity}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Create Activity
+                    Criar Atividade
                   </Button>
                 </div>
               </CardContent>
@@ -375,9 +375,9 @@ const EvaluationsPage = () => {
       <Dialog open={gradeModalOpen} onOpenChange={setGradeModalOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Grade Activity: {selectedActivity?.title}</DialogTitle>
+            <DialogTitle>Avaliar Atividade: {selectedActivity?.title}</DialogTitle>
             <DialogDescription>
-              Enter grades for each student. Changes are saved automatically.
+              Insira as notas de cada aluno. As alterações são salvas automaticamente.
             </DialogDescription>
           </DialogHeader>
           
@@ -385,21 +385,21 @@ const EvaluationsPage = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div>
-                  <Label className="text-sm font-medium">Class</Label>
+                  <Label className="text-sm font-medium">Turma</Label>
                   <p className="text-sm">{selectedActivity.class}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Subject</Label>
+                  <Label className="text-sm font-medium">Disciplina</Label>
                   <p className="text-sm">{selectedActivity.subject}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Max Score</Label>
+                  <Label className="text-sm font-medium">Nota Máxima</Label>
                   <p className="text-sm">{selectedActivity.maxScore}</p>
                 </div>
               </div>
               
               <div className="space-y-3">
-                <h4 className="font-medium">Student Grades</h4>
+                <h4 className="font-medium">Notas dos Alunos</h4>
                 {students.map((student) => (
                   <div key={student.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex-1">
@@ -414,7 +414,7 @@ const EvaluationsPage = () => {
                         value={studentGrades[student.id] || ""}
                         onChange={(e) => handleGradeChange(student.id, e.target.value)}
                         onBlur={(e) => handleGradeChange(student.id, e.target.value)}
-                        placeholder="Grade"
+                        placeholder="Nota"
                         className="w-20 text-center"
                       />
                       <span className="text-sm text-gray-500">/ {selectedActivity.maxScore}</span>
@@ -425,7 +425,7 @@ const EvaluationsPage = () => {
               
               <div className="flex justify-end">
                 <Button onClick={() => setGradeModalOpen(false)}>
-                  Done
+                  Concluir
                 </Button>
               </div>
             </div>

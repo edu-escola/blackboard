@@ -58,7 +58,7 @@ export const FormModal = ({
       
       // Required field validation
       if (field.required && (!value || value.toString().trim() === '')) {
-        newErrors[field.name] = `${field.label} is required`;
+        newErrors[field.name] = `${field.label} é obrigatório`;
       }
       
       // Custom validation
@@ -79,8 +79,8 @@ export const FormModal = ({
     
     if (!validateForm()) {
       toast({
-        title: "Validation Error",
-        description: "Please fix the errors before submitting.",
+        title: "Erro de validação",
+        description: "Corrija os erros antes de enviar.",
         variant: "destructive"
       });
       return;
@@ -94,8 +94,8 @@ export const FormModal = ({
       onOpenChange(false);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: "Erro",
+        description: "Algo deu errado. Tente novamente.",
         variant: "destructive"
       });
     }
@@ -138,7 +138,7 @@ export const FormModal = ({
                 error ? 'border-red-500' : 'border-gray-300'
               }`}
             >
-              <option value="">{field.placeholder || `Select ${field.label}`}</option>
+              <option value="">{field.placeholder || `Selecione ${field.label}`}</option>
               {field.options?.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -206,7 +206,7 @@ export const FormModal = ({
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}

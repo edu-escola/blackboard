@@ -31,11 +31,10 @@ const ServerError = () => {
         {/* Error Message */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            Something went wrong
+            Algo deu errado
           </h1>
           <p className="text-gray-600 leading-relaxed">
-            We're experiencing some technical difficulties. Our team has been 
-            notified and we're working to fix this as soon as possible.
+            Estamos enfrentando dificuldades técnicas. Nossa equipe foi notificada e está trabalhando para resolver o problema o quanto antes.
           </p>
         </div>
 
@@ -47,7 +46,7 @@ const ServerError = () => {
             size="lg"
           >
             <RefreshCw className="h-5 w-5 mr-2" />
-            Try Again
+            Tentar novamente
           </Button>
           
           <Button 
@@ -56,7 +55,7 @@ const ServerError = () => {
             className="w-full"
           >
             <Home className="h-5 w-5 mr-2" />
-            Return to Dashboard
+            Voltar ao Painel
           </Button>
           
           <Button 
@@ -65,17 +64,17 @@ const ServerError = () => {
             className="w-full"
           >
             <ArrowLeft className="h-5 w-5 mr-2" />
-            Go Back
+            Voltar
           </Button>
         </div>
 
         {/* Help Text */}
         <div className="mt-8 p-4 bg-gray-100 rounded-lg">
           <p className="text-sm text-gray-600">
-            <strong>Error Code:</strong> 500 - Internal Server Error
+            <strong>Código do erro:</strong> 500 - Erro interno do servidor
           </p>
           <p className="text-sm text-gray-500 mt-2">
-            If this problem persists, please contact technical support.
+            Se o problema persistir, entre em contato com o suporte técnico.
           </p>
         </div>
       </div>
