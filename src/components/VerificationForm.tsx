@@ -23,6 +23,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
   const [resendCountdown, setResendCountdown] = useState(RESEND_CODE_TIME)
   const [canResend, setCanResend] = useState(false)
   const [isRedirecting, setIsRedirecting] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (resendCountdown > 0) {
@@ -40,6 +41,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
       if (code.length !== 6) return
 
       setIsVerifying(true)
+      setError('')
 
       const response = await axios.post(`http://localhost:3000/auth/verify`, {
         code,
@@ -62,10 +64,18 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
       }
 
       setIsVerifying(false)
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
       await new Promise((resolve) => setTimeout(resolve, 1000))
       setIsVerifying(false)
+
+      if (error.response?.status === 400) {
+        setError(
+          'Código de verificação inválido. Por favor, verifique e tente novamente.'
+        )
+      } else {
+        setError('Erro ao verificar código. Tente novamente.')
+      }
     }
   }
 
@@ -121,7 +131,12 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
             <InputOTP
               maxLength={6}
               value={code}
-              onChange={(value) => setCode(value)}
+              onChange={(value) => {
+                setCode(value)
+                if (error) {
+                  setError('')
+                }
+              }}
             >
               <InputOTPGroup>
                 <InputOTPSlot index={0} />
@@ -133,6 +148,14 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
               </InputOTPGroup>
             </InputOTP>
           </div>
+
+          {error && (
+            <div className="text-center">
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                {error}
+              </p>
+            </div>
+          )}
 
           <Button
             onClick={handleVerify}
