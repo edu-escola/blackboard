@@ -1,73 +1,114 @@
-# Welcome to your Lovable project
+# 🎓 EduEscola - School Management System
 
-## Project info
+A modern React-based school management application built with TypeScript, Vite, and shadcn/ui.
 
-**URL**: https://lovable.dev/projects/d86070cc-8162-4e26-8111-de9c4e15447b
+## 📋 Prerequisites
 
-## How can I edit this code?
+- Node.js (version 16 or higher)
+- npm or yarn
 
-There are several ways of editing your application.
+## 🛠️ Installation
 
-**Use Lovable**
+1. Clone the repository:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d86070cc-8162-4e26-8111-de9c4e15447b) and start prompting.
+```bash
+git clone <repository-url>
+cd blackboard
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+2. Install dependencies:
 
-**Use your preferred IDE**
+```bash
+npm install
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🏃‍♂️ How to run
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Development
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The application will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Production
 
-**Use GitHub Codespaces**
+```bash
+npm run build
+npm run preview
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🏗️ Project structure
 
-## What technologies are used for this project?
+```
+src/
+├── components/         # Reusable UI components
+│   ├── ui/           # shadcn/ui components
+│   ├── shared/       # Shared components (AppShell, DataTable, etc.)
+│   └── ...           # Other components
+├── pages/            # Application pages
+│   ├── AdminDashboard.tsx
+│   ├── ProfessorDashboard.tsx
+│   ├── StudentManagement.tsx
+│   └── ...           # Other pages
+├── hooks/            # Custom React hooks
+├── lib/              # Utility functions and configurations
+├── App.tsx           # Main application component
+└── main.tsx          # Application entry point
+```
 
-This project is built with:
+## 🔧 Available scripts
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- `npm run dev` - Runs the development server with hot reload
+- `npm run build` - Builds the application for production
+- `npm run build:dev` - Builds the application in development mode
+- `npm run preview` - Previews the production build locally
+- `npm run lint` - Runs ESLint to check code quality
 
-## How can I deploy this project?
+## 🎯 Features
 
-Simply open [Lovable](https://lovable.dev/projects/d86070cc-8162-4e26-8111-de9c4e15447b) and click on Share -> Publish.
+### Admin Features
+- **Dashboard**: Overview of school statistics and recent activities
+- **School Management**: Manage multiple schools
+- **Professor Management**: Add, edit, and manage professors
+- **Student Management**: Comprehensive student database management
+- **Class & Timetable Management**: Schedule and organize classes
 
-## Can I connect a custom domain to my Lovable project?
+### Professor Features
+- **Attendance Tracking**: Mark and track student attendance
+- **Lesson Planning**: Create and manage lesson plans
+- **Evaluations**: Grade and manage student assessments
+- **Dashboard**: Personalized professor dashboard with upcoming lessons
 
-Yes, you can!
+## 🛠️ Technologies Used
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- **React 18** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool and development server
+- **React Router** - Client-side routing
+- **shadcn/ui** - UI component library
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Query** - Data fetching and caching
+- **React Hook Form** - Form management
+- **Zod** - Schema validation
+- **Lucide React** - Icon library
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🚀 Deployment
+
+The application can be deployed to any static hosting service:
+
+1. Build the application:
+```bash
+npm run build
+```
+
+2. Deploy the `dist` folder to your hosting service
+
+## 📱 Responsive Design
+
+The application is fully responsive and works on desktop, tablet, and mobile devices.
+
+## 🔐 Authentication
+
+The application includes a login system with role-based access control for administrators and professors.
