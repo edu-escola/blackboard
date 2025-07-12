@@ -101,7 +101,7 @@ const LoginForm = () => {
 
       <footer className="mt-8 text-center">
         <p className="text-xs text-gray-500">
-          © 2025 EduCity. Todos os direitos reservados.
+          © 2025 EduEscola. Todos os direitos reservados.
         </p>
       </footer>
     </div>
