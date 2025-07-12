@@ -27,63 +27,63 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
   {
     id: 'dashboard',
-    label: 'Dashboard',
+    label: 'Painel',
     icon: LayoutDashboard,
     path: '/admin/dashboard',
     roles: ['admin']
   },
   {
     id: 'schools',
-    label: 'Schools',
+    label: 'Escolas',
     icon: School,
     path: '/admin/schools',
     roles: ['admin']
   },
   {
     id: 'professors',
-    label: 'Professors',
+    label: 'Professores',
     icon: User,
     path: '/admin/professors',
     roles: ['admin']
   },
   {
     id: 'students',
-    label: 'Students',
+    label: 'Alunos',
     icon: Users,
     path: '/admin/students',
     roles: ['admin']
   },
   {
     id: 'classes',
-    label: 'Classes & Timetables',
+    label: 'Turmas e Horários',
     icon: Calendar,
     path: '/admin/classes',
     roles: ['admin']
   },
   {
     id: 'prof-dashboard',
-    label: 'Dashboard',
+    label: 'Painel',
     icon: LayoutDashboard,
     path: '/professor/dashboard',
     roles: ['professor']
   },
   {
     id: 'attendance',
-    label: 'Attendance',
+    label: 'Presença',
     icon: ClipboardCheck,
     path: '/professor/attendance',
     roles: ['professor']
   },
   {
     id: 'evaluations',
-    label: 'Evaluations',
+    label: 'Avaliações',
     icon: Award,
     path: '/professor/evaluations',
     roles: ['professor']
   },
   {
     id: 'lesson-planner',
-    label: 'Lesson Planner',
+    label: 'Planejamento',
     icon: FileEdit,
     path: '/professor/lesson-planner',
     roles: ['professor']

@@ -31,7 +31,7 @@ const EmptyStatesExample = () => {
     ];
 
     if (isLoading) {
-      return <LoadingState message="Loading students..." />;
+      return <LoadingState message="Carregando alunos..." />;
     }
 
     if (hasError) {
@@ -42,7 +42,7 @@ const EmptyStatesExample = () => {
       return (
         <EmptyStates.NoStudents 
           action={{
-            label: "Add First Student",
+            label: "Adicionar primeiro aluno",
             onClick: handleAddStudent
           }}
         />
@@ -77,13 +77,13 @@ const EmptyStatesExample = () => {
           onClick={() => setIsLoading(!isLoading)}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
-          Toggle Loading
+          Alternar Carregamento
         </button>
         <button
           onClick={() => setHasError(!hasError)}
           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
         >
-          Toggle Error
+          Alternar Erro
         </button>
         <button
           onClick={() => setData(data.length === 0 ? [
@@ -91,7 +91,7 @@ const EmptyStatesExample = () => {
           ] : [])}
           className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
         >
-          Toggle Data
+          Alternar Dados
         </button>
       </div>
 
@@ -99,7 +99,7 @@ const EmptyStatesExample = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>No Professors</CardTitle>
+            <CardTitle>Sem Professores</CardTitle>
           </CardHeader>
           <CardContent>
             <EmptyStates.NoProfessors />
@@ -108,12 +108,12 @@ const EmptyStatesExample = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>No Classes</CardTitle>
+              <CardTitle>Sem Turmas</CardTitle>
           </CardHeader>
           <CardContent>
             <EmptyStates.NoClasses 
               action={{
-                label: "Create Class",
+                label: "Criar Turma",
                 onClick: () => console.log("Create class")
               }}
             />
@@ -122,7 +122,7 @@ const EmptyStatesExample = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>No Search Results</CardTitle>
+            <CardTitle>Nenhum Resultado</CardTitle>
           </CardHeader>
           <CardContent>
             {EmptyStates.NoSearchResults("advanced mathematics")}
@@ -131,7 +131,7 @@ const EmptyStatesExample = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>No Events</CardTitle>
+            <CardTitle>Sem Eventos</CardTitle>
           </CardHeader>
           <CardContent>
             <EmptyStates.NoEvents />

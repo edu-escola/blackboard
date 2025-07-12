@@ -82,12 +82,12 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
             </div>
           </div>
           <h1 className="text-xl font-semibold text-gray-900 mb-2">
-            Enter verification code
+            Digite o código de verificação
           </h1>
           <p className="text-sm text-gray-600">
-            We just sent a 6-digit code to{" "}
+            Enviamos um código de 6 dígitos para{" "}
             <span className="font-medium text-gray-900">{email}</span>.{" "}
-            Enter it below to continue.
+            Insira-o abaixo para continuar.
           </p>
         </CardHeader>
         
@@ -114,7 +114,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
             disabled={code.length !== 6 || isVerifying}
             className="w-full h-12 text-base font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200"
           >
-            {isVerifying ? "Verifying..." : "Verify & Continue"}
+            {isVerifying ? "Verificando..." : "Verificar e continuar"}
           </Button>
 
           <div className="text-center space-y-3">
@@ -123,9 +123,9 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
               disabled={!canResend}
               className="text-sm text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200 disabled:text-gray-400 disabled:cursor-not-allowed"
             >
-              {canResend 
-                ? "Resend code" 
-                : `Resend code in ${resendCountdown}s`
+              {canResend
+                ? "Reenviar código"
+                : `Reenviar código em ${resendCountdown}s`
               }
             </button>
             
@@ -134,7 +134,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
                 onClick={onBackToLogin}
                 className="text-sm text-gray-600 hover:text-gray-700 hover:underline transition-colors duration-200"
               >
-                Use a different e-mail
+                Usar outro e-mail
               </button>
             </div>
           </div>
@@ -143,7 +143,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
 
       <footer className="mt-8 text-center">
         <p className="text-xs text-gray-500">
-          © 2024 EduCity. All rights reserved.
+          © 2024 EduCity. Todos os direitos reservados.
         </p>
       </footer>
     </div>

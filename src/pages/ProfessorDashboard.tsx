@@ -179,7 +179,7 @@ const ProfessorDashboard = () => {
           <h1 className="text-2xl font-bold text-gray-900">
             {greeting}, {professor.title} {professor.lastName}
           </h1>
-          <p className="text-gray-600">Here's what's happening with your classes today</p>
+          <p className="text-gray-600">Veja o que está acontecendo com suas turmas hoje</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -187,7 +187,7 @@ const ProfessorDashboard = () => {
           <div className="space-y-6">
             {/* Quick Action Cards */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Ações Rápidas</h3>
               
               <Card 
                 className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
@@ -199,8 +199,8 @@ const ProfessorDashboard = () => {
                       <ClipboardCheck className="h-6 w-6 text-green-600" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Take Attendance</h4>
-                      <p className="text-sm text-gray-600">Mark student attendance</p>
+                      <h4 className="font-medium text-gray-900">Registrar Presença</h4>
+                      <p className="text-sm text-gray-600">Marque a presença dos alunos</p>
                     </div>
                   </div>
                 </CardContent>
@@ -216,8 +216,8 @@ const ProfessorDashboard = () => {
                       <FileEdit className="h-6 w-6 text-blue-600" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Plan Lessons</h4>
-                      <p className="text-sm text-gray-600">Create lesson plans</p>
+                      <h4 className="font-medium text-gray-900">Planejar Aulas</h4>
+                      <p className="text-sm text-gray-600">Crie planos de aula</p>
                     </div>
                   </div>
                 </CardContent>
@@ -233,8 +233,8 @@ const ProfessorDashboard = () => {
                       <Award className="h-6 w-6 text-purple-600" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Grade Evaluations</h4>
-                      <p className="text-sm text-gray-600">Review student work</p>
+                      <h4 className="font-medium text-gray-900">Corrigir Avaliações</h4>
+                      <p className="text-sm text-gray-600">Revise o trabalho dos alunos</p>
                     </div>
                   </div>
                 </CardContent>

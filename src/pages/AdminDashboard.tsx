@@ -81,8 +81,8 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <main className="p-6 max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600">Welcome back, Administrator</p>
+          <h1 className="text-2xl font-bold text-gray-900">Painel do Administrador</h1>
+          <p className="text-gray-600">Bem-vindo de volta, Administrador</p>
         </div>
 
         {/* Statistics Cards */}
@@ -112,7 +112,7 @@ const AdminDashboard = () => {
             className="flex items-center space-x-2 text-blue-600 border-blue-200 hover:bg-blue-50"
           >
             <School className="h-4 w-4" />
-            <span>Manage Schools</span>
+            <span>Gerenciar Escolas</span>
           </Button>
           <Button
             onClick={() => navigate("/admin/professors")}
@@ -120,7 +120,7 @@ const AdminDashboard = () => {
             className="flex items-center space-x-2 text-green-600 border-green-200 hover:bg-green-50"
           >
             <User className="h-4 w-4" />
-            <span>Manage Professors</span>
+            <span>Gerenciar Professores</span>
           </Button>
           <Button
             onClick={() => navigate("/admin/students")}
@@ -128,7 +128,7 @@ const AdminDashboard = () => {
             className="flex items-center space-x-2 text-purple-600 border-purple-200 hover:bg-purple-50"
           >
             <Users className="h-4 w-4" />
-            <span>Manage Students</span>
+            <span>Gerenciar Alunos</span>
           </Button>
           <Button
             onClick={() => navigate("/admin/classes")}
@@ -136,7 +136,7 @@ const AdminDashboard = () => {
             className="flex items-center space-x-2 text-orange-600 border-orange-200 hover:bg-orange-50"
           >
             <Calendar className="h-4 w-4" />
-            <span>Classes & Timetables</span>
+            <span>Turmas e Horários</span>
           </Button>
         </div>
 

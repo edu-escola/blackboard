@@ -58,10 +58,10 @@ const LoginForm = () => {
             </div>
           </div>
           <h1 className="text-xl font-semibold text-gray-900 mb-2">
-            Sign in with your work e-mail
+            Acesse com seu e-mail corporativo
           </h1>
           <p className="text-sm text-gray-600">
-            Enter your email address to receive a verification code
+            Digite seu e-mail para receber um código de verificação
           </p>
         </CardHeader>
         
@@ -71,7 +71,7 @@ const LoginForm = () => {
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 type="email"
-                placeholder="your.email@company.com"
+                placeholder="seu.email@empresa.com"
                 value={email}
                 onChange={handleEmailChange}
                 className="pl-10 h-12 text-base"
@@ -79,7 +79,7 @@ const LoginForm = () => {
               />
             </div>
             {email && !isValid && (
-              <p className="text-sm text-red-600">Please enter a valid email address</p>
+              <p className="text-sm text-red-600">Insira um e-mail válido</p>
             )}
           </div>
 
@@ -88,12 +88,12 @@ const LoginForm = () => {
             disabled={!isValid || isSending}
             className="w-full h-12 text-base font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200"
           >
-            {isSending ? "Sending..." : "Send verification code"}
+            {isSending ? "Enviando..." : "Enviar código de verificação"}
           </Button>
 
           <div className="text-center">
             <button className="text-sm text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200">
-              Having trouble?
+              Está com problemas?
             </button>
           </div>
         </CardContent>
@@ -101,7 +101,7 @@ const LoginForm = () => {
 
       <footer className="mt-8 text-center">
         <p className="text-xs text-gray-500">
-          © 2024 EduCity. All rights reserved.
+          © 2024 EduCity. Todos os direitos reservados.
         </p>
       </footer>
     </div>

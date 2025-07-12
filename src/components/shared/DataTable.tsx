@@ -174,7 +174,7 @@ export function DataTable<T extends { id: string | number }>({
                 <SelectValue placeholder={filter.label} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All {filter.label}</SelectItem>
+                <SelectItem value="">Todas {filter.label}</SelectItem>
                 {filter.options.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -186,7 +186,7 @@ export function DataTable<T extends { id: string | number }>({
           
           {(searchTerm || Object.keys(filterValues).length > 0) && (
             <Button variant="outline" onClick={resetFilters}>
-              Clear Filters
+              Limpar filtros
             </Button>
           )}
         </div>
@@ -195,7 +195,7 @@ export function DataTable<T extends { id: string | number }>({
         {bulkActions.length > 0 && selectedRows.size > 0 && (
           <div className="flex items-center gap-2">
             <Badge variant="secondary">
-              {selectedRows.size} selected
+              {selectedRows.size} selecionado(s)
             </Badge>
             {bulkActions.map((action, index) => (
               <Button
@@ -275,7 +275,7 @@ export function DataTable<T extends { id: string | number }>({
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-600">
-            Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, sortedData.length)} of {sortedData.length} results
+            Exibindo {(currentPage - 1) * pageSize + 1} a {Math.min(currentPage * pageSize, sortedData.length)} de {sortedData.length} resultados
           </div>
           
           <div className="flex items-center space-x-2">
@@ -286,7 +286,7 @@ export function DataTable<T extends { id: string | number }>({
               disabled={currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
-              Previous
+              Anterior
             </Button>
             
             <div className="flex items-center space-x-1">
@@ -319,7 +319,7 @@ export function DataTable<T extends { id: string | number }>({
               onClick={() => setCurrentPage(current => Math.min(totalPages, current + 1))}
               disabled={currentPage === totalPages}
             >
-              Next
+              Próximo
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
