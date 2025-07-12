@@ -104,14 +104,9 @@ const ProfessorDashboard = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Select>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Profile" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="logout">Logout</SelectItem>
-              </SelectContent>
-            </Select>
+            <Button onClick={() => navigate("/")} variant="outline">
+              Logout
+            </Button>
           </div>
         </div>
       </header>
