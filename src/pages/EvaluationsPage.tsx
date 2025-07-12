@@ -19,12 +19,19 @@ const EvaluationsPage = () => {
   const [gradeModalOpen, setGradeModalOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<any>(null);
   const [studentGrades, setStudentGrades] = useState<{[key: string]: number}>({});
+  const [selectedSchool, setSelectedSchool] = useState("");
 
   // Mock data
   const classes = [
     { id: "math101", name: "Mathematics 101" },
     { id: "science102", name: "Science 102" },
     { id: "english201", name: "English 201" }
+  ];
+
+  const schools = [
+    { id: "lincoln", name: "Lincoln Elementary" },
+    { id: "washington", name: "Washington High School" },
+    { id: "roosevelt", name: "Roosevelt Middle School" }
   ];
 
   const subjects = ["Mathematics", "Science", "English", "History", "Physics", "Chemistry"];
@@ -170,8 +177,8 @@ const EvaluationsPage = () => {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             onClick={() => navigate("/professor/dashboard")}
             className="hover:bg-gray-100"
@@ -179,6 +186,18 @@ const EvaluationsPage = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-2xl font-bold text-gray-900">Avaliações</h1>
+          <Select value={selectedSchool} onValueChange={setSelectedSchool}>
+            <SelectTrigger className="w-64">
+              <SelectValue placeholder="Select school" />
+            </SelectTrigger>
+            <SelectContent>
+              {schools.map((school) => (
+                <SelectItem key={school.id} value={school.id}>
+                  {school.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </header>
 

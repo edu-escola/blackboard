@@ -102,43 +102,6 @@ const LessonPlannerPage = () => {
     setLessons(prev => prev.filter(lesson => lesson.id !== id));
   };
 
-  // Import from previous bimester
-  const importFromPrevious = () => {
-    const currentBimester = parseInt(selectedBimester);
-    if (currentBimester <= 1) {
-      toast({
-        title: "No Previous Bimester",
-        description: "Cannot import from previous bimester for 1st bimester.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Mock previous bimester data
-    const previousLessons: LessonRow[] = [
-      {
-        id: generateId(),
-        date: undefined, // Will need to be updated for new bimester
-        title: "Review of Previous Concepts",
-        theme: "Reviewing key concepts from previous bimester",
-        subject: "Mathematics"
-      },
-      {
-        id: generateId(),
-        date: undefined,
-        title: "Advanced Problem Solving",
-        theme: "Building on previous knowledge with complex problems",
-        subject: "Mathematics"
-      }
-    ];
-
-    setLessons(prev => [...prev, ...previousLessons]);
-    
-    toast({
-      title: "Lessons Imported Successfully",
-      description: `${previousLessons.length} lessons imported from ${currentBimester - 1}${currentBimester - 1 === 1 ? 'st' : currentBimester - 1 === 2 ? 'nd' : currentBimester - 1 === 3 ? 'rd' : 'th'} bimester.`,
-    });
-  };
 
   // Save lesson plan
   const saveLessonPlan = () => {
@@ -166,8 +129,8 @@ const LessonPlannerPage = () => {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             onClick={() => navigate("/professor/dashboard")}
             className="hover:bg-gray-100"
@@ -175,6 +138,18 @@ const LessonPlannerPage = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-2xl font-bold text-gray-900">Lesson Planner</h1>
+          <Select value={selectedSchool} onValueChange={setSelectedSchool}>
+            <SelectTrigger className="w-64">
+              <SelectValue placeholder="Select school" />
+            </SelectTrigger>
+            <SelectContent>
+              {schools.map((school) => (
+                <SelectItem key={school.id} value={school.id}>
+                  {school.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </header>
 
@@ -222,16 +197,6 @@ const LessonPlannerPage = () => {
               </div>
 
               <div className="flex items-center space-x-4">
-                <Button
-                  variant="outline"
-                  onClick={importFromPrevious}
-                  disabled={!selectedClass}
-                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Import from Previous Bimester
-                </Button>
-                
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Bimester</label>
                   <Select value={selectedBimester} onValueChange={setSelectedBimester}>
