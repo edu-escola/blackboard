@@ -25,13 +25,13 @@ const AttendancePage = () => {
   ];
 
   const classes = [
-    { id: "math101", name: "Mathematics 101", schoolId: "lincoln" },
-    { id: "science102", name: "Science 102", schoolId: "lincoln" },
-    { id: "english201", name: "English 201", schoolId: "washington" },
-    { id: "history301", name: "History 301", schoolId: "washington" }
+    { id: "math101", name: "Matemática 101", schoolId: "lincoln" },
+    { id: "science102", name: "Ciências 102", schoolId: "lincoln" },
+    { id: "english201", name: "Inglês 201", schoolId: "washington" },
+    { id: "history301", name: "História 301", schoolId: "washington" }
   ];
 
-  const subjects = ["Mathematics", "Science", "English", "History", "Physics", "Chemistry"];
+  const subjects = ["Matemática", "Ciências", "Inglês", "História", "Física", "Química"];
 
   const students = [
     { id: "1", name: "Alice Johnson", enrollmentNumber: "LN2024001", classId: "math101" },
@@ -89,8 +89,7 @@ const AttendancePage = () => {
   };
 
   const calendarDays = generateCalendarDays();
-  const monthNames = ["January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"];
+  const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
   // Handle date selection
   const handleDateClick = (date: Date) => {
@@ -124,8 +123,8 @@ const AttendancePage = () => {
   const saveAttendance = () => {
     if (!selectedDate || !selectedSchool || !selectedClass || !selectedSubject) {
       toast({
-        title: "Error",
-        description: "Please select date, school, class, and subject before saving.",
+        title: "Erro",
+        description: "Selecione a data, escola, turma e disciplina antes de salvar.",
         variant: "destructive"
       });
       return;
@@ -135,8 +134,8 @@ const AttendancePage = () => {
     const totalStudents = students.length;
 
     toast({
-      title: "Attendance Saved Successfully!",
-      description: `${presentCount}/${totalStudents} students marked as present for ${selectedDate.toLocaleDateString()}`,
+      title: "Presença salva com sucesso!",
+      description: `${presentCount}/${totalStudents} alunos marcados como presentes para ${selectedDate.toLocaleDateString()}`,
     });
   };
 
@@ -159,7 +158,7 @@ const AttendancePage = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold text-gray-900">Attendance</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Presença</h1>
           <Select value={selectedSchool} onValueChange={setSelectedSchool}>
             <SelectTrigger className="w-64">
               <SelectValue placeholder="Select school" />
@@ -206,7 +205,7 @@ const AttendancePage = () => {
             <CardContent>
               {/* Day headers */}
               <div className="grid grid-cols-7 gap-2 mb-4">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day) => (
                   <div key={day} className="p-3 text-center text-sm font-medium text-gray-500">
                     {day}
                   </div>
@@ -253,7 +252,7 @@ const AttendancePage = () => {
                     <label className="text-sm font-medium">School</label>
                     <Select value={selectedSchool} onValueChange={setSelectedSchool}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select school" />
+                        <SelectValue placeholder="Selecione a escola" />
                       </SelectTrigger>
                       <SelectContent>
                         {schools.map((school) => (
@@ -273,7 +272,7 @@ const AttendancePage = () => {
                       disabled={!selectedSchool}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select class" />
+                        <SelectValue placeholder="Selecione a turma" />
                       </SelectTrigger>
                       <SelectContent>
                         {filteredClasses.map((cls) => (
@@ -289,7 +288,7 @@ const AttendancePage = () => {
                     <label className="text-sm font-medium">Subject</label>
                     <Select value={selectedSubject} onValueChange={setSelectedSubject}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select subject" />
+                        <SelectValue placeholder="Selecione a matéria" />
                       </SelectTrigger>
                       <SelectContent>
                         {subjects.map((subject) => (
@@ -317,7 +316,7 @@ const AttendancePage = () => {
                       className="text-green-600 border-green-200 hover:bg-green-50"
                     >
                       <Check className="h-4 w-4 mr-2" />
-                      Mark All Present
+                      Marcar todos com presença
                     </Button>
                   </div>
                 )}
@@ -363,7 +362,7 @@ const AttendancePage = () => {
                   Select a Date
                 </h3>
                 <p className="text-gray-600">
-                  Choose a date from the calendar to take attendance
+                  Selecione uma data no calendário para fazer a chamada
                 </p>
               </CardContent>
             </Card>
@@ -379,7 +378,7 @@ const AttendancePage = () => {
               onClick={saveAttendance}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8"
             >
-              Save Attendance
+              Salvar chamada
             </Button>
           </div>
         </div>

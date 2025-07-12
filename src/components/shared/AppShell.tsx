@@ -36,7 +36,7 @@ export const AppShell = ({
                   <div className="p-2 bg-blue-600 rounded-lg">
                     <GraduationCap className="h-6 w-6 text-white" />
                   </div>
-                  <span className="text-xl font-bold text-gray-900">EduCity</span>
+                  <span className="text-xl font-bold text-gray-900">EduEscola</span>
                 </div>
                 
                 {schoolName && (

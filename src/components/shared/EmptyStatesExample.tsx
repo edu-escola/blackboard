@@ -25,9 +25,9 @@ const EmptyStatesExample = () => {
   // Example of DataTable with empty state
   const StudentsTable = () => {
     const columns = [
-      { key: "name" as const, label: "Name" },
+      { key: "name" as const, label: "Nome" },
       { key: "email" as const, label: "Email" },
-      { key: "class" as const, label: "Class" }
+      { key: "class" as const, label: "Turma" }
     ];
 
     if (isLoading) {
@@ -59,12 +59,12 @@ const EmptyStatesExample = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Empty States Examples</h1>
+      <h1 className="text-2xl font-bold">Exemplos de estados vazios</h1>
 
       {/* Students Table Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Students</CardTitle>
+          <CardTitle>Alunos</CardTitle>
         </CardHeader>
         <CardContent>
           <StudentsTable />
