@@ -19,6 +19,9 @@ const EvaluationsPage = () => {
   const [gradeModalOpen, setGradeModalOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<any>(null);
   const [studentGrades, setStudentGrades] = useState<{[key: string]: number}>({});
+  const [selectedSchool, setSelectedSchool] = useState("");
+  const [classFilter, setClassFilter] = useState("all");
+  const [subjectFilter, setSubjectFilter] = useState("all");
 
   // Mock data
   const classes = [
@@ -28,6 +31,12 @@ const EvaluationsPage = () => {
   ];
 
   const subjects = ["Matemática", "Ciências", "Inglês", "História", "Física", "Química"];
+
+  const schools = [
+    { id: "lincoln", name: "Lincoln Elementary" },
+    { id: "washington", name: "Washington High School" },
+    { id: "roosevelt", name: "Roosevelt Middle School" }
+  ];
 
   const activities = [
     {
@@ -81,7 +90,6 @@ const EvaluationsPage = () => {
     class: "",
     subject: "",
     date: "",
-    maxScore: "",
     description: ""
   });
 
@@ -116,7 +124,7 @@ const EvaluationsPage = () => {
   };
 
   const handleCreateActivity = () => {
-    if (!newActivity.title || !newActivity.type || !newActivity.class || !newActivity.subject || !newActivity.date || !newActivity.maxScore) {
+    if (!newActivity.title || !newActivity.type || !newActivity.class || !newActivity.subject || !newActivity.date) {
       toast({
         title: "Erro",
         description: "Por favor, preencha todos os campos obrigatórios",
@@ -137,7 +145,6 @@ const EvaluationsPage = () => {
       class: "",
       subject: "",
       date: "",
-      maxScore: "",
       description: ""
     });
 
@@ -165,13 +172,19 @@ const EvaluationsPage = () => {
     }
   };
 
+  const filteredActivities = activities.filter(
+    (activity) =>
+      (classFilter === "all" || activity.class === classFilter) &&
+      (subjectFilter === "all" || activity.subject === subjectFilter)
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             onClick={() => navigate("/professor/dashboard")}
             className="hover:bg-gray-100"
@@ -179,6 +192,18 @@ const EvaluationsPage = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-2xl font-bold text-gray-900">Avaliações</h1>
+          <Select value={selectedSchool} onValueChange={setSelectedSchool}>
+            <SelectTrigger className="w-64">
+              <SelectValue placeholder="Select school" />
+            </SelectTrigger>
+            <SelectContent>
+              {schools.map((school) => (
+                <SelectItem key={school.id} value={school.id}>
+                  {school.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </header>
 
@@ -193,8 +218,36 @@ const EvaluationsPage = () => {
           {/* Activities List Tab */}
           <TabsContent value="activities" className="space-y-6">
             <Card className="border-0 shadow-sm">
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Atividades e Avaliações</CardTitle>
+                <div className="flex items-center space-x-4">
+                  <Select value={classFilter} onValueChange={setClassFilter}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Filtrar turma" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      {classes.map((cls) => (
+                        <SelectItem key={cls.id} value={cls.name}>
+                          {cls.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Filtrar disciplina" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      {subjects.map((subject) => (
+                        <SelectItem key={subject} value={subject}>
+                          {subject}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -204,12 +257,11 @@ const EvaluationsPage = () => {
                       <TableHead>Turma</TableHead>
                       <TableHead>Disciplina</TableHead>
                       <TableHead>Data</TableHead>
-                      <TableHead>Status</TableHead>
                       <TableHead>Média</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {activities.map((activity) => (
+                    {filteredActivities.map((activity) => (
                       <TableRow 
                         key={activity.id} 
                         className="cursor-pointer hover:bg-gray-50"
@@ -231,11 +283,6 @@ const EvaluationsPage = () => {
                             <Calendar className="h-4 w-4 text-gray-500" />
                             <span>{new Date(activity.dueDate).toLocaleDateString()}</span>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(activity.status)}>
-                            {activity.status}
-                          </Badge>
                         </TableCell>
                         <TableCell>
                           {activity.avgScore !== null ? (
@@ -328,16 +375,6 @@ const EvaluationsPage = () => {
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="maxScore">Nota Máxima *</Label>
-                    <Input
-                      id="maxScore"
-                      type="number"
-                      value={newActivity.maxScore}
-                      onChange={(e) => setNewActivity(prev => ({...prev, maxScore: e.target.value}))}
-                      placeholder="e.g. 100"
-                    />
-                  </div>
                 </div>
                 
                 <div className="space-y-2">
@@ -351,15 +388,7 @@ const EvaluationsPage = () => {
                   />
                 </div>
                 
-                <div className="flex justify-end space-x-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setNewActivity({
-                      title: "", type: "", class: "", subject: "", date: "", maxScore: "", description: ""
-                    })}
-                  >
-                    Limpar Formulário
-                  </Button>
+                <div className="flex justify-end">
                   <Button onClick={handleCreateActivity}>
                     <Plus className="h-4 w-4 mr-2" />
                     Criar Atividade
