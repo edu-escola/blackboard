@@ -8,9 +8,9 @@ import {
   InputOTPSlot,
 } from '@/components/ui/input-otp'
 import LoadingSplash from './LoadingSplash'
-import axios from 'axios'
+import { api } from '@/lib'
 
-const RESEND_CODE_TIME = 10
+const RESEND_CODE_TIME = 60
 
 interface VerificationFormProps {
   email: string
@@ -29,7 +29,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
     if (resendCountdown > 0) {
       const timer = setTimeout(() => {
         setResendCountdown(resendCountdown - 1)
-      }, 1000)
+      }, 500)
       return () => clearTimeout(timer)
     } else {
       setCanResend(true)
@@ -43,12 +43,12 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
       setIsVerifying(true)
       setError('')
 
-      const response = await axios.post(`http://localhost:3000/auth/verify`, {
+      const response = await api.post(`/auth/verify`, {
         code,
         email,
       })
 
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
       const userRole = 'admin'
 
@@ -66,7 +66,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
       setIsVerifying(false)
     } catch (error: any) {
       console.error(error)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 500))
       setIsVerifying(false)
 
       if (error.response?.status === 400) {
@@ -83,7 +83,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
     if (!canResend) return
 
     try {
-      const response = await axios.post(`http://localhost:3000/auth/login`, {
+      const response = await api.post(`/auth/login`, {
         email,
       })
 

@@ -2,28 +2,25 @@ import {
   Users,
   GraduationCap,
   BookOpen,
-  UserCheck,
-  Plus,
-  UserPlus,
   School,
   User,
   Calendar,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Card, CardContent } from '@/components/ui/card'
 import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/shared'
+import { api } from '@/lib'
 
 const AdminDashboard = () => {
   const navigate = useNavigate()
+
+  const getApiHealth = async () => {
+    const response = await api.get(`/health`)
+    console.log(response)
+  }
+
+  getApiHealth()
   // Mock data for demonstration
   const stats = [
     {
@@ -53,44 +50,6 @@ const AdminDashboard = () => {
       icon: User,
       color: 'text-red-600',
       bgColor: 'bg-red-50',
-    },
-  ]
-
-  const recentActivity = [
-    {
-      id: 1,
-      type: 'Student Added',
-      name: 'Alice Johnson',
-      school: 'Lincoln Elementary',
-      time: '2 hours ago',
-    },
-    {
-      id: 2,
-      type: 'Professor Added',
-      name: 'Dr. Smith',
-      school: 'Washington High',
-      time: '4 hours ago',
-    },
-    {
-      id: 3,
-      type: 'Student Added',
-      name: 'Bob Wilson',
-      school: 'Roosevelt Middle',
-      time: '6 hours ago',
-    },
-    {
-      id: 4,
-      type: 'Professor Added',
-      name: 'Ms. Davis',
-      school: 'Lincoln Elementary',
-      time: '1 day ago',
-    },
-    {
-      id: 5,
-      type: 'Student Added',
-      name: 'Carol Brown',
-      school: 'Washington High',
-      time: '1 day ago',
     },
   ]
 
