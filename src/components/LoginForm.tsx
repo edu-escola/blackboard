@@ -11,6 +11,7 @@ const LoginForm = () => {
   const [isValid, setIsValid] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [showVerification, setShowVerification] = useState(false)
+  const [error, setError] = useState('')
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -21,6 +22,7 @@ const LoginForm = () => {
     const value = e.target.value
     setEmail(value)
     setIsValid(validateEmail(value))
+    setError('')
   }
 
   const handleSendCode = async () => {
@@ -33,7 +35,7 @@ const LoginForm = () => {
         email,
       })
 
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 500))
       setIsSending(false)
 
       if (response.status === 200) {
@@ -41,7 +43,8 @@ const LoginForm = () => {
       }
     } catch (error) {
       console.error(error)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      setError('Erro desconhecido. Tente novamente mais tarde.')
+      await new Promise((resolve) => setTimeout(resolve, 500))
       setIsSending(false)
     }
   }
@@ -49,6 +52,7 @@ const LoginForm = () => {
   const handleBackToLogin = () => {
     setShowVerification(false)
     setEmail('')
+    setError('')
     setIsValid(false)
   }
 
@@ -95,6 +99,14 @@ const LoginForm = () => {
               <p className="text-sm text-red-600">Insira um e-mail válido</p>
             )}
           </div>
+
+          {error && (
+            <div className="text-center">
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                {error}
+              </p>
+            </div>
+          )}
 
           <Button
             onClick={handleSendCode}
