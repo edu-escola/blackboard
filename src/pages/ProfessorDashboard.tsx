@@ -22,48 +22,48 @@ const ProfessorDashboard = () => {
   const upcomingLessons = [
     {
       id: 1,
-      class: "Mathematics 101",
-      subject: "Algebra Fundamentals",
+      class: "1-A",
+      subject: "Algebra Fundamental",
       date: "2024-01-15",
       time: "09:00 AM",
       students: 28,
-      room: "Room A101"
+      room: "Sala A101"
     },
     {
       id: 2,
-      class: "Mathematics 101",
-      subject: "Geometry Basics",
+      class: "1-A",
+      subject: "Geometria Básica",
       date: "2024-01-16",
       time: "10:30 AM",
       students: 28,
-      room: "Room A101"
+      room: "Sala A101"
     },
     {
       id: 3,
-      class: "Science Lab",
-      subject: "Chemical Reactions",
+      class: "2-B",
+      subject: "Reações Químicas",
       date: "2024-01-17",
       time: "02:00 PM",
       students: 22,
-      room: "Lab B201"
+      room: "Sala B201"
     },
     {
       id: 4,
-      class: "Mathematics 101",
-      subject: "Problem Solving",
+      class: "3-C",
+      subject: "Resolução de problemas",
       date: "2024-01-18",
       time: "09:00 AM",
       students: 28,
-      room: "Room A101"
+      room: "Sala A101"
     },
     {
       id: 5,
-      class: "Science Lab",
-      subject: "Lab Safety",
+      class: "3-B",
+      subject: "Segurança de laboratório",
       date: "2024-01-19",
       time: "02:00 PM",
       students: 22,
-      room: "Lab B201"
+      room: "Sala B201"
     }
   ];
 
@@ -71,11 +71,11 @@ const ProfessorDashboard = () => {
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) {
-      setGreeting("Good morning");
+      setGreeting("Bom dia");
     } else if (hour < 18) {
-      setGreeting("Good afternoon");
+      setGreeting("Boa tarde");
     } else {
-      setGreeting("Good evening");
+      setGreeting("Boa noite");
     }
   }, []);
 
@@ -105,7 +105,7 @@ const ProfessorDashboard = () => {
 
           <div className="flex items-center space-x-4">
             <Button onClick={() => navigate("/")} variant="outline">
-              Logout
+              Sair
             </Button>
           </div>
         </div>
@@ -186,8 +186,8 @@ const ProfessorDashboard = () => {
           <div>
             <Card className="border-0 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-lg">Upcoming Lessons</CardTitle>
-                <p className="text-sm text-gray-600">Next 7 days</p>
+                <CardTitle className="text-lg">Próximas Lições</CardTitle>
+                <p className="text-sm text-gray-600">Próximos 7 dias</p>
               </CardHeader>
               <CardContent className="space-y-3">
                 {upcomingLessons.map((lesson) => (
@@ -198,7 +198,7 @@ const ProfessorDashboard = () => {
                           {lesson.class}
                         </Badge>
                         <span className="text-xs text-gray-500">
-                          {lesson.students} students
+                          {lesson.students} alunos
                         </span>
                       </div>
                       <h4 className="font-medium text-sm text-gray-900">

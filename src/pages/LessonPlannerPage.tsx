@@ -30,23 +30,23 @@ const LessonPlannerPage = () => {
     {
       id: "1",
       date: new Date("2024-01-15"),
-      title: "Introduction to Algebra",
-      theme: "Basic algebraic concepts and variables",
-      subject: "Mathematics"
+      title: "Introdução à Álgebra",
+      theme: "Conceitos algébricos básicos e variáveis",
+      subject: "Matemática"
     },
     {
       id: "2", 
       date: new Date("2024-01-17"),
-      title: "Linear Equations",
-      theme: "Solving linear equations with one variable",
-      subject: "Mathematics"
+      title: "Equações Lineares",
+      theme: "Resolução de equações lineares com uma variável",
+      subject: "Matemática"
     },
     {
       id: "3",
       date: new Date("2024-01-19"),
-      title: "Graphing Functions",
-      theme: "Introduction to coordinate planes and graphing",
-      subject: "Mathematics"
+      title: "Funções gráficas",
+      theme: "Introdução aos planos de coordenadas e gráficos",
+      subject: "Matemática"
     }
   ]);
 
@@ -63,13 +63,13 @@ const LessonPlannerPage = () => {
     { id: "english201", name: "English 201", schoolId: "washington" }
   ];
 
-  const subjects = ["Mathematics", "Science", "English", "History", "Physics", "Chemistry", "Art", "Physical Education"];
+  const subjects = ["Matemática", "Ciências", "Inglês", "História", "Física", "Química", "Artes", "Educação Física"];
 
   const bimesters = [
-    { value: "1", label: "1st Bimester" },
-    { value: "2", label: "2nd Bimester" },
-    { value: "3", label: "3rd Bimester" },
-    { value: "4", label: "4th Bimester" }
+    { value: "1", label: "1° Bimestre" },
+    { value: "2", label: "2° Bimestre" },
+    { value: "3", label: "3° Bimestre" },
+    { value: "4", label: "4° Bimestre" }
   ];
 
   // Filter classes by selected school
@@ -107,8 +107,8 @@ const LessonPlannerPage = () => {
   const saveLessonPlan = () => {
     if (!selectedSchool || !selectedClass) {
       toast({
-        title: "Missing Information",
-        description: "Please select school and class before saving.",
+        title: "Faltando Informação",
+        description: "Selecione a escola e a turma antes de salvar.",
         variant: "destructive"
       });
       return;
@@ -119,8 +119,8 @@ const LessonPlannerPage = () => {
     );
 
     toast({
-      title: "Lesson Plan Saved Successfully!",
-      description: `${validLessons.length} lessons saved for ${bimesters.find(b => b.value === selectedBimester)?.label}.`,
+      title: "Plano de aula salvo com sucesso!",
+      description: `${validLessons.length} lições salvas para ${bimesters.find(b => b.value === selectedBimester)?.label}.`,
     });
   };
 
@@ -140,7 +140,7 @@ const LessonPlannerPage = () => {
           <h1 className="text-2xl font-bold text-gray-900">Lesson Planner</h1>
           <Select value={selectedSchool} onValueChange={setSelectedSchool}>
             <SelectTrigger className="w-64">
-              <SelectValue placeholder="Select school" />
+              <SelectValue placeholder="Selecione a Escola" />
             </SelectTrigger>
             <SelectContent>
               {schools.map((school) => (
@@ -163,7 +163,7 @@ const LessonPlannerPage = () => {
                   <label className="text-sm font-medium">School</label>
                   <Select value={selectedSchool} onValueChange={setSelectedSchool}>
                     <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Select school" />
+                      <SelectValue placeholder="Selecione a Escola" />
                     </SelectTrigger>
                     <SelectContent>
                       {schools.map((school) => (
@@ -183,7 +183,7 @@ const LessonPlannerPage = () => {
                     disabled={!selectedSchool}
                   >
                     <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Select class" />
+                      <SelectValue placeholder="Selecione a Turma" />
                     </SelectTrigger>
                     <SelectContent>
                       {filteredClasses.map((cls) => (
@@ -235,11 +235,11 @@ const LessonPlannerPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-40">Date</TableHead>
-                    <TableHead className="w-64">Lesson Title</TableHead>
-                    <TableHead className="min-w-80">Theme/Description</TableHead>
-                    <TableHead className="w-48">Subject</TableHead>
-                    <TableHead className="w-20">Actions</TableHead>
+                    <TableHead className="w-40">Data</TableHead>
+                    <TableHead className="w-64">Título da lição</TableHead>
+                    <TableHead className="min-w-80">Tema/Descrição</TableHead>
+                    <TableHead className="w-48">Matéria</TableHead>
+                    <TableHead className="w-20">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -256,7 +256,7 @@ const LessonPlannerPage = () => {
                               )}
                             >
                               <Calendar className="mr-2 h-4 w-4" />
-                              {lesson.date ? format(lesson.date, "PPP") : <span>Pick a date</span>}
+                              {lesson.date ? format(lesson.date, "PPP") : <span>Escolha uma data</span>}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -275,7 +275,7 @@ const LessonPlannerPage = () => {
                         <Input
                           value={lesson.title}
                           onChange={(e) => updateLesson(lesson.id, "title", e.target.value)}
-                          placeholder="Enter lesson title"
+                          placeholder="Insira o título da lição"
                           className="border-0 focus:ring-1 focus:ring-blue-500"
                         />
                       </TableCell>
@@ -284,7 +284,7 @@ const LessonPlannerPage = () => {
                         <Input
                           value={lesson.theme}
                           onChange={(e) => updateLesson(lesson.id, "theme", e.target.value)}
-                          placeholder="Describe the lesson theme and objectives"
+                          placeholder="Descreva o tema e os objetivos da lição"
                           className="border-0 focus:ring-1 focus:ring-blue-500"
                         />
                       </TableCell>
@@ -295,7 +295,7 @@ const LessonPlannerPage = () => {
                           onValueChange={(value) => updateLesson(lesson.id, "subject", value)}
                         >
                           <SelectTrigger className="border-0 focus:ring-1 focus:ring-blue-500">
-                            <SelectValue placeholder="Select subject" />
+                            <SelectValue placeholder="Selecione a Matéria" />
                           </SelectTrigger>
                           <SelectContent>
                             {subjects.map((subject) => (
@@ -314,7 +314,7 @@ const LessonPlannerPage = () => {
                           onClick={() => deleteLesson(lesson.id)}
                           className="text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
-                          Delete
+                          Deletar
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -334,7 +334,7 @@ const LessonPlannerPage = () => {
           className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
         >
           <Save className="h-5 w-5 mr-2" />
-          Save Plan
+          Salvar Plano
         </Button>
       </div>
     </div>

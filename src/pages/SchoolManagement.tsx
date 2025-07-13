@@ -52,7 +52,7 @@ const SchoolManagement = () => {
 
   const handleSendInvite = () => {
     // TODO: Implement invite logic
-    console.log("Sending invite for school:", selectedSchool);
+    console.log("Enviando convite para a escola:", selectedSchool);
     setInviteModalOpen(false);
     setSelectedSchool("");
   };
@@ -78,17 +78,17 @@ const SchoolManagement = () => {
       <main className="p-6 max-w-7xl mx-auto">
         <Card className="border-0 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">School Directory</CardTitle>
+            <CardTitle className="text-lg font-semibold">Diretório Escolar</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>City</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Active Admins</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Cidade</TableHead>
+                  <TableHead>Data de criação</TableHead>
+                  <TableHead>Administradores ativos</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -106,7 +106,7 @@ const SchoolManagement = () => {
                         className="text-blue-600 border-blue-200 hover:bg-blue-50"
                       >
                         <Plus className="h-4 w-4 mr-1" />
-                        Invite Admin
+                        Convidar administrador
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -121,11 +121,11 @@ const SchoolManagement = () => {
       <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Invite Admin to {selectedSchool}</DialogTitle>
+            <DialogTitle>Convidar administrador para {selectedSchool}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">Endereço Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -134,10 +134,10 @@ const SchoolManagement = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="message">Message (Optional)</Label>
+              <Label htmlFor="message">Mensagem (Opcional)</Label>
               <Input
                 id="message"
-                placeholder="Welcome to our team!"
+                placeholder="Bem-vindo à nossa equipe!"
                 className="w-full"
               />
             </div>
@@ -147,13 +147,13 @@ const SchoolManagement = () => {
               variant="outline"
               onClick={() => setInviteModalOpen(false)}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               onClick={handleSendInvite}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
-              Send Invite
+              Enviar convite
             </Button>
           </div>
         </DialogContent>
