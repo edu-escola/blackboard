@@ -1,76 +1,89 @@
-import { useState } from "react";
-import { Plus, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react'
+import { Plus, ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useNavigate } from 'react-router-dom'
 
 const SchoolManagement = () => {
-  const navigate = useNavigate();
-  const [inviteModalOpen, setInviteModalOpen] = useState(false);
-  const [selectedSchool, setSelectedSchool] = useState<string>("");
+  const navigate = useNavigate()
+  const [inviteModalOpen, setInviteModalOpen] = useState(false)
+  const [selectedSchool, setSelectedSchool] = useState<string>('')
 
   // Mock data for schools
   const schools = [
-    { 
-      id: 1, 
-      name: "Lincoln Elementary", 
-      city: "Springfield", 
-      created: "2023-01-15", 
-      activeAdmins: 3 
+    {
+      id: 1,
+      name: 'Lincoln Elementary',
+      city: 'Springfield',
+      created: '2023-01-15',
+      activeAdmins: 3,
     },
-    { 
-      id: 2, 
-      name: "Washington High School", 
-      city: "Springfield", 
-      created: "2022-08-20", 
-      activeAdmins: 5 
+    {
+      id: 2,
+      name: 'Washington High School',
+      city: 'Springfield',
+      created: '2022-08-20',
+      activeAdmins: 5,
     },
-    { 
-      id: 3, 
-      name: "Roosevelt Middle School", 
-      city: "Springfield", 
-      created: "2023-03-10", 
-      activeAdmins: 2 
+    {
+      id: 3,
+      name: 'Roosevelt Middle School',
+      city: 'Springfield',
+      created: '2023-03-10',
+      activeAdmins: 2,
     },
-    { 
-      id: 4, 
-      name: "Jefferson Academy", 
-      city: "Riverside", 
-      created: "2022-11-05", 
-      activeAdmins: 4 
-    }
-  ];
+    {
+      id: 4,
+      name: 'Jefferson Academy',
+      city: 'Riverside',
+      created: '2022-11-05',
+      activeAdmins: 4,
+    },
+  ]
 
   const handleInviteAdmin = (schoolName: string) => {
-    setSelectedSchool(schoolName);
-    setInviteModalOpen(true);
-  };
+    setSelectedSchool(schoolName)
+    setInviteModalOpen(true)
+  }
 
   const handleSendInvite = () => {
     // TODO: Implement invite logic
-    console.log("Enviando convite para a escola:", selectedSchool);
-    setInviteModalOpen(false);
-    setSelectedSchool("");
-  };
+    console.log('Enviando convite para a escola:', selectedSchool)
+    setInviteModalOpen(false)
+    setSelectedSchool('')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
-            onClick={() => navigate("/admin/dashboard")}
+            onClick={() => navigate('/admin/dashboard')}
             className="hover:bg-gray-100"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold text-gray-900">Schools</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Escolas</h1>
         </div>
       </header>
 
@@ -78,7 +91,9 @@ const SchoolManagement = () => {
       <main className="p-6 max-w-7xl mx-auto">
         <Card className="border-0 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">Diretório Escolar</CardTitle>
+            <CardTitle className="text-lg font-semibold">
+              Diretório Escolar
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -96,7 +111,9 @@ const SchoolManagement = () => {
                   <TableRow key={school.id}>
                     <TableCell className="font-medium">{school.name}</TableCell>
                     <TableCell>{school.city}</TableCell>
-                    <TableCell>{new Date(school.created).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {new Date(school.created).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>{school.activeAdmins}</TableCell>
                     <TableCell>
                       <Button
@@ -121,11 +138,13 @@ const SchoolManagement = () => {
       <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Convidar administrador para {selectedSchool}</DialogTitle>
+            <DialogTitle>
+              Convidar administrador para {selectedSchool}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Endereço Email</Label>
+              <Label htmlFor="email">Endereço de Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -133,20 +152,9 @@ const SchoolManagement = () => {
                 className="w-full"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="message">Mensagem (Opcional)</Label>
-              <Input
-                id="message"
-                placeholder="Bem-vindo à nossa equipe!"
-                className="w-full"
-              />
-            </div>
           </div>
           <div className="flex justify-end space-x-2">
-            <Button
-              variant="outline"
-              onClick={() => setInviteModalOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setInviteModalOpen(false)}>
               Cancelar
             </Button>
             <Button
@@ -159,7 +167,7 @@ const SchoolManagement = () => {
         </DialogContent>
       </Dialog>
     </div>
-  );
-};
+  )
+}
 
-export default SchoolManagement;
+export default SchoolManagement

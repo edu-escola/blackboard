@@ -1,115 +1,85 @@
-
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { GraduationCap, ClipboardCheck, FileEdit, Award } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ClipboardCheck, FileEdit, Award } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Header } from '@/components/shared'
 
 const ProfessorDashboard = () => {
-  const navigate = useNavigate();
-  const [greeting, setGreeting] = useState("");
+  const navigate = useNavigate()
+  const [greeting, setGreeting] = useState('')
 
   // Mock professor data
   const professor = {
-    firstName: "Sarah",
-    lastName: "Johnson",
-    title: "Dr."
-  };
+    firstName: 'Sarah',
+    lastName: 'Johnson',
+    title: 'Dr.',
+  }
 
   // Mock upcoming lessons data
   const upcomingLessons = [
     {
       id: 1,
-      class: "1-A",
-      subject: "Algebra Fundamental",
-      date: "2024-01-15",
-      time: "09:00 AM",
+      class: '1-A',
+      subject: 'Algebra Fundamental',
+      date: '2024-01-15',
+      time: '09:00 AM',
       students: 28,
-      room: "Sala A101"
+      room: 'Sala A101',
     },
     {
       id: 2,
-      class: "1-A",
-      subject: "Geometria Básica",
-      date: "2024-01-16",
-      time: "10:30 AM",
+      class: '1-A',
+      subject: 'Geometria Básica',
+      date: '2024-01-16',
+      time: '10:30 AM',
       students: 28,
-      room: "Sala A101"
+      room: 'Sala A101',
     },
     {
       id: 3,
-      class: "2-B",
-      subject: "Reações Químicas",
-      date: "2024-01-17",
-      time: "02:00 PM",
+      class: '2-B',
+      subject: 'Reações Químicas',
+      date: '2024-01-17',
+      time: '02:00 PM',
       students: 22,
-      room: "Sala B201"
+      room: 'Sala B201',
     },
     {
       id: 4,
-      class: "3-C",
-      subject: "Resolução de problemas",
-      date: "2024-01-18",
-      time: "09:00 AM",
+      class: '3-C',
+      subject: 'Resolução de problemas',
+      date: '2024-01-18',
+      time: '09:00 AM',
       students: 28,
-      room: "Sala A101"
+      room: 'Sala A101',
     },
     {
       id: 5,
-      class: "3-B",
-      subject: "Segurança de laboratório",
-      date: "2024-01-19",
-      time: "02:00 PM",
+      class: '3-B',
+      subject: 'Segurança de laboratório',
+      date: '2024-01-19',
+      time: '02:00 PM',
       students: 22,
-      room: "Sala B201"
-    }
-  ];
+      room: 'Sala B201',
+    },
+  ]
 
   // Set greeting based on time of day
   useEffect(() => {
-    const hour = new Date().getHours();
+    const hour = new Date().getHours()
     if (hour < 12) {
-      setGreeting("Bom dia");
+      setGreeting('Bom dia')
     } else if (hour < 18) {
-      setGreeting("Boa tarde");
+      setGreeting('Boa tarde')
     } else {
-      setGreeting("Boa noite");
+      setGreeting('Boa noite')
     }
-  }, []);
-
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div className="p-2 bg-blue-600 rounded-lg">
-              <GraduationCap className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">EduEscola</span>
-
-            <Select defaultValue="lincoln">
-              <SelectTrigger className="w-64">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="lincoln">Lincoln Elementary</SelectItem>
-                <SelectItem value="washington">Washington High School</SelectItem>
-                <SelectItem value="roosevelt">Roosevelt Middle School</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <Button onClick={() => navigate("/")} variant="outline">
-              Sair
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="p-6 max-w-7xl mx-auto space-y-6">
@@ -118,7 +88,9 @@ const ProfessorDashboard = () => {
           <h1 className="text-2xl font-bold text-gray-900">
             {greeting}, {professor.title} {professor.lastName}
           </h1>
-          <p className="text-gray-600">Veja o que está acontecendo com suas turmas hoje</p>
+          <p className="text-gray-600">
+            Veja o que está acontecendo com suas turmas hoje
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -126,11 +98,13 @@ const ProfessorDashboard = () => {
           <div className="space-y-6">
             {/* Quick Action Cards */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Ações Rápidas</h3>
-              
-              <Card 
+              <h3 className="text-lg font-semibold text-gray-900">
+                Ações Rápidas
+              </h3>
+
+              <Card
                 className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => navigate("/professor/attendance")}
+                onClick={() => navigate('/professor/attendance')}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
@@ -138,16 +112,20 @@ const ProfessorDashboard = () => {
                       <ClipboardCheck className="h-6 w-6 text-green-600" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Registrar Presença</h4>
-                      <p className="text-sm text-gray-600">Marque a presença dos alunos</p>
+                      <h4 className="font-medium text-gray-900">
+                        Registrar Presença
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Marque a presença dos alunos
+                      </p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card 
+              <Card
                 className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => navigate("/professor/lesson-planner")}
+                onClick={() => navigate('/professor/lesson-planner')}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
@@ -155,16 +133,20 @@ const ProfessorDashboard = () => {
                       <FileEdit className="h-6 w-6 text-blue-600" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Planejar Aulas</h4>
-                      <p className="text-sm text-gray-600">Crie planos de aula</p>
+                      <h4 className="font-medium text-gray-900">
+                        Planejar Aulas
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Crie planos de aula
+                      </p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card 
+              <Card
                 className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => navigate("/professor/evaluations")}
+                onClick={() => navigate('/professor/evaluations')}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
@@ -172,8 +154,12 @@ const ProfessorDashboard = () => {
                       <Award className="h-6 w-6 text-purple-600" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Corrigir Avaliações</h4>
-                      <p className="text-sm text-gray-600">Revise o trabalho dos alunos</p>
+                      <h4 className="font-medium text-gray-900">
+                        Corrigir Avaliações
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Revise o trabalho dos alunos
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -181,17 +167,19 @@ const ProfessorDashboard = () => {
             </div>
           </div>
 
-
           {/* Right Column - Upcoming Lessons */}
           <div>
             <Card className="border-0 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-lg">Próximas Lições</CardTitle>
+                <CardTitle className="text-lg">Próximas Aulas</CardTitle>
                 <p className="text-sm text-gray-600">Próximos 7 dias</p>
               </CardHeader>
               <CardContent className="space-y-3">
                 {upcomingLessons.map((lesson) => (
-                  <div key={lesson.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={lesson.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
                         <Badge variant="secondary" className="text-xs">
@@ -205,7 +193,9 @@ const ProfessorDashboard = () => {
                         {lesson.subject}
                       </h4>
                       <div className="flex items-center space-x-4 mt-1 text-xs text-gray-600">
-                        <span>{new Date(lesson.date).toLocaleDateString()}</span>
+                        <span>
+                          {new Date(lesson.date).toLocaleDateString()}
+                        </span>
                         <span>{lesson.time}</span>
                         <span>{lesson.room}</span>
                       </div>
@@ -218,7 +208,7 @@ const ProfessorDashboard = () => {
         </div>
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default ProfessorDashboard;
+export default ProfessorDashboard
