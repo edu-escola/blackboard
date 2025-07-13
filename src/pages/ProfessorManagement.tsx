@@ -30,7 +30,7 @@ const ProfessorManagement = () => {
     { id: "jefferson", name: "Jefferson Academy" }
   ];
 
-  const subjects = ["Mathematics", "Science", "English", "History", "Art", "Physical Education", "Music"];
+  const subjects = ["Matemática", "Ciências", "Inglês", "História", "Artes", "Educação Física", "Música"];
 
   const professors = [
     {
@@ -39,10 +39,10 @@ const ProfessorManagement = () => {
       email: "sarah.johnson@lincoln.edu",
       phone: "+1 (555) 123-4567",
       schools: ["Lincoln Elementary", "Roosevelt Middle School"],
-      subjects: ["Mathematics", "Science"],
+      subjects: ["Matemática", "Ciências"],
       classes: 8,
-      status: "Active",
-      bio: "Experienced mathematics and science teacher with 15 years in education.",
+      status: "Ativo",
+      bio: "Professor experiente de matemática e ciências com 15 anos de experiência em educação.",
       joinDate: "2019-08-15"
     },
     {
@@ -51,10 +51,10 @@ const ProfessorManagement = () => {
       email: "m.chen@washington.edu",
       phone: "+1 (555) 234-5678",
       schools: ["Washington High School"],
-      subjects: ["English", "History"],
+      subjects: ["Inglês", "História"],
       classes: 12,
-      status: "Active",
-      bio: "Literature and history specialist with expertise in modern curriculum design.",
+      status: "Ativo",
+      bio: "Especialista em literatura e história com experiência em design curricular moderno.",
       joinDate: "2020-01-10"
     },
     {
@@ -63,10 +63,10 @@ const ProfessorManagement = () => {
       email: "emily.r@jefferson.edu",
       phone: "+1 (555) 345-6789",
       schools: ["Jefferson Academy"],
-      subjects: ["Art", "Music"],
+      subjects: ["Artes", "Música"],
       classes: 6,
-      status: "Inactive",
-      bio: "Creative arts educator passionate about student expression and creativity.",
+      status: "Inativo",
+      bio: "Educador de artes criativas apaixonado pela expressão e criatividade dos alunos.",
       joinDate: "2021-03-22"
     }
   ];
@@ -112,11 +112,11 @@ const ProfessorManagement = () => {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">Professors</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Professores</h1>
           </div>
           <Button onClick={handleNewProfessor} className="bg-blue-600 hover:bg-blue-700">
             <Plus className="h-4 w-4 mr-2" />
-            New Professor
+            Novo Professor
           </Button>
         </div>
       </header>
@@ -130,7 +130,7 @@ const ProfessorManagement = () => {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search professors by name or email..."
+                  placeholder="Pesquise professores por nome ou e-mail..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -139,10 +139,10 @@ const ProfessorManagement = () => {
               <Select value={schoolFilter} onValueChange={setSchoolFilter}>
                 <SelectTrigger className="w-full md:w-64">
                   <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filter by school" />
+                  <SelectValue placeholder="Filtrar por escola" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Schools</SelectItem>
+                  <SelectItem value="all">Todas Escolas</SelectItem>
                   {schools.map((school) => (
                     <SelectItem key={school.id} value={school.id}>
                       {school.name}
@@ -160,11 +160,11 @@ const ProfessorManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead>Nome</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Schools</TableHead>
-                  <TableHead>Subjects</TableHead>
-                  <TableHead>Classes</TableHead>
+                  <TableHead>Escolas</TableHead>
+                  <TableHead>Matérias</TableHead>
+                  <TableHead>Turmas</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -218,7 +218,7 @@ const ProfessorManagement = () => {
         <SheetContent className="w-[400px] sm:w-[540px]">
           <SheetHeader>
             <SheetTitle>{selectedProfessor?.name}</SheetTitle>
-            <SheetDescription>Professor profile and management</SheetDescription>
+            <SheetDescription>Perfil e gestão do professor</SheetDescription>
           </SheetHeader>
           
           {selectedProfessor && (
@@ -237,13 +237,13 @@ const ProfessorManagement = () => {
 
               {/* Bio */}
               <div>
-                <h4 className="font-medium mb-2">Biography</h4>
+                <h4 className="font-medium mb-2">Biografia</h4>
                 <p className="text-sm text-gray-600">{selectedProfessor.bio}</p>
               </div>
 
               {/* Schools */}
               <div>
-                <h4 className="font-medium mb-2">Schools</h4>
+                <h4 className="font-medium mb-2">Escolas</h4>
                 <div className="flex flex-wrap gap-2">
                   {selectedProfessor.schools.map((school: string, index: number) => (
                     <Badge key={index} variant="secondary">
@@ -255,7 +255,7 @@ const ProfessorManagement = () => {
 
               {/* Subjects */}
               <div>
-                <h4 className="font-medium mb-2">Subjects</h4>
+                <h4 className="font-medium mb-2">Matérias</h4>
                 <div className="flex flex-wrap gap-2">
                   {selectedProfessor.subjects.map((subject: string, index: number) => (
                     <Badge key={index} variant="outline">
@@ -269,19 +269,19 @@ const ProfessorManagement = () => {
               <div className="space-y-3 pt-4 border-t">
                 <Button className="w-full" variant="outline">
                   <GraduationCap className="h-4 w-4 mr-2" />
-                  Assign to School
+                  Atribuir escola
                 </Button>
                 <Button className="w-full" variant="outline">
                   <BookOpen className="h-4 w-4 mr-2" />
-                  Assign Subject
+                  Atribuir assunto
                 </Button>
                 <Button className="w-full" variant="outline">
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit Profile
+                  Editar perfil
                 </Button>
                 <Button className="w-full" variant="destructive">
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Remove Professor
+                  Remover Professor
                 </Button>
               </div>
             </div>
@@ -293,21 +293,21 @@ const ProfessorManagement = () => {
       <Dialog open={newProfessorModalOpen} onOpenChange={setNewProfessorModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add New Professor</DialogTitle>
+            <DialogTitle>Adicionar Novo Professor</DialogTitle>
             <DialogDescription>
-              Create a new professor profile and assign schools and subjects.
+              Crie um novo perfil de professor e atribua escolas e disciplinas.
             </DialogDescription>
           </DialogHeader>
           
           <Tabs value={`step-${modalStep}`} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="step-1" disabled={modalStep < 1}>Personal Info</TabsTrigger>
-              <TabsTrigger value="step-2" disabled={modalStep < 2}>Assignment</TabsTrigger>
+              <TabsTrigger value="step-1" disabled={modalStep < 1}>Informações pessoais</TabsTrigger>
+              <TabsTrigger value="step-2" disabled={modalStep < 2}>Atribuição</TabsTrigger>
             </TabsList>
             
             <TabsContent value="step-1" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">Nome Completo</Label>
                 <Input id="name" placeholder="Dr. John Doe" />
               </div>
               <div className="space-y-2">
@@ -315,23 +315,23 @@ const ProfessorManagement = () => {
                 <Input id="email" type="email" placeholder="john.doe@school.edu" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
+                <Label htmlFor="phone">Telefone</Label>
                 <Input id="phone" placeholder="+1 (555) 123-4567" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bio">Biography</Label>
-                <Textarea id="bio" placeholder="Brief professional background..." />
+                <Label htmlFor="bio">Biografia</Label>
+                <Textarea id="bio" placeholder="Breve histórico profissional..." />
               </div>
               <div className="flex justify-end">
                 <Button onClick={nextStep}>
-                  Next Step
+                  Próximo passo
                 </Button>
               </div>
             </TabsContent>
             
             <TabsContent value="step-2" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label>Assign Schools</Label>
+                <Label>Atribuir Escolas</Label>
                 <div className="space-y-2">
                   {schools.map((school) => (
                     <div key={school.id} className="flex items-center space-x-2">
@@ -368,10 +368,10 @@ const ProfessorManagement = () => {
               
               <div className="flex justify-between">
                 <Button variant="outline" onClick={prevStep}>
-                  Previous
+                  Anterior
                 </Button>
                 <Button onClick={() => setNewProfessorModalOpen(false)}>
-                  Create Professor
+                  Criar Professor
                 </Button>
               </div>
             </TabsContent>

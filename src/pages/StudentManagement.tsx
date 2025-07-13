@@ -32,8 +32,8 @@ const StudentManagement = () => {
   ];
 
   const classes = [
-    "Grade 1A", "Grade 2B", "Grade 3C", "Grade 4A", "Grade 5B",
-    "Math 101", "Science 102", "English 201", "History 301"
+    "Turma 1A", "Turma 2B", "Turma 3C", "Turma 4A", "Turma 5B",
+    "Matemática 101", "Ciências 102", "Inglês 201", "História 301"
   ];
 
   const students = [
@@ -44,8 +44,8 @@ const StudentManagement = () => {
       email: "alice.johnson@student.edu",
       phone: "+1 (555) 123-4567",
       school: "Lincoln Elementary",
-      class: "Grade 3C",
-      status: "Active",
+      class: "Turma 3C",
+      status: "Ativo",
       parentName: "Robert Johnson",
       parentPhone: "+1 (555) 987-6543",
       address: "123 Main St, Springfield, IL",
@@ -60,7 +60,7 @@ const StudentManagement = () => {
       phone: "+1 (555) 234-5678",
       school: "Washington High School",
       class: "Math 101",
-      status: "Active",
+      status: "Ativo",
       parentName: "Susan Wilson",
       parentPhone: "+1 (555) 876-5432",
       address: "456 Oak Ave, Springfield, IL",
@@ -74,8 +74,8 @@ const StudentManagement = () => {
       email: "carol.brown@student.edu",
       phone: "+1 (555) 345-6789",
       school: "Roosevelt Middle School",
-      class: "Grade 5B",
-      status: "Inactive",
+      class: "Turma 5B",
+      status: "Inativo",
       parentName: "David Brown",
       parentPhone: "+1 (555) 765-4321",
       address: "789 Pine St, Springfield, IL",
@@ -168,7 +168,7 @@ const StudentManagement = () => {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search students by name or enrollment number..."
+                  placeholder="Pesquise alunos por nome ou número de matrícula..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -176,7 +176,7 @@ const StudentManagement = () => {
               </div>
               <Select value={schoolFilter} onValueChange={setSchoolFilter}>
                 <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Filter by school" />
+                  <SelectValue placeholder="Filtrar por escola" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas as Escolas</SelectItem>
