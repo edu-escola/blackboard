@@ -1,141 +1,150 @@
-import { useState, useCallback } from "react";
-import { Search, Filter, Plus, ArrowLeft, Upload, FileText, Edit, Trash2, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Textarea } from "@/components/ui/textarea";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react'
+import { Search, Plus, ArrowLeft, Edit, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
+import { useNavigate } from 'react-router-dom'
 
 const StudentManagement = () => {
-  const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [schoolFilter, setSchoolFilter] = useState("all");
-  const [classFilter, setClassFilter] = useState("all");
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
-  const [sideSheetOpen, setSideSheetOpen] = useState(false);
-  const [newStudentModalOpen, setNewStudentModalOpen] = useState(false);
-  const [csvImportModalOpen, setCsvImportModalOpen] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
+  const navigate = useNavigate()
+  const [searchTerm, setSearchTerm] = useState('')
+  const [schoolFilter, setSchoolFilter] = useState('all')
+  const [classFilter, setClassFilter] = useState('all')
+  const [selectedStudent, setSelectedStudent] = useState<any>(null)
+  const [sideSheetOpen, setSideSheetOpen] = useState(false)
+  const [newStudentModalOpen, setNewStudentModalOpen] = useState(false)
 
   // Mock data
   const schools = [
-    { id: "lincoln", name: "Lincoln Elementary" },
-    { id: "washington", name: "Washington High School" },
-    { id: "roosevelt", name: "Roosevelt Middle School" },
-    { id: "jefferson", name: "Jefferson Academy" }
-  ];
+    { id: 'lincoln', name: 'Lincoln Elementary' },
+    { id: 'washington', name: 'Washington High School' },
+    { id: 'roosevelt', name: 'Roosevelt Middle School' },
+    { id: 'jefferson', name: 'Jefferson Academy' },
+  ]
 
   const classes = [
-    "Turma 1A", "Turma 2B", "Turma 3C", "Turma 4A", "Turma 5B",
-    "Matemática 101", "Ciências 102", "Inglês 201", "História 301"
-  ];
+    'Turma 1A',
+    'Turma 2B',
+    'Turma 3C',
+    'Turma 4A',
+    'Turma 5B',
+    'Matemática 101',
+    'Ciências 102',
+    'Inglês 201',
+    'História 301',
+  ]
 
   const students = [
     {
       id: 1,
-      name: "Alice Johnson",
-      enrollmentNumber: "LN2024001",
-      email: "alice.johnson@student.edu",
-      phone: "+1 (555) 123-4567",
-      school: "Lincoln Elementary",
-      class: "Turma 3C",
-      status: "Ativo",
-      parentName: "Robert Johnson",
-      parentPhone: "+1 (555) 987-6543",
-      address: "123 Main St, Springfield, IL",
-      enrollmentDate: "2024-08-15",
-      dateOfBirth: "2015-05-12"
+      name: 'Alice Johnson',
+      enrollmentNumber: 'LN2024001',
+      email: 'alice.johnson@student.edu',
+      phone: '+1 (555) 123-4567',
+      school: 'Lincoln Elementary',
+      class: 'Turma 3C',
+      status: 'Ativo',
+      parentName: 'Robert Johnson',
+      parentPhone: '+1 (555) 987-6543',
+      address: '123 Main St, Springfield, IL',
+      enrollmentDate: '2024-08-15',
+      dateOfBirth: '2015-05-12',
     },
     {
       id: 2,
-      name: "Bob Wilson",
-      enrollmentNumber: "WH2024002",
-      email: "bob.wilson@student.edu",
-      phone: "+1 (555) 234-5678",
-      school: "Washington High School",
-      class: "Math 101",
-      status: "Ativo",
-      parentName: "Susan Wilson",
-      parentPhone: "+1 (555) 876-5432",
-      address: "456 Oak Ave, Springfield, IL",
-      enrollmentDate: "2024-08-20",
-      dateOfBirth: "2008-03-18"
+      name: 'Bob Wilson',
+      enrollmentNumber: 'WH2024002',
+      email: 'bob.wilson@student.edu',
+      phone: '+1 (555) 234-5678',
+      school: 'Washington High School',
+      class: 'Math 101',
+      status: 'Ativo',
+      parentName: 'Susan Wilson',
+      parentPhone: '+1 (555) 876-5432',
+      address: '456 Oak Ave, Springfield, IL',
+      enrollmentDate: '2024-08-20',
+      dateOfBirth: '2008-03-18',
     },
     {
       id: 3,
-      name: "Carol Brown",
-      enrollmentNumber: "RM2024003",
-      email: "carol.brown@student.edu",
-      phone: "+1 (555) 345-6789",
-      school: "Roosevelt Middle School",
-      class: "Turma 5B",
-      status: "Inativo",
-      parentName: "David Brown",
-      parentPhone: "+1 (555) 765-4321",
-      address: "789 Pine St, Springfield, IL",
-      enrollmentDate: "2024-01-10",
-      dateOfBirth: "2013-11-08"
-    }
-  ];
+      name: 'Carol Brown',
+      enrollmentNumber: 'RM2024003',
+      email: 'carol.brown@student.edu',
+      phone: '+1 (555) 345-6789',
+      school: 'Roosevelt Middle School',
+      class: 'Turma 5B',
+      status: 'Inativo',
+      parentName: 'David Brown',
+      parentPhone: '+1 (555) 765-4321',
+      address: '789 Pine St, Springfield, IL',
+      enrollmentDate: '2024-01-10',
+      dateOfBirth: '2013-11-08',
+    },
+  ]
 
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.enrollmentNumber.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSchool = schoolFilter === "all" || 
-                         schools.find(s => s.id === schoolFilter)?.name === student.school;
-    const matchesClass = classFilter === "all" || student.class === classFilter;
-    return matchesSearch && matchesSchool && matchesClass;
-  });
+  const filteredStudents = students.filter((student) => {
+    const matchesSearch =
+      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.enrollmentNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSchool =
+      schoolFilter === 'all' ||
+      schools.find((s) => s.id === schoolFilter)?.name === student.school
+    const matchesClass = classFilter === 'all' || student.class === classFilter
+    return matchesSearch && matchesSchool && matchesClass
+  })
 
   const handleRowClick = (student: any) => {
-    setSelectedStudent(student);
-    setSideSheetOpen(true);
-  };
-
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      if (file.type === "text/csv" || file.name.endsWith(".csv")) {
-        console.log("CSV file dropped:", file.name);
-        // TODO: Handle CSV processing
-      }
-    }
-  }, []);
+    setSelectedStudent(student)
+    setSideSheetOpen(true)
+  }
 
   const getStatusColor = (status: string) => {
-    return status === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
-  };
+    return status === 'Ativo'
+      ? 'bg-green-100 text-green-800'
+      : 'bg-red-100 text-red-800'
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div className="flex items-center space-x-4">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
-              onClick={() => navigate("/admin/dashboard")}
+              onClick={() => navigate('/admin/dashboard')}
               className="hover:bg-gray-100"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -143,15 +152,10 @@ const StudentManagement = () => {
             <h1 className="text-2xl font-bold text-gray-900">Alunos</h1>
           </div>
           <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setCsvImportModalOpen(true)}
-              className="text-green-600 border-green-200 hover:bg-green-50"
+            <Button
+              onClick={() => setNewStudentModalOpen(true)}
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Importar CSV
-            </Button>
-            <Button onClick={() => setNewStudentModalOpen(true)} className="bg-blue-600 hover:bg-blue-700">
               <Plus className="h-4 w-4 mr-2" />
               Novo Aluno
             </Button>
@@ -219,13 +223,17 @@ const StudentManagement = () => {
               </TableHeader>
               <TableBody>
                 {filteredStudents.map((student) => (
-                  <TableRow 
-                    key={student.id} 
+                  <TableRow
+                    key={student.id}
                     className="cursor-pointer hover:bg-gray-50"
                     onClick={() => handleRowClick(student)}
                   >
-                    <TableCell className="font-medium">{student.name}</TableCell>
-                    <TableCell className="font-mono text-sm">{student.enrollmentNumber}</TableCell>
+                    <TableCell className="font-medium">
+                      {student.name}
+                    </TableCell>
+                    <TableCell className="font-mono text-sm">
+                      {student.enrollmentNumber}
+                    </TableCell>
                     <TableCell>{student.school}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{student.class}</Badge>
@@ -250,14 +258,16 @@ const StudentManagement = () => {
             <SheetTitle>{selectedStudent?.name}</SheetTitle>
             <SheetDescription>Perfil do aluno e informações</SheetDescription>
           </SheetHeader>
-          
+
           {selectedStudent && (
             <div className="space-y-6 mt-6">
               {/* Basic Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium">Matrícula</Label>
-                  <p className="text-sm font-mono mt-1">{selectedStudent.enrollmentNumber}</p>
+                  <p className="text-sm font-mono mt-1">
+                    {selectedStudent.enrollmentNumber}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Status</Label>
@@ -296,8 +306,14 @@ const StudentManagement = () => {
                   <p className="text-sm mt-1">{selectedStudent.class}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Data de Matrícula</Label>
-                  <p className="text-sm mt-1">{new Date(selectedStudent.enrollmentDate).toLocaleDateString()}</p>
+                  <Label className="text-sm font-medium">
+                    Data de Matrícula
+                  </Label>
+                  <p className="text-sm mt-1">
+                    {new Date(
+                      selectedStudent.enrollmentDate
+                    ).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
 
@@ -330,85 +346,14 @@ const StudentManagement = () => {
         </SheetContent>
       </Sheet>
 
-      {/* CSV Import Modal */}
-      <Dialog open={csvImportModalOpen} onOpenChange={setCsvImportModalOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Import Students from CSV</DialogTitle>
-            <DialogDescription>
-              Upload a CSV file with student data to bulk import students.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            {/* Drag and Drop Area */}
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                dragActive 
-                  ? "border-blue-400 bg-blue-50" 
-                  : "border-gray-300 hover:border-gray-400"
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <div className="space-y-2">
-                  <p className="text-lg font-medium">Solte seu arquivo CSV aqui</p>
-                  <p className="text-sm text-gray-500">ou clique para selecionar</p>
-              </div>
-              <input
-                type="file"
-                accept=".csv"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    console.log("CSV file selected:", file.name);
-                  }
-                }}
-              />
-            </div>
-
-            {/* Template Download */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <FileText className="h-5 w-5 text-gray-500" />
-                <div>
-                  <p className="text-sm font-medium">Precisa de um modelo?</p>
-                  <p className="text-xs text-gray-500">Baixe nosso modelo CSV</p>
-                </div>
-              </div>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Baixar
-              </Button>
-            </div>
-
-            {/* Actions */}
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setCsvImportModalOpen(false)}>
-                Cancelar
-              </Button>
-              <Button>
-                Importar Alunos
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* New Student Modal */}
       <Dialog open={newStudentModalOpen} onOpenChange={setNewStudentModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Adicionar Novo Aluno</DialogTitle>
-            <DialogDescription>
-              Crie um novo perfil de aluno.
-            </DialogDescription>
+            <DialogDescription>Crie um novo perfil de aluno.</DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -420,17 +365,21 @@ const StudentManagement = () => {
                 <Input id="lastName" placeholder="Silva" />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="enrollmentNumber">Número de Matrícula</Label>
               <Input id="enrollmentNumber" placeholder="LN2024001" />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="studentEmail">Email</Label>
-              <Input id="studentEmail" type="email" placeholder="john.doe@student.edu" />
+              <Input
+                id="studentEmail"
+                type="email"
+                placeholder="john.doe@student.edu"
+              />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="school">Escola</Label>
               <Select>
@@ -446,7 +395,7 @@ const StudentManagement = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="class">Turma</Label>
               <Select>
@@ -462,9 +411,12 @@ const StudentManagement = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setNewStudentModalOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setNewStudentModalOpen(false)}
+              >
                 Cancelar
               </Button>
               <Button onClick={() => setNewStudentModalOpen(false)}>
@@ -475,7 +427,7 @@ const StudentManagement = () => {
         </DialogContent>
       </Dialog>
     </div>
-  );
-};
+  )
+}
 
-export default StudentManagement;
+export default StudentManagement

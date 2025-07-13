@@ -1,22 +1,22 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import AdminDashboard from "./pages/AdminDashboard";
-import ProfessorDashboard from "./pages/ProfessorDashboard";
-import ProfessorManagement from "./pages/ProfessorManagement";
-import SchoolManagement from "./pages/SchoolManagement";
-import StudentManagement from "./pages/StudentManagement";
-import ClassTimetableManagement from "./pages/ClassTimetableManagement";
-import AttendancePage from "./pages/AttendancePage";
-import EvaluationsPage from "./pages/EvaluationsPage";
-import LessonPlannerPage from "./pages/LessonPlannerPage";
-import ServerError from "./pages/ServerError";
-import NotFound from "./pages/NotFound";
+import { Toaster } from '@/components/ui/toaster'
+import { Toaster as Sonner } from '@/components/ui/sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Index from './pages/Index'
+import AdminDashboard from './pages/AdminDashboard'
+import ProfessorDashboard from './pages/ProfessorDashboard'
+import ProfessorManagement from './pages/ProfessorManagement'
+import SchoolManagement from './pages/SchoolManagement'
+import StudentManagement from './pages/StudentManagement'
+import ClassTimetableManagement from './pages/ClassTimetableManagement'
+import AttendancePage from './pages/AttendancePage'
+import EvaluationsPage from './pages/EvaluationsPage'
+import LessonPlannerPage from './pages/LessonPlannerPage'
+import ServerError from './pages/ServerError'
+import NotFound from './pages/NotFound'
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -33,8 +33,11 @@ const App = () => (
           <Route path="/admin/classes" element={<ClassTimetableManagement />} />
           <Route path="/professor/attendance" element={<AttendancePage />} />
           <Route path="/professor/evaluations" element={<EvaluationsPage />} />
-          <Route path="/professor/lesson-planner" element={<LessonPlannerPage />} />
-          <Route path="/500" element={<ServerError />} />
+          <Route
+            path="/professor/lesson-planner"
+            element={<LessonPlannerPage />}
+          />
+          <Route path="/error" element={<ServerError />} />
           <Route path="/professor/dashboard" element={<ProfessorDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
@@ -42,6 +45,6 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+)
 
-export default App;
+export default App
