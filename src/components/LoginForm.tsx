@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import VerificationForm from './VerificationForm'
-import axios from 'axios'
+import { api } from '@/lib'
 
 const LoginForm = () => {
   const [email, setEmail] = useState('')
@@ -29,7 +29,7 @@ const LoginForm = () => {
     setIsSending(true)
 
     try {
-      const response = await axios.post(`http://localhost:3000/auth/login`, {
+      const response = await api.post(`/auth/login`, {
         email,
       })
 
