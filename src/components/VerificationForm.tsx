@@ -10,7 +10,7 @@ import {
 import LoadingSplash from './LoadingSplash'
 import axios from 'axios'
 
-const RESEND_CODE_TIME = 10
+const RESEND_CODE_TIME = 60
 
 interface VerificationFormProps {
   email: string
@@ -29,7 +29,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
     if (resendCountdown > 0) {
       const timer = setTimeout(() => {
         setResendCountdown(resendCountdown - 1)
-      }, 1000)
+      }, 500)
       return () => clearTimeout(timer)
     } else {
       setCanResend(true)
@@ -48,7 +48,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
         email,
       })
 
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
       const userRole = 'admin'
 
@@ -66,7 +66,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
       setIsVerifying(false)
     } catch (error: any) {
       console.error(error)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 500))
       setIsVerifying(false)
 
       if (error.response?.status === 400) {
