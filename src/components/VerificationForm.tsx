@@ -8,7 +8,7 @@ import {
   InputOTPSlot,
 } from '@/components/ui/input-otp'
 import LoadingSplash from './LoadingSplash'
-import axios from 'axios'
+import { api } from '@/lib'
 
 const RESEND_CODE_TIME = 10
 
@@ -43,7 +43,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
       setIsVerifying(true)
       setError('')
 
-      const response = await axios.post(`http://localhost:3000/auth/verify`, {
+      const response = await api.post(`/auth/verify`, {
         code,
         email,
       })
@@ -83,7 +83,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
     if (!canResend) return
 
     try {
-      const response = await axios.post(`http://localhost:3000/auth/login`, {
+      const response = await api.post(`/auth/login`, {
         email,
       })
 
