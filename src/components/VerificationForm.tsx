@@ -50,18 +50,23 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
 
       await new Promise((resolve) => setTimeout(resolve, 500))
 
-      const userRole = 'admin'
+      const {
+        data: { user },
+      } = response
 
-      if (response.status === 200) {
-        setIsRedirecting(true)
-        setTimeout(() => {
-          if (userRole === 'admin') {
-            window.location.href = '/admin/dashboard'
-          } else {
-            window.location.href = '/professor/dashboard'
-          }
-        }, 2000)
-      }
+      const { isAdmin, isTeacher } = user
+
+      setIsRedirecting(true)
+
+      setTimeout(() => {
+        if (isAdmin && isTeacher) {
+          window.location.href = '/dashboard-selection'
+        } else if (isAdmin) {
+          window.location.href = '/admin/dashboard'
+        } else if (isTeacher) {
+          window.location.href = '/professor/dashboard'
+        }
+      }, 2000)
 
       setIsVerifying(false)
     } catch (error: any) {
