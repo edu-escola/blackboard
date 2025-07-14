@@ -48,8 +48,8 @@ const EvaluationsPage = () => {
     {}
   )
   const [selectedSchool, setSelectedSchool] = useState('')
-  const [classFilter, setClassFilter] = useState('all')
-  const [subjectFilter, setSubjectFilter] = useState('all')
+  const [classFilter, setClassFilter] = useState(undefined)
+  const [subjectFilter, setSubjectFilter] = useState(undefined)
 
   // Mock data
   const classes = [
@@ -118,10 +118,19 @@ const EvaluationsPage = () => {
     { id: '6', name: 'Frank Garcia', enrollmentNumber: 'LN2024006' },
   ]
 
+  const bimesters = [
+    { value: '1', label: '1° Bimestre' },
+    { value: '2', label: '2° Bimestre' },
+    { value: '3', label: '3° Bimestre' },
+    { value: '4', label: '4° Bimestre' },
+  ]
+
   // Form state
   const [newActivity, setNewActivity] = useState({
     title: '',
     type: '',
+    school: '',
+    bimester: '',
     class: '',
     subject: '',
     date: '',
@@ -164,6 +173,8 @@ const EvaluationsPage = () => {
     if (
       !newActivity.title ||
       !newActivity.type ||
+      !newActivity.school ||
+      !newActivity.bimester ||
       !newActivity.class ||
       !newActivity.subject ||
       !newActivity.date
@@ -185,6 +196,8 @@ const EvaluationsPage = () => {
     setNewActivity({
       title: '',
       type: '',
+      school: '',
+      bimester: '',
       class: '',
       subject: '',
       date: '',
@@ -260,12 +273,45 @@ const EvaluationsPage = () => {
               <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                 <CardTitle>Atividades e Avaliações</CardTitle>
                 <div className="flex items-center space-x-4">
-                  <Select value={classFilter} onValueChange={setClassFilter}>
+                  
+                  <Select
+                    value={newActivity.class}
+                    onValueChange={(value) =>
+                      setNewActivity((prev) => ({ ...prev, class: value }))
+                    }
+                  >
                     <SelectTrigger className="w-40">
-                      <SelectValue placeholder="Filtrar turma" />
+                      <SelectValue placeholder="Escola" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todas</SelectItem>
+                      {schools.map((school) => (
+                        <SelectItem key={school.id} value={school.id}>
+                          {school.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={newActivity.bimester}
+                    onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, subject: value }))
+                  }>
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Bimestre" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bimesters.map((bimester) => (
+                        <SelectItem key={bimester.value} value={bimester.value}>
+                          {bimester.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={classFilter} onValueChange={setClassFilter}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Turma" />
+                    </SelectTrigger>
+                    <SelectContent>
                       {classes.map((cls) => (
                         <SelectItem key={cls.id} value={cls.name}>
                           {cls.name}
@@ -273,15 +319,11 @@ const EvaluationsPage = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Select
-                    value={subjectFilter}
-                    onValueChange={setSubjectFilter}
-                  >
+                  <Select value={subjectFilter} onValueChange={setSubjectFilter}>
                     <SelectTrigger className="w-40">
-                      <SelectValue placeholder="Filtrar disciplina" />
+                      <SelectValue placeholder="Disciplina" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todas</SelectItem>
                       {subjects.map((subject) => (
                         <SelectItem key={subject} value={subject}>
                           {subject}
@@ -299,7 +341,7 @@ const EvaluationsPage = () => {
                       <TableHead>Turma</TableHead>
                       <TableHead>Disciplina</TableHead>
                       <TableHead>Data</TableHead>
-                      <TableHead>Média</TableHead>
+                      <TableHead>Média da Sala</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -394,6 +436,41 @@ const EvaluationsPage = () => {
                   </div>
 
                   <div className="space-y-2">
+                    <Label htmlFor="class">Escola *</Label>
+                    <Select
+                      value={newActivity.class}
+                      onValueChange={(value) =>
+                        setNewActivity((prev) => ({ ...prev, class: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a escola" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {schools.map((school) => (
+                          <SelectItem key={school.id} value={school.id}>
+                            {school.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="shift">Período *</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecionar período" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="morning">Manhã</SelectItem>
+                        <SelectItem value="afternoon">Tarde</SelectItem>
+                        <SelectItem value="night">Noite</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
                     <Label htmlFor="class">Turma *</Label>
                     <Select
                       value={newActivity.class}
@@ -429,6 +506,27 @@ const EvaluationsPage = () => {
                         {subjects.map((subject) => (
                           <SelectItem key={subject} value={subject}>
                             {subject}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Bimestre *</label>
+                    <Select
+                      value={newActivity.bimester}
+                      onValueChange={(value) =>
+                        setNewActivity((prev) => ({ ...prev, subject: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o bimestre" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {bimesters.map((bimester) => (
+                          <SelectItem key={bimester.value} value={bimester.value}>
+                            {bimester.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
