@@ -15,12 +15,6 @@ import { api } from '@/lib'
 const AdminDashboard = () => {
   const navigate = useNavigate()
 
-  const getApiHealth = async () => {
-    const response = await api.get(`/health`)
-    console.log(response)
-  }
-
-  getApiHealth()
   // Mock data for demonstration
   const stats = [
     {
@@ -89,12 +83,12 @@ const AdminDashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Button
-            onClick={() => navigate('/admin/schools')}
+            onClick={() => navigate('/admin/administrators')}
             variant="outline"
             className="flex items-center space-x-2 text-blue-600 border-blue-200 hover:bg-blue-50"
           >
-            <School className="h-4 w-4" />
-            <span>Gerenciar Escolas</span>
+            <User className="h-4 w-4" />
+            <span>Gerenciar Administradores</span>
           </Button>
           <Button
             onClick={() => navigate('/admin/professors')}
