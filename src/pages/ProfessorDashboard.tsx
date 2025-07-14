@@ -4,10 +4,21 @@ import { ClipboardCheck, FileEdit, Award } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Header } from '@/components/shared'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const ProfessorDashboard = () => {
   const navigate = useNavigate()
   const [greeting, setGreeting] = useState('')
+  const [selectedSchool, setSelectedSchool] = useState(() => {
+    const savedSchool = localStorage.getItem('selectedSchool')
+    return savedSchool || 'lincoln'
+  })
 
   // Mock professor data
   const professor = {
@@ -15,6 +26,13 @@ const ProfessorDashboard = () => {
     lastName: 'Johnson',
     title: 'Dr.',
   }
+
+  // Mock schools data
+  const schools = [
+    { id: 'lincoln', name: 'Lincoln Elementary' },
+    { id: 'washington', name: 'Washington High School' },
+    { id: 'roosevelt', name: 'Roosevelt Middle School' },
+  ]
 
   // Mock upcoming lessons data
   const upcomingLessons = [
@@ -83,14 +101,39 @@ const ProfessorDashboard = () => {
 
       {/* Main Content */}
       <main className="p-6 max-w-7xl mx-auto space-y-6">
-        {/* Greeting */}
+        {/* Greeting and School Selector */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {greeting}, {professor.title} {professor.lastName}
-          </h1>
-          <p className="text-gray-600">
-            Veja o que está acontecendo com suas turmas hoje
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {greeting}, {professor.title} {professor.lastName}
+              </h1>
+              <p className="text-gray-600">
+                Veja o que está acontecendo com suas turmas hoje
+              </p>
+            </div>
+
+            <div>
+              <Select
+                value={selectedSchool}
+                onValueChange={(value) => {
+                  setSelectedSchool(value)
+                  localStorage.setItem('selectedSchool', value)
+                }}
+              >
+                <SelectTrigger className="w-full sm:w-64">
+                  <SelectValue placeholder="Selecione a escola" />
+                </SelectTrigger>
+                <SelectContent>
+                  {schools.map((school) => (
+                    <SelectItem key={school.id} value={school.id}>
+                      {school.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

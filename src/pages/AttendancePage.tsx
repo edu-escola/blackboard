@@ -24,7 +24,10 @@ const AttendancePage = () => {
   const { toast } = useToast()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [selectedSchool, setSelectedSchool] = useState('')
+  const [selectedSchool, setSelectedSchool] = useState(() => {
+    const savedSchool = localStorage.getItem('selectedSchool')
+    return savedSchool || ''
+  })
   const [selectedClass, setSelectedClass] = useState('')
   const [selectedSubject, setSelectedSubject] = useState('')
   const [attendance, setAttendance] = useState<{ [key: string]: boolean }>({})
@@ -328,7 +331,10 @@ const AttendancePage = () => {
                     <label className="text-sm font-medium">Escola</label>
                     <Select
                       value={selectedSchool}
-                      onValueChange={setSelectedSchool}
+                      onValueChange={(value) => {
+                        setSelectedSchool(value)
+                        localStorage.setItem('selectedSchool', value)
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a escola" />
