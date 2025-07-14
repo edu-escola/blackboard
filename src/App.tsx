@@ -16,6 +16,7 @@ import ReportsPage from './pages/ReportsPage'
 import ServerError from './pages/ServerError'
 import NotFound from './pages/NotFound'
 import AdministratorManagement from './pages/AdministratorManagement'
+import DashboardSelection from './pages/DashboardSelection'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 const queryClient = new QueryClient()
@@ -29,7 +30,14 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
 
-          <Route element={<ProtectedRoute />}>
+          <Route element={<ProtectedRoute role="both" />}>
+            <Route
+              path="/dashboard-selection"
+              element={<DashboardSelection />}
+            />
+          </Route>
+
+          <Route element={<ProtectedRoute role="admin" />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route
               path="/admin/administrators"
@@ -42,6 +50,9 @@ const App = () => (
               element={<ClassTimetableManagement />}
             />
             <Route path="/admin/reports" element={<ReportsPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute role="teacher" />}>
             <Route path="/professor/attendance" element={<AttendancePage />} />
             <Route
               path="/professor/evaluations"

@@ -3,26 +3,50 @@ import { useEffect, useState } from 'react'
 import { api } from '@/lib'
 import LoadingSplash from './LoadingSplash'
 
-export const ProtectedRoute = () => {
-  const [authorized, setAuthorized] = useState<boolean | null>(null)
+type Role = 'admin' | 'teacher' | 'both'
+
+interface ProtectedRouteProps {
+  role: Role
+}
+
+export const ProtectedRoute = ({ role }: ProtectedRouteProps) => {
+  const [status, setStatus] = useState<
+    | 'pending'
+    | 'authorized'
+    | 'unauthorized-admin'
+    | 'unauthorized-teacher'
+    | 'unauthorized'
+  >('pending')
 
   useEffect(() => {
     api
       .get('/auth/me')
-      .then(() => {
-        setTimeout(() => {
-          console.log('authorized')
-          setAuthorized(true)
-        }, 300)
-      })
-      .catch(() => {
-        console.log('unauthorized')
-        setAuthorized(false)
-      })
-  }, [])
+      .then((res) => {
+        const { isAdmin, isTeacher } = res.data
 
-  if (authorized === null) return <LoadingSplash message="Carregando..." />
-  if (!authorized) return <Navigate to="/" />
+        if (role === 'admin' && isAdmin) {
+          setStatus('authorized')
+        } else if (role === 'teacher' && isTeacher) {
+          setStatus('authorized')
+        } else if (role === 'both' && (isAdmin || isTeacher)) {
+          setStatus('authorized')
+        } else if (isTeacher) {
+          setStatus('unauthorized-teacher')
+        } else if (isAdmin) {
+          setStatus('unauthorized-admin')
+        } else {
+          setStatus('unauthorized')
+        }
+      })
+      .catch(() => setStatus('unauthorized'))
+  }, [role])
+
+  if (status === 'pending') return <LoadingSplash message="Carregando..." />
+
+  if (status === 'unauthorized-teacher')
+    return <Navigate to="/professor/dashboard" />
+  if (status === 'unauthorized-admin') return <Navigate to="/admin/dashboard" />
+  if (status === 'unauthorized') return <Navigate to="/" />
 
   return <Outlet />
 }
