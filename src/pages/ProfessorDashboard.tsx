@@ -198,10 +198,10 @@ const ProfessorDashboard = () => {
                     </div>
                     <div>
                       <h4 className="font-medium text-gray-900">
-                        Corrigir Avaliações
+                        Avaliações
                       </h4>
                       <p className="text-sm text-gray-600">
-                        Revise o trabalho dos alunos
+                        Registre atividades dos alunos
                       </p>
                     </div>
                   </div>
