@@ -10,3 +10,4 @@ export {
   ErrorState,
 } from './EmptyStates'
 export { Header } from './Header'
+export { default as DeleteConfirmationDialog } from './DeleteConfirmationDialog'

@@ -1,5 +1,13 @@
 import { useState } from 'react'
-import { ArrowLeft, Plus, MapPin, Users, Filter } from 'lucide-react'
+import {
+  ArrowLeft,
+  Plus,
+  MapPin,
+  Users,
+  Filter,
+  Edit,
+  Trash2,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -28,6 +36,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { DeleteConfirmationDialog } from '@/components/shared'
 import { useNavigate } from 'react-router-dom'
 
 const ClassTimetableManagement = () => {
@@ -37,6 +46,15 @@ const ClassTimetableManagement = () => {
   const [periodFilter, setPeriodFilter] = useState('all')
   const [classFilter, setClassFilter] = useState('all')
   const [roomFilter, setRoomFilter] = useState('all')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [classToDelete, setClassToDelete] = useState<any>(null)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingClass, setEditingClass] = useState<any>(null)
+  const [editForm, setEditForm] = useState({
+    name: '',
+    room: '',
+    shift: '',
+  })
 
   // Mock data
   const rooms = [
@@ -130,6 +148,49 @@ const ClassTimetableManagement = () => {
     return room.name.toLowerCase().includes(roomFilter.toLowerCase())
   })
 
+  const handleEditClass = (e: React.MouseEvent, classItem: any) => {
+    e.stopPropagation()
+    setEditingClass(classItem)
+    setEditForm({
+      name: classItem.name,
+      room: classItem.room,
+      shift: classItem.shift,
+    })
+    setEditModalOpen(true)
+  }
+
+  const handleDeleteClass = (e: React.MouseEvent, classItem: any) => {
+    e.stopPropagation()
+    setClassToDelete(classItem)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    // Aqui você implementaria a lógica para deletar a turma
+    console.log('Deletando turma:', classToDelete)
+    setDeleteDialogOpen(false)
+    setClassToDelete(null)
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false)
+    setClassToDelete(null)
+  }
+
+  const handleSaveEdit = () => {
+    // Aqui você implementaria a lógica para salvar as alterações
+    console.log('Salvando alterações:', editForm)
+    setEditModalOpen(false)
+    setEditingClass(null)
+    setEditForm({ name: '', room: '', shift: '' })
+  }
+
+  const handleCancelEdit = () => {
+    setEditModalOpen(false)
+    setEditingClass(null)
+    setEditForm({ name: '', room: '', shift: '' })
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -211,6 +272,7 @@ const ClassTimetableManagement = () => {
                       <TableHead>Nome da Turma</TableHead>
                       <TableHead>Sala</TableHead>
                       <TableHead>Período</TableHead>
+                      <TableHead>Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -229,6 +291,24 @@ const ClassTimetableManagement = () => {
                           <Badge className={getShiftColor(classItem.shift)}>
                             {classItem.shift}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => handleEditClass(e, classItem)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => handleDeleteClass(e, classItem)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -364,6 +444,89 @@ const ClassTimetableManagement = () => {
               <Button onClick={() => setNewRoomModalOpen(false)}>
                 Adicionar Sala
               </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dialog */}
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="Confirmar Exclusão"
+        description="Tem certeza que deseja excluir a turma"
+        itemName={classToDelete?.name}
+      />
+
+      {/* Edit Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Turma</DialogTitle>
+            <DialogDescription>
+              Edite as informações da turma.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="editName">Nome da Turma</Label>
+              <Input
+                id="editName"
+                value={editForm.name}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, name: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editRoom">Sala</Label>
+              <Select
+                value={editForm.room}
+                onValueChange={(value) =>
+                  setEditForm({ ...editForm, room: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecionar Sala" />
+                </SelectTrigger>
+                <SelectContent>
+                  {rooms.map((room) => (
+                    <SelectItem key={room.id} value={room.name}>
+                      {room.name} (Capacity: {room.capacity})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editShift">Período</Label>
+              <Select
+                value={editForm.shift}
+                onValueChange={(value) =>
+                  setEditForm({ ...editForm, shift: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecionar período" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="morning">Manhã</SelectItem>
+                  <SelectItem value="afternoon">Tarde</SelectItem>
+                  <SelectItem value="night">Noite</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleCancelEdit}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveEdit}>Salvar</Button>
             </div>
           </div>
         </DialogContent>
