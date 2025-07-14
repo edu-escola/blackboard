@@ -7,7 +7,6 @@ import Index from './pages/Index'
 import AdminDashboard from './pages/AdminDashboard'
 import ProfessorDashboard from './pages/ProfessorDashboard'
 import ProfessorManagement from './pages/ProfessorManagement'
-import SchoolManagement from './pages/SchoolManagement'
 import StudentManagement from './pages/StudentManagement'
 import ClassTimetableManagement from './pages/ClassTimetableManagement'
 import AttendancePage from './pages/AttendancePage'
@@ -15,6 +14,7 @@ import EvaluationsPage from './pages/EvaluationsPage'
 import LessonPlannerPage from './pages/LessonPlannerPage'
 import ServerError from './pages/ServerError'
 import NotFound from './pages/NotFound'
+import AdministratorManagement from './pages/AdministratorManagement'
 
 const queryClient = new QueryClient()
 
@@ -27,7 +27,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/schools" element={<SchoolManagement />} />
+          <Route
+            path="/admin/administrators"
+            element={<AdministratorManagement />}
+          />
           <Route path="/admin/professors" element={<ProfessorManagement />} />
           <Route path="/admin/students" element={<StudentManagement />} />
           <Route path="/admin/classes" element={<ClassTimetableManagement />} />

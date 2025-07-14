@@ -1,0 +1,442 @@
+import { useState } from 'react'
+import {
+  Search,
+  Plus,
+  ArrowLeft,
+  Mail,
+  User,
+  Shield,
+  Edit,
+  Trash2,
+  AlertTriangle,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useNavigate } from 'react-router-dom'
+
+const AdministratorManagement = () => {
+  const navigate = useNavigate()
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedAdministrator, setSelectedAdministrator] = useState<any>(null)
+  const [sideSheetOpen, setSideSheetOpen] = useState(false)
+  const [newAdministratorModalOpen, setNewAdministratorModalOpen] =
+    useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [administratorToDelete, setAdministratorToDelete] = useState<any>(null)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingAdministrator, setEditingAdministrator] = useState<any>(null)
+  const [editForm, setEditForm] = useState({
+    name: '',
+    email: '',
+    status: '',
+  })
+
+  const administrators = [
+    {
+      id: 1,
+      name: 'Maria Silva',
+      email: 'maria.silva@admin.edu',
+      status: 'Ativo',
+      joinDate: '2020-01-15',
+    },
+    {
+      id: 2,
+      name: 'João Santos',
+      email: 'joao.santos@admin.edu',
+      status: 'Ativo',
+      joinDate: '2021-03-10',
+    },
+    {
+      id: 3,
+      name: 'Ana Costa',
+      email: 'ana.costa@admin.edu',
+      status: 'Inativo',
+      joinDate: '2022-08-22',
+    },
+  ]
+
+  const filteredAdministrators = administrators.filter((administrator) => {
+    const matchesSearch =
+      administrator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      administrator.email.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesSearch
+  })
+
+  const handleRowClick = (administrator: any) => {
+    setSelectedAdministrator(administrator)
+    setSideSheetOpen(true)
+  }
+
+  const handleNewAdministrator = () => {
+    setNewAdministratorModalOpen(true)
+  }
+
+  const handleDeleteClick = (e: React.MouseEvent, administrator: any) => {
+    e.stopPropagation()
+    setAdministratorToDelete(administrator)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditClick = (e: React.MouseEvent, administrator: any) => {
+    e.stopPropagation()
+    setEditingAdministrator(administrator)
+    setEditForm({
+      name: administrator.name,
+      email: administrator.email,
+      status: administrator.status,
+    })
+    setEditModalOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    // Aqui você implementaria a lógica para deletar o administrador
+    console.log('Deletando administrador:', administratorToDelete)
+    setDeleteDialogOpen(false)
+    setAdministratorToDelete(null)
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false)
+    setAdministratorToDelete(null)
+  }
+
+  const handleSaveEdit = () => {
+    // Aqui você implementaria a lógica para salvar as alterações
+    console.log('Salvando alterações:', editForm)
+    setEditModalOpen(false)
+    setEditingAdministrator(null)
+    setEditForm({ name: '', email: '', status: '' })
+  }
+
+  const handleCancelEdit = () => {
+    setEditModalOpen(false)
+    setEditingAdministrator(null)
+    setEditForm({ name: '', email: '', status: '' })
+  }
+
+  const getStatusColor = (status: string) => {
+    return status === 'Ativo'
+      ? 'bg-green-100 text-green-800'
+      : 'bg-red-100 text-red-800'
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/admin/dashboard')}
+              className="hover:bg-gray-100"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Administradores
+            </h1>
+          </div>
+          <Button
+            onClick={handleNewAdministrator}
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Administrador
+          </Button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="p-6 max-w-7xl mx-auto space-y-6">
+        {/* Search */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Pesquise administradores por nome ou e-mail..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Administrators Table */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAdministrators.map((administrator) => (
+                  <TableRow
+                    key={administrator.id}
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleRowClick(administrator)}
+                  >
+                    <TableCell className="font-medium">
+                      {administrator.name}
+                    </TableCell>
+                    <TableCell>{administrator.email}</TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(administrator.status)}>
+                        {administrator.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleEditClick(e, administrator)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleDeleteClick(e, administrator)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </main>
+
+      {/* Side Sheet for Administrator Details */}
+      <Sheet open={sideSheetOpen} onOpenChange={setSideSheetOpen}>
+        <SheetContent className="w-96 sm:w-[540px]">
+          <SheetHeader>
+            <SheetTitle>Detalhes do Administrador</SheetTitle>
+            <SheetDescription>
+              Informações do administrador selecionado.
+            </SheetDescription>
+          </SheetHeader>
+          {selectedAdministrator && (
+            <div className="mt-6 space-y-6">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                  <User className="h-8 w-8 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    {selectedAdministrator.name}
+                  </h3>
+                  <p className="text-sm text-gray-600">Administrador</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <Mail className="h-4 w-4 text-gray-400" />
+                    <span className="text-sm">
+                      {selectedAdministrator.email}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Shield className="h-4 w-4 text-gray-400" />
+                    <div className="text-sm">
+                      <div className="font-medium">Status:</div>
+                      <Badge
+                        className={getStatusColor(selectedAdministrator.status)}
+                      >
+                        {selectedAdministrator.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* New Administrator Modal */}
+      <Dialog
+        open={newAdministratorModalOpen}
+        onOpenChange={setNewAdministratorModalOpen}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Novo Administrador</DialogTitle>
+            <DialogDescription>
+              Adicione as informações básicas do novo administrador.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome Completo</Label>
+              <Input id="name" placeholder="Digite o nome completo" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail</Label>
+              <Input id="email" type="email" placeholder="exemplo@email.com" />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setNewAdministratorModalOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={() => setNewAdministratorModalOpen(false)}>
+                Criar Administrador
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Administrator Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Editar Administrador</DialogTitle>
+            <DialogDescription>
+              Edite as informações do administrador.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Nome Completo</Label>
+              <Input
+                id="edit-name"
+                value={editForm.name}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, name: e.target.value })
+                }
+                placeholder="Digite o nome completo"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">E-mail</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editForm.email}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, email: e.target.value })
+                }
+                placeholder="exemplo@email.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-status">Status</Label>
+              <Select
+                value={editForm.status}
+                onValueChange={(value) =>
+                  setEditForm({ ...editForm, status: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Ativo">Ativo</SelectItem>
+                  <SelectItem value="Inativo">Inativo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleCancelEdit}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveEdit}>Salvar Alterações</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              Confirmar Exclusão
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o administrador{' '}
+              <strong>{administratorToDelete?.name}</strong>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDelete}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}
+
+export default AdministratorManagement
