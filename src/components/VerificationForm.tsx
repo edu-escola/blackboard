@@ -29,7 +29,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
     if (resendCountdown > 0) {
       const timer = setTimeout(() => {
         setResendCountdown(resendCountdown - 1)
-      }, 500)
+      }, 1000)
       return () => clearTimeout(timer)
     } else {
       setCanResend(true)
@@ -99,7 +99,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
   }
 
   if (isRedirecting) {
-    return <LoadingSplash />
+    return <LoadingSplash message="Entrando..." />
   }
 
   return (
