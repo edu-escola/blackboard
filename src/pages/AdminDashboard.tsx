@@ -5,6 +5,7 @@ import {
   School,
   User,
   Calendar,
+  Printer,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -81,7 +82,7 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <Button
             onClick={() => navigate('/admin/administrators')}
             variant="outline"
@@ -113,6 +114,14 @@ const AdminDashboard = () => {
           >
             <Calendar className="h-4 w-4" />
             <span>Turmas e Salas</span>
+          </Button>
+          <Button
+            onClick={() => navigate('/admin/reports')}
+            variant="outline"
+            className="flex items-center space-x-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+          >
+            <Printer className="h-4 w-4" />
+            <span>Imprimir Presença e Notas</span>
           </Button>
         </div>
       </main>
