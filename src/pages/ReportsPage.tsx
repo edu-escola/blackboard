@@ -7,6 +7,7 @@ import {
   Calendar,
   BookOpen,
   FileText,
+  ArrowLeft,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Header } from '@/components/shared'
+import { useNavigate } from 'react-router-dom'
 
 const ReportsPage = () => {
   const [selectedReport, setSelectedReport] = useState('')
@@ -78,20 +79,29 @@ const ReportsPage = () => {
     console.log('Baixando relatório')
   }
 
+  const navigate = useNavigate()
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-
-      <main className="p-6 max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/admin/dashboard')}
+            className="hover:bg-gray-100"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
           <h1 className="text-2xl font-bold text-gray-900">
             Relatórios e Impressões
           </h1>
-          <p className="text-gray-600">
-            Gere relatórios de presença e notas dos alunos
-          </p>
         </div>
+      </header>
 
+      {/* Main Content */}
+      <main className="p-6 max-w-7xl mx-auto">
         <div className="space-y-6">
           {/* Tipos de Relatório */}
           <Card>
@@ -197,7 +207,9 @@ const ReportsPage = () => {
                   onClick={handlePrintReport}
                   variant="outline"
                   className="flex items-center justify-center space-x-2"
-                  disabled={!selectedClass || !selectedPeriod}
+                  disabled={
+                    !selectedReport || !selectedClass || !selectedPeriod
+                  }
                 >
                   <Printer className="h-4 w-4" />
                   <span>Imprimir Relatório</span>
@@ -206,7 +218,9 @@ const ReportsPage = () => {
                   onClick={handleDownloadReport}
                   variant="outline"
                   className="flex items-center justify-center space-x-2"
-                  disabled={!selectedClass || !selectedPeriod}
+                  disabled={
+                    !selectedReport || !selectedClass || !selectedPeriod
+                  }
                 >
                   <Download className="h-4 w-4" />
                   <span>Baixar PDF</span>
