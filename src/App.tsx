@@ -16,6 +16,7 @@ import ReportsPage from './pages/ReportsPage'
 import ServerError from './pages/ServerError'
 import NotFound from './pages/NotFound'
 import AdministratorManagement from './pages/AdministratorManagement'
+import { ProtectedRoute } from './components/ProtectedRoute'
 
 const queryClient = new QueryClient()
 
@@ -27,24 +28,36 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route
-            path="/admin/administrators"
-            element={<AdministratorManagement />}
-          />
-          <Route path="/admin/professors" element={<ProfessorManagement />} />
-          <Route path="/admin/students" element={<StudentManagement />} />
-          <Route path="/admin/classes" element={<ClassTimetableManagement />} />
-          <Route path="/admin/reports" element={<ReportsPage />} />
-          <Route path="/professor/attendance" element={<AttendancePage />} />
-          <Route path="/professor/evaluations" element={<EvaluationsPage />} />
-          <Route
-            path="/professor/lesson-planner"
-            element={<LessonPlannerPage />}
-          />
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route
+              path="/admin/administrators"
+              element={<AdministratorManagement />}
+            />
+            <Route path="/admin/professors" element={<ProfessorManagement />} />
+            <Route path="/admin/students" element={<StudentManagement />} />
+            <Route
+              path="/admin/classes"
+              element={<ClassTimetableManagement />}
+            />
+            <Route path="/admin/reports" element={<ReportsPage />} />
+            <Route path="/professor/attendance" element={<AttendancePage />} />
+            <Route
+              path="/professor/evaluations"
+              element={<EvaluationsPage />}
+            />
+            <Route
+              path="/professor/lesson-planner"
+              element={<LessonPlannerPage />}
+            />
+            <Route
+              path="/professor/dashboard"
+              element={<ProfessorDashboard />}
+            />
+          </Route>
+
           <Route path="/error" element={<ServerError />} />
-          <Route path="/professor/dashboard" element={<ProfessorDashboard />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -1,7 +1,6 @@
+import { GraduationCap } from 'lucide-react'
 
-import { GraduationCap } from "lucide-react";
-
-const LoadingSplash = () => {
+const LoadingSplash = ({ message }: { message: string }) => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
@@ -13,18 +12,24 @@ const LoadingSplash = () => {
             <span className="text-3xl font-bold text-gray-900">EduEscola</span>
           </div>
         </div>
-        
+
         <div className="space-y-3">
-          <p className="text-lg text-gray-700 font-medium">Entrando…</p>
+          <p className="text-lg text-gray-700 font-medium">{message}</p>
           <div className="flex justify-center space-x-1">
             <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div
+              className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+              style={{ animationDelay: '0.1s' }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+              style={{ animationDelay: '0.2s' }}
+            ></div>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default LoadingSplash;
+export default LoadingSplash
