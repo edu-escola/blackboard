@@ -209,8 +209,8 @@ const LessonPlannerPage = () => {
         <Card className="border-0 shadow-sm">
           <CardHeader>
             <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-              <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
-                <div className="space-y-2">
+              <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 w-full">
+                <div className="space-y-2 w-full sm:w-auto">
                   <label className="text-sm font-medium">Escola</label>
                   <Select
                     value={selectedSchool}
@@ -232,7 +232,7 @@ const LessonPlannerPage = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 w-full sm:w-auto">
                   <label className="text-sm font-medium">Turma</label>
                   <Select
                     value={selectedClass}
@@ -253,8 +253,8 @@ const LessonPlannerPage = () => {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
-                <div className="space-y-2">
+              <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 w-full sm:w-auto">
+                <div className="space-y-2 w-full sm:w-auto">
                   <label className="text-sm font-medium">Bimestre</label>
                   <Select
                     value={selectedBimester}
@@ -272,7 +272,7 @@ const LessonPlannerPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 w-full sm:w-auto">
                   <label className="text-sm font-medium">Semana</label>
                   <Select
                     value={selectedWeek}
@@ -297,7 +297,7 @@ const LessonPlannerPage = () => {
       </div>
 
       {/* Lesson Plan Table */}
-      <div className="px-6">
+      <div className="px-2 sm:px-6">
         <Card className="border-0 shadow-sm">
           <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
             <CardTitle>
@@ -310,23 +310,23 @@ const LessonPlannerPage = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <Table className="min-w-[700px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-40">Data</TableHead>
-                    <TableHead className="w-42">Hora</TableHead>
-                    <TableHead className="w-80">Tema</TableHead>
-                    <TableHead className="min-w-80">Objetivos de aprendizagem</TableHead>
-                    <TableHead className="w-55">Habilidades</TableHead>
-                    <TableHead className="w-48">Matéria</TableHead>
-                    <TableHead className="w-20">Ações</TableHead>
+                    <TableHead className="min-w-[90px] w-auto">Data</TableHead>
+                    <TableHead className="min-w-[90px] w-auto">Hora</TableHead>
+                    <TableHead className="min-w-[120px] w-auto">Tema</TableHead>
+                    <TableHead className="min-w-[140px] w-auto">Objetivos de aprendizagem</TableHead>
+                    <TableHead className="min-w-[100px] w-auto">Habilidades</TableHead>
+                    <TableHead className="min-w-[100px] w-auto">Matéria</TableHead>
+                    <TableHead className="min-w-[60px] w-auto">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {lessons.map((lesson) => (
                     <TableRow key={lesson.id}>
-                      <TableCell>
+                      <TableCell className="min-w-[90px] w-auto max-w-[120px] truncate">
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -357,7 +357,7 @@ const LessonPlannerPage = () => {
                           </PopoverContent>
                         </Popover>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="min-w-[90px] w-auto max-w-[120px] truncate">
                         <Select
                           value={lesson.hour}
                           onValueChange={(value) =>
@@ -376,7 +376,7 @@ const LessonPlannerPage = () => {
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="min-w-[120px] w-auto max-w-[180px] truncate">
                         <Input
                           value={lesson.theme}
                           onChange={(e) =>
@@ -386,7 +386,7 @@ const LessonPlannerPage = () => {
                           className="border-0 focus:ring-1 focus:ring-blue-500"
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="min-w-[140px] w-auto max-w-[220px] truncate">
                         <Input
                           value={lesson.objectives}
                           onChange={(e) =>
@@ -396,7 +396,7 @@ const LessonPlannerPage = () => {
                           className="border-0 focus:ring-1 focus:ring-blue-500"
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="min-w-[100px] w-auto max-w-[160px] truncate">
                         <Input
                           value={lesson.skills}
                           onChange={(e) =>
@@ -406,7 +406,7 @@ const LessonPlannerPage = () => {
                           className="border-0 focus:ring-1 focus:ring-blue-500"
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="min-w-[100px] w-auto max-w-[140px] truncate">
                         <Select
                           value={lesson.subject}
                           onValueChange={(value) =>
@@ -425,7 +425,7 @@ const LessonPlannerPage = () => {
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="min-w-[60px] w-auto">
                         <Button
                           variant="ghost"
                           size="sm"
