@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, Plus, MapPin, Users } from 'lucide-react'
+import { ArrowLeft, Plus, MapPin, Users, Filter } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -34,6 +34,9 @@ const ClassTimetableManagement = () => {
   const navigate = useNavigate()
   const [newClassModalOpen, setNewClassModalOpen] = useState(false)
   const [newRoomModalOpen, setNewRoomModalOpen] = useState(false)
+  const [periodFilter, setPeriodFilter] = useState('all')
+  const [classFilter, setClassFilter] = useState('all')
+  const [roomFilter, setRoomFilter] = useState('all')
 
   // Mock data
   const rooms = [
@@ -109,6 +112,24 @@ const ClassTimetableManagement = () => {
     }
   }
 
+  const filteredClasses = classes.filter((classItem) => {
+    const matchesPeriod =
+      periodFilter === 'all' ||
+      classItem.shift.toLowerCase() === periodFilter.toLowerCase()
+    const matchesClass =
+      classFilter === 'all' ||
+      classItem.name.toLowerCase().includes(classFilter.toLowerCase())
+    const matchesRoom =
+      roomFilter === 'all' ||
+      classItem.room.toLowerCase().includes(roomFilter.toLowerCase())
+    return matchesPeriod && matchesClass && matchesRoom
+  })
+
+  const filteredRooms = rooms.filter((room) => {
+    if (roomFilter === 'all') return true
+    return room.name.toLowerCase().includes(roomFilter.toLowerCase())
+  })
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -139,10 +160,49 @@ const ClassTimetableManagement = () => {
             <Card className="border-0 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Turmas</CardTitle>
-                <Button onClick={() => setNewClassModalOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nova Turma
-                </Button>
+                <div className="flex items-center space-x-4">
+                  <Select value={classFilter} onValueChange={setClassFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Todas as turmas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as Turmas</SelectItem>
+                      {classes.map((cls) => (
+                        <SelectItem key={cls.id} value={cls.name}>
+                          {cls.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={roomFilter} onValueChange={setRoomFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Todas as salas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as Salas</SelectItem>
+                      {rooms.map((room) => (
+                        <SelectItem key={room.id} value={room.name}>
+                          {room.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={periodFilter} onValueChange={setPeriodFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Todos os períodos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os Períodos</SelectItem>
+                      <SelectItem value="morning">Manhã</SelectItem>
+                      <SelectItem value="afternoon">Tarde</SelectItem>
+                      <SelectItem value="night">Noite</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button onClick={() => setNewClassModalOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nova Turma
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -154,7 +214,7 @@ const ClassTimetableManagement = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {classes.map((classItem) => (
+                    {filteredClasses.map((classItem) => (
                       <TableRow key={classItem.id}>
                         <TableCell className="font-medium">
                           {classItem.name}
@@ -183,14 +243,29 @@ const ClassTimetableManagement = () => {
             <Card className="border-0 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Salas</CardTitle>
-                <Button onClick={() => setNewRoomModalOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nova Sala
-                </Button>
+                <div className="flex items-center space-x-4">
+                  <Select value={roomFilter} onValueChange={setRoomFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Todas as salas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as Salas</SelectItem>
+                      {rooms.map((room) => (
+                        <SelectItem key={room.id} value={room.name}>
+                          {room.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button onClick={() => setNewRoomModalOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nova Sala
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {rooms.map((room) => (
+                  {filteredRooms.map((room) => (
                     <Card key={room.id} className="border border-gray-200">
                       <CardContent className="p-4">
                         <CardTitle className="text-lg">{room.name}</CardTitle>
