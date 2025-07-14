@@ -65,6 +65,8 @@ const StudentManagement = () => {
     'História 301',
   ]
 
+  const periods = ['Manhã', 'Tarde', 'Noite', 'Integral']
+
   const students = [
     {
       id: 1,
@@ -178,19 +180,6 @@ const StudentManagement = () => {
                   className="pl-10"
                 />
               </div>
-              <Select value={schoolFilter} onValueChange={setSchoolFilter}>
-                <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Filtrar por escola" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas as Escolas</SelectItem>
-                  {schools.map((school) => (
-                    <SelectItem key={school.id} value={school.id}>
-                      {school.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               <Select value={classFilter} onValueChange={setClassFilter}>
                 <SelectTrigger className="w-full md:w-48">
                   <SelectValue placeholder="Filtrar por turma" />
@@ -216,7 +205,6 @@ const StudentManagement = () => {
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead>Matrícula</TableHead>
-                  <TableHead>Escola</TableHead>
                   <TableHead>Turma</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -234,7 +222,6 @@ const StudentManagement = () => {
                     <TableCell className="font-mono text-sm">
                       {student.enrollmentNumber}
                     </TableCell>
-                    <TableCell>{student.school}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{student.class}</Badge>
                     </TableCell>
@@ -355,15 +342,9 @@ const StudentManagement = () => {
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">Nome</Label>
-                <Input id="firstName" placeholder="João" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Sobrenome</Label>
-                <Input id="lastName" placeholder="Silva" />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Nome Completo</Label>
+              <Input id="fullName" placeholder="João Silva" />
             </div>
 
             <div className="space-y-2">
@@ -372,24 +353,15 @@ const StudentManagement = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="studentEmail">Email</Label>
-              <Input
-                id="studentEmail"
-                type="email"
-                placeholder="john.doe@student.edu"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="school">Escola</Label>
+              <Label htmlFor="period">Período</Label>
               <Select>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione a escola" />
+                  <SelectValue placeholder="Selecione o período" />
                 </SelectTrigger>
                 <SelectContent>
-                  {schools.map((school) => (
-                    <SelectItem key={school.id} value={school.id}>
-                      {school.name}
+                  {periods.map((period) => (
+                    <SelectItem key={period} value={period}>
+                      {period}
                     </SelectItem>
                   ))}
                 </SelectContent>
