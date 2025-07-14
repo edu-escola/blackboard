@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import {
   Search,
-  Filter,
   Plus,
   ArrowLeft,
   Mail,
@@ -18,13 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+
 import {
   Table,
   TableBody,
@@ -54,7 +47,6 @@ import { useNavigate } from 'react-router-dom'
 const ProfessorManagement = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
-  const [schoolFilter, setSchoolFilter] = useState('all')
   const [selectedProfessor, setSelectedProfessor] = useState<any>(null)
   const [sideSheetOpen, setSideSheetOpen] = useState(false)
   const [newProfessorModalOpen, setNewProfessorModalOpen] = useState(false)
@@ -118,12 +110,7 @@ const ProfessorManagement = () => {
     const matchesSearch =
       professor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       professor.email.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesSchool =
-      schoolFilter === 'all' ||
-      professor.schools.some(
-        (school) => schools.find((s) => s.id === schoolFilter)?.name === school
-      )
-    return matchesSearch && matchesSchool
+    return matchesSearch
   })
 
   const handleRowClick = (professor: any) => {
@@ -186,20 +173,6 @@ const ProfessorManagement = () => {
                   className="pl-10"
                 />
               </div>
-              <Select value={schoolFilter} onValueChange={setSchoolFilter}>
-                <SelectTrigger className="w-full md:w-64">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Filtrar por escola" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas Escolas</SelectItem>
-                  {schools.map((school) => (
-                    <SelectItem key={school.id} value={school.id}>
-                      {school.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           </CardContent>
         </Card>
@@ -212,7 +185,6 @@ const ProfessorManagement = () => {
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Escolas</TableHead>
                   <TableHead>Matérias</TableHead>
                   <TableHead>Turmas</TableHead>
                   <TableHead>Status</TableHead>
@@ -229,19 +201,6 @@ const ProfessorManagement = () => {
                       {professor.name}
                     </TableCell>
                     <TableCell>{professor.email}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {professor.schools.map((school, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className="text-xs"
-                          >
-                            {school}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {professor.subjects.map((subject, index) => (

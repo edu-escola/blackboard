@@ -11,3 +11,4 @@ export {
 } from './EmptyStates'
 export { Header } from './Header'
 export { default as DeleteConfirmationDialog } from './DeleteConfirmationDialog'
+export { LogoutButton } from './LogoutButton'
