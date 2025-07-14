@@ -55,32 +55,27 @@ const ClassTimetableManagement = () => {
     room: '',
     shift: '',
   })
+  const [editRoomModalOpen, setEditRoomModalOpen] = useState(false)
+  const [editingRoom, setEditingRoom] = useState<any>(null)
+  const [editRoomForm, setEditRoomForm] = useState({
+    name: '',
+  })
+  const [deleteRoomDialogOpen, setDeleteRoomDialogOpen] = useState(false)
+  const [roomToDelete, setRoomToDelete] = useState<any>(null)
 
   // Mock data
   const rooms = [
     {
       id: 1,
       name: 'Room A101',
-      capacity: 30,
-      equipment: ['Projector', 'WiFi', 'Whiteboard'],
-      type: 'Classroom',
-      building: 'Main Building',
     },
     {
       id: 2,
       name: 'Lab B201',
-      capacity: 25,
-      equipment: ['Computers', 'WiFi', 'Air Conditioning'],
-      type: 'Computer Lab',
-      building: 'Science Wing',
     },
     {
       id: 3,
       name: 'Auditorium C301',
-      capacity: 150,
-      equipment: ['Sound System', 'Projector', 'Stage'],
-      type: 'Auditorium',
-      building: 'Arts Center',
     },
   ]
 
@@ -189,6 +184,47 @@ const ClassTimetableManagement = () => {
     setEditModalOpen(false)
     setEditingClass(null)
     setEditForm({ name: '', room: '', shift: '' })
+  }
+
+  const handleEditRoom = (e: React.MouseEvent, room: any) => {
+    e.stopPropagation()
+    setEditingRoom(room)
+    setEditRoomForm({
+      name: room.name,
+    })
+    setEditRoomModalOpen(true)
+  }
+
+  const handleDeleteRoom = (e: React.MouseEvent, room: any) => {
+    e.stopPropagation()
+    setRoomToDelete(room)
+    setDeleteRoomDialogOpen(true)
+  }
+
+  const handleConfirmDeleteRoom = () => {
+    // Aqui você implementaria a lógica para deletar a sala
+    console.log('Deletando sala:', roomToDelete)
+    setDeleteRoomDialogOpen(false)
+    setRoomToDelete(null)
+  }
+
+  const handleCancelDeleteRoom = () => {
+    setDeleteRoomDialogOpen(false)
+    setRoomToDelete(null)
+  }
+
+  const handleSaveEditRoom = () => {
+    // Aqui você implementaria a lógica para salvar as alterações da sala
+    console.log('Salvando alterações da sala:', editRoomForm)
+    setEditRoomModalOpen(false)
+    setEditingRoom(null)
+    setEditRoomForm({ name: '' })
+  }
+
+  const handleCancelEditRoom = () => {
+    setEditRoomModalOpen(false)
+    setEditingRoom(null)
+    setEditRoomForm({ name: '' })
   }
 
   return (
@@ -349,6 +385,22 @@ const ClassTimetableManagement = () => {
                     <Card key={room.id} className="border border-gray-200">
                       <CardContent className="p-4">
                         <CardTitle className="text-lg">{room.name}</CardTitle>
+                        <div className="flex space-x-2 mt-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleEditRoom(e, room)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleDeleteRoom(e, room)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
@@ -384,7 +436,7 @@ const ClassTimetableManagement = () => {
                 <SelectContent>
                   {rooms.map((room) => (
                     <SelectItem key={room.id} value={room.name}>
-                      {room.name} (Capacity: {room.capacity})
+                      {room.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -496,7 +548,7 @@ const ClassTimetableManagement = () => {
                 <SelectContent>
                   {rooms.map((room) => (
                     <SelectItem key={room.id} value={room.name}>
-                      {room.name} (Capacity: {room.capacity})
+                      {room.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -531,6 +583,47 @@ const ClassTimetableManagement = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Room Modal */}
+      <Dialog open={editRoomModalOpen} onOpenChange={setEditRoomModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Sala</DialogTitle>
+            <DialogDescription>Edite as informações da sala.</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="editRoomName">Nome da Sala</Label>
+              <Input
+                id="editRoomName"
+                value={editRoomForm.name}
+                onChange={(e) =>
+                  setEditRoomForm({ ...editRoomForm, name: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleCancelEditRoom}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveEditRoom}>Salvar</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Room Dialog */}
+      <DeleteConfirmationDialog
+        open={deleteRoomDialogOpen}
+        onOpenChange={setDeleteRoomDialogOpen}
+        onConfirm={handleConfirmDeleteRoom}
+        onCancel={handleCancelDeleteRoom}
+        title="Confirmar Exclusão"
+        description="Tem certeza que deseja excluir a sala"
+        itemName={roomToDelete?.name}
+      />
     </div>
   )
 }
