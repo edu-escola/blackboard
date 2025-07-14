@@ -6,16 +6,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
-import { useNavigate } from 'react-router-dom'
+import { LogoutButton } from './LogoutButton'
 
 export const Header = () => {
-  const navigate = useNavigate()
-  const handleLogout = async () => {
-    // await api.post('/auth/logout')
-    navigate('/')
-  }
-
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -38,9 +31,7 @@ export const Header = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <Button onClick={handleLogout} variant="outline">
-            Sair
-          </Button>
+          <LogoutButton />
         </div>
       </div>
     </header>
