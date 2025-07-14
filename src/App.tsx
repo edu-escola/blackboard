@@ -13,6 +13,7 @@ import ClassTimetableManagement from './pages/ClassTimetableManagement'
 import AttendancePage from './pages/AttendancePage'
 import EvaluationsPage from './pages/EvaluationsPage'
 import LessonPlannerPage from './pages/LessonPlannerPage'
+import ReportsPage from './pages/ReportsPage'
 import ServerError from './pages/ServerError'
 import NotFound from './pages/NotFound'
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/admin/professors" element={<ProfessorManagement />} />
           <Route path="/admin/students" element={<StudentManagement />} />
           <Route path="/admin/classes" element={<ClassTimetableManagement />} />
+          <Route path="/admin/reports" element={<ReportsPage />} />
           <Route path="/professor/attendance" element={<AttendancePage />} />
           <Route path="/professor/evaluations" element={<EvaluationsPage />} />
           <Route
