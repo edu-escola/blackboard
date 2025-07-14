@@ -10,3 +10,4 @@ export {
   ErrorState,
 } from './EmptyStates'
 export { Header } from './Header'
+export { LogoutButton } from './LogoutButton'

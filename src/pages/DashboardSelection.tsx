@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { User, GraduationCap, ArrowRight, Shield, BookOpen } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Header } from '@/components/shared'
+import { Header, LogoutButton } from '@/components/shared'
 
 const DashboardSelection = () => {
   const navigate = useNavigate()
@@ -17,10 +17,6 @@ const DashboardSelection = () => {
     } else if (selectedRole === 'professor') {
       window.location.href = '/professor/dashboard'
     }
-  }
-
-  const handleLogout = () => {
-    navigate('/')
   }
 
   return (
@@ -146,13 +142,12 @@ const DashboardSelection = () => {
             <ArrowRight className="h-4 w-4" />
           </Button>
 
-          <Button
-            onClick={handleLogout}
+          <LogoutButton
             variant="outline"
             className="px-8 py-3 text-base font-medium border-gray-300 hover:bg-gray-50"
           >
             Sair
-          </Button>
+          </LogoutButton>
         </div>
 
         {/* Informação adicional */}
