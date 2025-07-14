@@ -112,7 +112,7 @@ const AdminDashboard = () => {
             className="flex items-center space-x-2 text-orange-600 border-orange-200 hover:bg-orange-50"
           >
             <Calendar className="h-4 w-4" />
-            <span>Turmas e Horários</span>
+            <span>Turmas e Salas</span>
           </Button>
         </div>
       </main>
