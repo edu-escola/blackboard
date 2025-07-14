@@ -40,7 +40,10 @@ interface LessonRow {
 const LessonPlannerPage = () => {
   const navigate = useNavigate()
   const { toast } = useToast()
-  const [selectedSchool, setSelectedSchool] = useState('')
+  const [selectedSchool, setSelectedSchool] = useState(() => {
+    const savedSchool = localStorage.getItem('selectedSchool')
+    return savedSchool || ''
+  })
   const [selectedClass, setSelectedClass] = useState('')
   const [selectedBimester, setSelectedBimester] = useState('1')
   const [lessons, setLessons] = useState<LessonRow[]>([
@@ -180,7 +183,10 @@ const LessonPlannerPage = () => {
                   <label className="text-sm font-medium">Escola</label>
                   <Select
                     value={selectedSchool}
-                    onValueChange={setSelectedSchool}
+                    onValueChange={(value) => {
+                      setSelectedSchool(value)
+                      localStorage.setItem('selectedSchool', value)
+                    }}
                   >
                     <SelectTrigger className="w-full sm:w-48">
                       <SelectValue placeholder="Selecione a Escola" />
