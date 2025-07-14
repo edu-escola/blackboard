@@ -32,8 +32,10 @@ import { useToast } from '@/hooks/use-toast'
 interface LessonRow {
   id: string
   date: Date | undefined
-  title: string
-  theme: string
+  hour: string // nova coluna
+  theme: string // agora é Tema
+  objectives: string // agora é Objetivos de aprendizagem
+  skills: string // nova coluna Habilidades
   subject: string
 }
 
@@ -50,25 +52,36 @@ const LessonPlannerPage = () => {
     {
       id: '1',
       date: new Date('2024-01-15'),
-      title: 'Introdução à Álgebra',
+      hour: '',
       theme: 'Conceitos algébricos básicos e variáveis',
+      objectives: 'Compreender conceitos básicos de álgebra',
+      skills: '',
       subject: 'Matemática',
     },
     {
       id: '2',
       date: new Date('2024-01-17'),
-      title: 'Equações Lineares',
+      hour: '',
       theme: 'Resolução de equações lineares com uma variável',
+      objectives: 'Resolver equações lineares simples',
+      skills: '',
       subject: 'Matemática',
     },
     {
       id: '3',
       date: new Date('2024-01-19'),
-      title: 'Funções gráficas',
+      hour: '',
       theme: 'Introdução aos planos de coordenadas e gráficos',
+      objectives: 'Interpretar gráficos simples',
+      skills: '',
       subject: 'Matemática',
     },
   ])
+  const [detalhamento, setDetalhamento] = useState('')
+  const [avaliacao, setAvaliacao] = useState('')
+  const [consideracoes, setConsideracoes] = useState('')
+  const [observacoes, setObservacoes] = useState('')
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   // Mock data
   const schools = [
@@ -94,12 +107,28 @@ const LessonPlannerPage = () => {
     'Educação Física',
   ]
 
+  // Horários disponíveis para seleção
+  const hours = [
+    "07:00", "07:30", "08:00", "08:30", "09:00", "09:30",
+    "10:00", "10:30", "11:00", "11:30", "12:00", "12:30",
+    "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
+    "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
+    "19:00", "19:30", "20:00", "20:30", "21:00", "21:30",
+    "22:00", "22:30", "23:00"
+  ]
+
   const bimesters = [
     { value: '1', label: '1° Bimestre' },
     { value: '2', label: '2° Bimestre' },
     { value: '3', label: '3° Bimestre' },
     { value: '4', label: '4° Bimestre' },
   ]
+
+  // Mock de semanas
+  const weeks = [
+    '01/01-05/01', '06/01-10/01', '11/01-15/01', '16/01-20/01', '21/01-25/01', '26/01-30/01', '01/02-05/02', '06/02-10/02', '11/02-15/02'
+  ]
+  const [selectedWeek, setSelectedWeek] = useState('')
 
   // Filter classes by selected school
   const filteredClasses = classes.filter(
@@ -114,8 +143,10 @@ const LessonPlannerPage = () => {
     const newLesson: LessonRow = {
       id: generateId(),
       date: undefined,
-      title: '',
+      hour: '',
       theme: '',
+      objectives: '',
+      skills: '',
       subject: '',
     }
     setLessons((prev) => [...prev, newLesson])
@@ -147,7 +178,7 @@ const LessonPlannerPage = () => {
     }
 
     const validLessons = lessons.filter(
-      (lesson) => lesson.title.trim() !== '' || lesson.theme.trim() !== ''
+      (lesson) => lesson.theme.trim() !== '' || lesson.objectives.trim() !== ''
     )
 
     toast({
@@ -178,8 +209,8 @@ const LessonPlannerPage = () => {
         <Card className="border-0 shadow-sm">
           <CardHeader>
             <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-              <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
-                <div className="space-y-2">
+              <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 w-full">
+                <div className="space-y-2 w-full sm:w-auto">
                   <label className="text-sm font-medium">Escola</label>
                   <Select
                     value={selectedSchool}
@@ -201,7 +232,7 @@ const LessonPlannerPage = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 w-full sm:w-auto">
                   <label className="text-sm font-medium">Turma</label>
                   <Select
                     value={selectedClass}
@@ -222,8 +253,8 @@ const LessonPlannerPage = () => {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
-                <div className="space-y-2">
+              <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 w-full sm:w-auto">
+                <div className="space-y-2 w-full sm:w-auto">
                   <label className="text-sm font-medium">Bimestre</label>
                   <Select
                     value={selectedBimester}
@@ -241,6 +272,24 @@ const LessonPlannerPage = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2 w-full sm:w-auto">
+                  <label className="text-sm font-medium">Semana</label>
+                  <Select
+                    value={selectedWeek}
+                    onValueChange={setSelectedWeek}
+                  >
+                    <SelectTrigger className="w-full sm:w-48">
+                      <SelectValue placeholder="Selecione a Semana" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {weeks.map((week) => (
+                        <SelectItem key={week} value={week}>
+                          {week}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -248,7 +297,7 @@ const LessonPlannerPage = () => {
       </div>
 
       {/* Lesson Plan Table */}
-      <div className="px-6">
+      <div className="px-2 sm:px-6">
         <Card className="border-0 shadow-sm">
           <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
             <CardTitle>
@@ -261,21 +310,23 @@ const LessonPlannerPage = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <Table className="min-w-[700px]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-40">Data</TableHead>
-                    <TableHead className="w-64">Título da lição</TableHead>
-                    <TableHead className="min-w-80">Tema/Descrição</TableHead>
-                    <TableHead className="w-48">Matéria</TableHead>
-                    <TableHead className="w-20">Ações</TableHead>
+                    <TableHead className="min-w-[90px] w-auto">Data</TableHead>
+                    <TableHead className="min-w-[90px] w-auto">Hora</TableHead>
+                    <TableHead className="min-w-[120px] w-auto">Tema</TableHead>
+                    <TableHead className="min-w-[140px] w-auto">Objetivos de aprendizagem</TableHead>
+                    <TableHead className="min-w-[100px] w-auto">Habilidades</TableHead>
+                    <TableHead className="min-w-[100px] w-auto">Matéria</TableHead>
+                    <TableHead className="min-w-[60px] w-auto">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {lessons.map((lesson) => (
                     <TableRow key={lesson.id}>
-                      <TableCell>
+                      <TableCell className="min-w-[90px] w-auto max-w-[120px] truncate">
                         <Popover>
                           <PopoverTrigger asChild>
                             <Button
@@ -306,30 +357,56 @@ const LessonPlannerPage = () => {
                           </PopoverContent>
                         </Popover>
                       </TableCell>
-
-                      <TableCell>
-                        <Input
-                          value={lesson.title}
-                          onChange={(e) =>
-                            updateLesson(lesson.id, 'title', e.target.value)
+                      <TableCell className="min-w-[90px] w-auto max-w-[120px] truncate">
+                        <Select
+                          value={lesson.hour}
+                          onValueChange={(value) =>
+                            updateLesson(lesson.id, 'hour', value)
                           }
-                          placeholder="Insira o título da lição"
-                          className="border-0 focus:ring-1 focus:ring-blue-500"
-                        />
+                        >
+                          <SelectTrigger className="border-0 focus:ring-1 focus:ring-blue-500">
+                            <SelectValue placeholder="Selecione o horário" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {hours.map((h) => (
+                              <SelectItem key={h} value={h}>
+                                {h}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </TableCell>
-
-                      <TableCell>
+                      <TableCell className="min-w-[120px] w-auto max-w-[180px] truncate">
                         <Input
                           value={lesson.theme}
                           onChange={(e) =>
                             updateLesson(lesson.id, 'theme', e.target.value)
                           }
-                          placeholder="Descreva o tema e os objetivos da lição"
+                          placeholder="Descreva o tema da lição"
                           className="border-0 focus:ring-1 focus:ring-blue-500"
                         />
                       </TableCell>
-
-                      <TableCell>
+                      <TableCell className="min-w-[140px] w-auto max-w-[220px] truncate">
+                        <Input
+                          value={lesson.objectives}
+                          onChange={(e) =>
+                            updateLesson(lesson.id, 'objectives', e.target.value)
+                          }
+                          placeholder="Descreva os objetivos de aprendizagem"
+                          className="border-0 focus:ring-1 focus:ring-blue-500"
+                        />
+                      </TableCell>
+                      <TableCell className="min-w-[100px] w-auto max-w-[160px] truncate">
+                        <Input
+                          value={lesson.skills}
+                          onChange={(e) =>
+                            updateLesson(lesson.id, 'skills', e.target.value)
+                          }
+                          placeholder="Descreva as habilidades"
+                          className="border-0 focus:ring-1 focus:ring-blue-500"
+                        />
+                      </TableCell>
+                      <TableCell className="min-w-[100px] w-auto max-w-[140px] truncate">
                         <Select
                           value={lesson.subject}
                           onValueChange={(value) =>
@@ -348,8 +425,7 @@ const LessonPlannerPage = () => {
                           </SelectContent>
                         </Select>
                       </TableCell>
-
-                      <TableCell>
+                      <TableCell className="min-w-[60px] w-auto">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -366,6 +442,94 @@ const LessonPlannerPage = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Dropdowns de textos adicionais */}
+      <div className="px-6 pt-4 space-y-3 pb-32">
+        {/* Detalhamento das Aulas */}
+        <div className="border rounded shadow-sm bg-white">
+          <button
+            type="button"
+            className="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none"
+            onClick={() => setOpenDropdown(openDropdown === 'detalhamento' ? null : 'detalhamento')}
+          >
+            Detalhamento das Aulas
+            <span>{openDropdown === 'detalhamento' ? '▲' : '▼'}</span>
+          </button>
+          {openDropdown === 'detalhamento' && (
+            <div className="px-4 pb-4">
+              <textarea
+                className="w-full border rounded p-2 mt-2 min-h-[80px] focus:ring-1 focus:ring-blue-500"
+                value={detalhamento}
+                onChange={e => setDetalhamento(e.target.value)}
+                placeholder="Digite o detalhamento das aulas..."
+              />
+            </div>
+          )}
+        </div>
+        {/* Forma de Avaliação */}
+        <div className="border rounded shadow-sm bg-white">
+          <button
+            type="button"
+            className="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none"
+            onClick={() => setOpenDropdown(openDropdown === 'avaliacao' ? null : 'avaliacao')}
+          >
+            Forma de Avaliação
+            <span>{openDropdown === 'avaliacao' ? '▲' : '▼'}</span>
+          </button>
+          {openDropdown === 'avaliacao' && (
+            <div className="px-4 pb-4">
+              <textarea
+                className="w-full border rounded p-2 mt-2 min-h-[80px] focus:ring-1 focus:ring-blue-500"
+                value={avaliacao}
+                onChange={e => setAvaliacao(e.target.value)}
+                placeholder="Digite a forma de avaliação..."
+              />
+            </div>
+          )}
+        </div>
+        {/* Considerações */}
+        <div className="border rounded shadow-sm bg-white">
+          <button
+            type="button"
+            className="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none"
+            onClick={() => setOpenDropdown(openDropdown === 'consideracoes' ? null : 'consideracoes')}
+          >
+            Considerações
+            <span>{openDropdown === 'consideracoes' ? '▲' : '▼'}</span>
+          </button>
+          {openDropdown === 'consideracoes' && (
+            <div className="px-4 pb-4">
+              <textarea
+                className="w-full border rounded p-2 mt-2 min-h-[80px] focus:ring-1 focus:ring-blue-500"
+                value={consideracoes}
+                onChange={e => setConsideracoes(e.target.value)}
+                placeholder="Digite as considerações..."
+              />
+            </div>
+          )}
+        </div>
+        {/* Observações do Coordenador */}
+        <div className="border rounded shadow-sm bg-white">
+          <button
+            type="button"
+            className="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none"
+            onClick={() => setOpenDropdown(openDropdown === 'observacoes' ? null : 'observacoes')}
+          >
+            Observações do Coordenador
+            <span>{openDropdown === 'observacoes' ? '▲' : '▼'}</span>
+          </button>
+          {openDropdown === 'observacoes' && (
+            <div className="px-4 pb-4">
+              <textarea
+                className="w-full border rounded p-2 mt-2 min-h-[80px] focus:ring-1 focus:ring-blue-500"
+                value={observacoes}
+                onChange={e => setObservacoes(e.target.value)}
+                placeholder="Digite as observações do coordenador..."
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Sticky Save Button */}

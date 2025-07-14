@@ -270,9 +270,9 @@ const EvaluationsPage = () => {
           {/* Activities List Tab */}
           <TabsContent value="activities" className="space-y-6">
             <Card className="border-0 shadow-sm">
-              <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-                <CardTitle>Atividades e Avaliações</CardTitle>
-                <div className="flex items-center space-x-4">
+              <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+                <CardTitle className="text-left whitespace-nowrap m-0">Atividades e Avaliações</CardTitle>
+                <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
                   
                   <Select
                     value={newActivity.class}
@@ -280,7 +280,7 @@ const EvaluationsPage = () => {
                       setNewActivity((prev) => ({ ...prev, class: value }))
                     }
                   >
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-full sm:w-40">
                       <SelectValue placeholder="Escola" />
                     </SelectTrigger>
                     <SelectContent>
@@ -296,7 +296,7 @@ const EvaluationsPage = () => {
                     onValueChange={(value) =>
                     setNewActivity((prev) => ({ ...prev, subject: value }))
                   }>
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-full sm:w-40">
                       <SelectValue placeholder="Bimestre" />
                     </SelectTrigger>
                     <SelectContent>
@@ -308,7 +308,7 @@ const EvaluationsPage = () => {
                     </SelectContent>
                   </Select>
                   <Select value={classFilter} onValueChange={setClassFilter}>
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-full sm:w-40">
                       <SelectValue placeholder="Turma" />
                     </SelectTrigger>
                     <SelectContent>
@@ -320,7 +320,7 @@ const EvaluationsPage = () => {
                     </SelectContent>
                   </Select>
                   <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-full sm:w-40">
                       <SelectValue placeholder="Disciplina" />
                     </SelectTrigger>
                     <SelectContent>
@@ -334,61 +334,63 @@ const EvaluationsPage = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Título</TableHead>
-                      <TableHead>Turma</TableHead>
-                      <TableHead>Disciplina</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Média da Sala</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredActivities.map((activity) => (
-                      <TableRow
-                        key={activity.id}
-                        className="cursor-pointer hover:bg-gray-50"
-                        onClick={() => handleActivityClick(activity)}
-                      >
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            {getTypeIcon(activity.type)}
-                            <div>
-                              <div className="font-medium">
-                                {activity.title}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {activity.type}
+                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  <Table className="min-w-[600px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Título</TableHead>
+                        <TableHead>Turma</TableHead>
+                        <TableHead>Disciplina</TableHead>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Média da Sala</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredActivities.map((activity) => (
+                        <TableRow
+                          key={activity.id}
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => handleActivityClick(activity)}
+                        >
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              {getTypeIcon(activity.type)}
+                              <div>
+                                <div className="font-medium">
+                                  {activity.title}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {activity.type}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{activity.class}</TableCell>
-                        <TableCell>{activity.subject}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="h-4 w-4 text-gray-500" />
-                            <span>
-                              {new Date(activity.dueDate).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {activity.avgScore !== null ? (
-                            <span className="font-medium">
-                              {activity.avgScore}/{activity.maxScore}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">
-                              Não classificado
-                            </span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                          </TableCell>
+                          <TableCell>{activity.class}</TableCell>
+                          <TableCell>{activity.subject}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="h-4 w-4 text-gray-500" />
+                              <span>
+                                {new Date(activity.dueDate).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {activity.avgScore !== null ? (
+                              <span className="font-medium">
+                                {activity.avgScore}/{activity.maxScore}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">
+                                Não classificado
+                              </span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -400,7 +402,7 @@ const EvaluationsPage = () => {
                 <CardTitle>Criar Nova Atividade</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="title">Título *</Label>
                     <Input
@@ -612,7 +614,7 @@ const EvaluationsPage = () => {
                 {students.map((student) => (
                   <div
                     key={student.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg gap-2"
                   >
                     <div className="flex-1">
                       <h5 className="font-medium">{student.name}</h5>
