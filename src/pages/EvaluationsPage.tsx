@@ -6,7 +6,10 @@ import {
   Calendar,
   GraduationCap,
   FileText,
+  Trash2,
 } from 'lucide-react'
+import { format } from 'date-fns'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -34,10 +37,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import { Textarea } from '@/components/ui/textarea'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
+import DeleteConfirmationDialog from '@/components/shared/DeleteConfirmationDialog'
 
 const EvaluationsPage = () => {
   const navigate = useNavigate()
@@ -50,6 +59,11 @@ const EvaluationsPage = () => {
   const [selectedSchool, setSelectedSchool] = useState('')
   const [classFilter, setClassFilter] = useState(undefined)
   const [subjectFilter, setSubjectFilter] = useState(undefined)
+  const [newActivityModalOpen, setNewActivityModalOpen] = useState(false)
+  const [editActivityModalOpen, setEditActivityModalOpen] = useState(false)
+  const [editingActivity, setEditingActivity] = useState<any>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [activityToDelete, setActivityToDelete] = useState<any>(null)
 
   // Mock data
   const classes = [
@@ -126,14 +140,23 @@ const EvaluationsPage = () => {
   ]
 
   // Form state
-  const [newActivity, setNewActivity] = useState({
+  const [newActivity, setNewActivity] = useState<{
+    title: string
+    type: string
+    school: string
+    bimester: string
+    class: string
+    subject: string
+    date: Date | undefined
+    description: string
+  }>({
     title: '',
     type: '',
     school: '',
     bimester: '',
     class: '',
     subject: '',
-    date: '',
+    date: undefined,
     description: '',
   })
 
@@ -200,14 +223,103 @@ const EvaluationsPage = () => {
       bimester: '',
       class: '',
       subject: '',
-      date: '',
+      date: undefined,
       description: '',
     })
 
-    // Redirect to activities list
-    setTimeout(() => {
-      // This would redirect to the activities list tab
-    }, 1500)
+    // Close modal
+    setNewActivityModalOpen(false)
+  }
+
+  const handleEditClick = (e: React.MouseEvent, activity: any) => {
+    e.stopPropagation()
+    setEditingActivity(activity)
+    setNewActivity({
+      title: activity.title,
+      type: activity.type,
+      school: '',
+      bimester: '',
+      class: activity.class,
+      subject: activity.subject,
+      date: new Date(activity.dueDate),
+      description: '',
+    })
+    setEditActivityModalOpen(true)
+  }
+
+  const handleDeleteClick = (e: React.MouseEvent, activity: any) => {
+    e.stopPropagation()
+    setActivityToDelete(activity)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    // Aqui você implementaria a lógica para deletar a atividade
+    console.log('Deletando atividade:', activityToDelete)
+    setDeleteDialogOpen(false)
+    setActivityToDelete(null)
+    toast({
+      title: 'Atividade excluída',
+      description: `${activityToDelete?.title} foi excluída com sucesso.`,
+    })
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false)
+    setActivityToDelete(null)
+  }
+
+  const handleSaveEdit = () => {
+    if (
+      !newActivity.title ||
+      !newActivity.type ||
+      !newActivity.school ||
+      !newActivity.bimester ||
+      !newActivity.class ||
+      !newActivity.subject ||
+      !newActivity.date
+    ) {
+      toast({
+        title: 'Erro',
+        description: 'Por favor, preencha todos os campos obrigatórios',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    // Aqui você implementaria a lógica para salvar as alterações
+    console.log('Salvando alterações:', newActivity)
+    setEditActivityModalOpen(false)
+    setEditingActivity(null)
+    setNewActivity({
+      title: '',
+      type: '',
+      school: '',
+      bimester: '',
+      class: '',
+      subject: '',
+      date: undefined,
+      description: '',
+    })
+    toast({
+      title: 'Atividade atualizada',
+      description: `${newActivity.title} foi atualizada com sucesso.`,
+    })
+  }
+
+  const handleCancelEdit = () => {
+    setEditActivityModalOpen(false)
+    setEditingActivity(null)
+    setNewActivity({
+      title: '',
+      type: '',
+      school: '',
+      bimester: '',
+      class: '',
+      subject: '',
+      date: undefined,
+      description: '',
+    })
   }
 
   const getStatusColor = (status: string) => {
@@ -246,338 +358,605 @@ const EvaluationsPage = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/professor/dashboard')}
+              className="hover:bg-gray-100"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold text-gray-900">Avaliações</h1>
+          </div>
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/professor/dashboard')}
-            className="hover:bg-gray-100"
+            onClick={() => setNewActivityModalOpen(true)}
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Atividade
           </Button>
-          <h1 className="text-2xl font-bold text-gray-900">Avaliações</h1>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="p-6 max-w-7xl mx-auto">
-        <Tabs defaultValue="activities" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="activities">Lista de Atividades</TabsTrigger>
-            <TabsTrigger value="create">Criar Nova</TabsTrigger>
-          </TabsList>
+      <main className="p-6 max-w-7xl mx-auto space-y-6">
+        {/* Activities List */}
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+            <CardTitle className="text-left whitespace-nowrap m-0">
+              Atividades e Avaliações
+            </CardTitle>
+            <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
+              <Select
+                value={newActivity.class}
+                onValueChange={(value) =>
+                  setNewActivity((prev) => ({ ...prev, class: value }))
+                }
+              >
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="Escola" />
+                </SelectTrigger>
+                <SelectContent>
+                  {schools.map((school) => (
+                    <SelectItem key={school.id} value={school.id}>
+                      {school.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-          {/* Activities List Tab */}
-          <TabsContent value="activities" className="space-y-6">
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
-                <CardTitle className="text-left whitespace-nowrap m-0">Atividades e Avaliações</CardTitle>
-                <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
-                  
-                  <Select
-                    value={newActivity.class}
-                    onValueChange={(value) =>
-                      setNewActivity((prev) => ({ ...prev, class: value }))
-                    }
-                  >
-                    <SelectTrigger className="w-full sm:w-40">
-                      <SelectValue placeholder="Escola" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {schools.map((school) => (
-                        <SelectItem key={school.id} value={school.id}>
-                          {school.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  <Select value={newActivity.bimester}
-                    onValueChange={(value) =>
-                    setNewActivity((prev) => ({ ...prev, subject: value }))
-                  }>
-                    <SelectTrigger className="w-full sm:w-40">
-                      <SelectValue placeholder="Bimestre" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {bimesters.map((bimester) => (
-                        <SelectItem key={bimester.value} value={bimester.value}>
-                          {bimester.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={classFilter} onValueChange={setClassFilter}>
-                    <SelectTrigger className="w-full sm:w-40">
-                      <SelectValue placeholder="Turma" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {classes.map((cls) => (
-                        <SelectItem key={cls.id} value={cls.name}>
-                          {cls.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={subjectFilter} onValueChange={setSubjectFilter}>
-                    <SelectTrigger className="w-full sm:w-40">
-                      <SelectValue placeholder="Disciplina" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {subjects.map((subject) => (
-                        <SelectItem key={subject} value={subject}>
-                          {subject}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  <Table className="min-w-[600px]">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Título</TableHead>
-                        <TableHead>Turma</TableHead>
-                        <TableHead>Disciplina</TableHead>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Média da Sala</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredActivities.map((activity) => (
-                        <TableRow
-                          key={activity.id}
-                          className="cursor-pointer hover:bg-gray-50"
-                          onClick={() => handleActivityClick(activity)}
-                        >
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              {getTypeIcon(activity.type)}
-                              <div>
-                                <div className="font-medium">
-                                  {activity.title}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {activity.type}
-                                </div>
-                              </div>
+              <Select
+                value={newActivity.bimester}
+                onValueChange={(value) =>
+                  setNewActivity((prev) => ({ ...prev, subject: value }))
+                }
+              >
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="Bimestre" />
+                </SelectTrigger>
+                <SelectContent>
+                  {bimesters.map((bimester) => (
+                    <SelectItem key={bimester.value} value={bimester.value}>
+                      {bimester.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={classFilter} onValueChange={setClassFilter}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="Turma" />
+                </SelectTrigger>
+                <SelectContent>
+                  {classes.map((cls) => (
+                    <SelectItem key={cls.id} value={cls.name}>
+                      {cls.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="Disciplina" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject} value={subject}>
+                      {subject}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <Table className="min-w-[600px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Título</TableHead>
+                    <TableHead>Turma</TableHead>
+                    <TableHead>Disciplina</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Média da Sala</TableHead>
+                    <TableHead>Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredActivities.map((activity) => (
+                    <TableRow
+                      key={activity.id}
+                      className="cursor-pointer hover:bg-gray-50"
+                      onClick={() => handleActivityClick(activity)}
+                    >
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          {getTypeIcon(activity.type)}
+                          <div>
+                            <div className="font-medium">{activity.title}</div>
+                            <div className="text-sm text-gray-500">
+                              {activity.type}
                             </div>
-                          </TableCell>
-                          <TableCell>{activity.class}</TableCell>
-                          <TableCell>{activity.subject}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <Calendar className="h-4 w-4 text-gray-500" />
-                              <span>
-                                {new Date(activity.dueDate).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {activity.avgScore !== null ? (
-                              <span className="font-medium">
-                                {activity.avgScore}/{activity.maxScore}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400">
-                                Não classificado
-                              </span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Create New Tab */}
-          <TabsContent value="create" className="space-y-6">
-            <Card className="border-0 shadow-sm">
-              <CardHeader>
-                <CardTitle>Criar Nova Atividade</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Título *</Label>
-                    <Input
-                      id="title"
-                      value={newActivity.title}
-                      onChange={(e) =>
-                        setNewActivity((prev) => ({
-                          ...prev,
-                          title: e.target.value,
-                        }))
-                      }
-                      placeholder="ex.: Prova Bimestral"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="type">Tipo *</Label>
-                    <Select
-                      value={newActivity.type}
-                      onValueChange={(value) =>
-                        setNewActivity((prev) => ({ ...prev, type: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Quiz">Atividade</SelectItem>
-                        <SelectItem value="Test">Avaliação</SelectItem>
-                        <SelectItem value="Assignment">Tarefa</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="class">Escola *</Label>
-                    <Select
-                      value={newActivity.class}
-                      onValueChange={(value) =>
-                        setNewActivity((prev) => ({ ...prev, class: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a escola" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {schools.map((school) => (
-                          <SelectItem key={school.id} value={school.id}>
-                            {school.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="shift">Período *</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecionar período" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="morning">Manhã</SelectItem>
-                        <SelectItem value="afternoon">Tarde</SelectItem>
-                        <SelectItem value="night">Noite</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="class">Turma *</Label>
-                    <Select
-                      value={newActivity.class}
-                      onValueChange={(value) =>
-                        setNewActivity((prev) => ({ ...prev, class: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a turma" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {classes.map((cls) => (
-                          <SelectItem key={cls.id} value={cls.id}>
-                            {cls.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="subject">Disciplina *</Label>
-                    <Select
-                      value={newActivity.subject}
-                      onValueChange={(value) =>
-                        setNewActivity((prev) => ({ ...prev, subject: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a disciplina" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {subjects.map((subject) => (
-                          <SelectItem key={subject} value={subject}>
-                            {subject}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Bimestre *</label>
-                    <Select
-                      value={newActivity.bimester}
-                      onValueChange={(value) =>
-                        setNewActivity((prev) => ({ ...prev, subject: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o bimestre" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {bimesters.map((bimester) => (
-                          <SelectItem key={bimester.value} value={bimester.value}>
-                            {bimester.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="date">Data *</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      value={newActivity.date}
-                      onChange={(e) =>
-                        setNewActivity((prev) => ({
-                          ...prev,
-                          date: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Descrição (Opcional)</Label>
-                  <Textarea
-                    id="description"
-                    value={newActivity.description}
-                    onChange={(e) =>
-                      setNewActivity((prev) => ({
-                        ...prev,
-                        description: e.target.value,
-                      }))
-                    }
-                    placeholder="Instruções ou detalhes adicionais..."
-                    rows={4}
-                  />
-                </div>
-
-                <div className="flex justify-end">
-                  <Button onClick={handleCreateActivity}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Criar Atividade
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{activity.class}</TableCell>
+                      <TableCell>{activity.subject}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="h-4 w-4 text-gray-500" />
+                          <span>
+                            {new Date(activity.dueDate).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {activity.avgScore !== null ? (
+                          <span className="font-medium">
+                            {activity.avgScore}/{activity.maxScore}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">
+                            Não classificado
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleEditClick(e, activity)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleDeleteClick(e, activity)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </main>
+
+      {/* New Activity Modal */}
+      <Dialog
+        open={newActivityModalOpen}
+        onOpenChange={setNewActivityModalOpen}
+      >
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Criar Nova Atividade</DialogTitle>
+            <DialogDescription>
+              Preencha as informações da nova atividade.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="title">Título *</Label>
+                <Input
+                  id="title"
+                  value={newActivity.title}
+                  onChange={(e) =>
+                    setNewActivity((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                  placeholder="ex.: Prova Bimestral"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="type">Tipo *</Label>
+                <Select
+                  value={newActivity.type}
+                  onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, type: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Quiz">Atividade</SelectItem>
+                    <SelectItem value="Test">Avaliação</SelectItem>
+                    <SelectItem value="Assignment">Tarefa</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="school">Escola *</Label>
+                <Select
+                  value={newActivity.school}
+                  onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, school: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a escola" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {schools.map((school) => (
+                      <SelectItem key={school.id} value={school.id}>
+                        {school.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="shift">Período *</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecionar período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="morning">Manhã</SelectItem>
+                    <SelectItem value="afternoon">Tarde</SelectItem>
+                    <SelectItem value="night">Noite</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="class">Turma *</Label>
+                <Select
+                  value={newActivity.class}
+                  onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, class: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a turma" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classes.map((cls) => (
+                      <SelectItem key={cls.id} value={cls.id}>
+                        {cls.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="subject">Disciplina *</Label>
+                <Select
+                  value={newActivity.subject}
+                  onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, subject: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a disciplina" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject} value={subject}>
+                        {subject}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bimester">Bimestre *</Label>
+                <Select
+                  value={newActivity.bimester}
+                  onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, bimester: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o bimestre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bimesters.map((bimester) => (
+                      <SelectItem key={bimester.value} value={bimester.value}>
+                        {bimester.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="date">Data *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !newActivity.date && 'text-muted-foreground'
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {newActivity.date ? (
+                        format(newActivity.date, 'PPP')
+                      ) : (
+                        <span>Escolha uma data</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={newActivity.date}
+                      onSelect={(date) =>
+                        setNewActivity((prev) => ({ ...prev, date }))
+                      }
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Descrição (Opcional)</Label>
+              <Textarea
+                id="description"
+                value={newActivity.description}
+                onChange={(e) =>
+                  setNewActivity((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder="Instruções ou detalhes adicionais..."
+                rows={4}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setNewActivityModalOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={handleCreateActivity}>
+                <Plus className="h-4 w-4 mr-2" />
+                Criar Atividade
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Activity Modal */}
+      <Dialog
+        open={editActivityModalOpen}
+        onOpenChange={setEditActivityModalOpen}
+      >
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Atividade</DialogTitle>
+            <DialogDescription>
+              Edite as informações da atividade.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Título *</Label>
+                <Input
+                  id="edit-title"
+                  value={newActivity.title}
+                  onChange={(e) =>
+                    setNewActivity((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                  placeholder="ex.: Prova Bimestral"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-type">Tipo *</Label>
+                <Select
+                  value={newActivity.type}
+                  onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, type: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Quiz">Atividade</SelectItem>
+                    <SelectItem value="Test">Avaliação</SelectItem>
+                    <SelectItem value="Assignment">Tarefa</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-school">Escola *</Label>
+                <Select
+                  value={newActivity.school}
+                  onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, school: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a escola" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {schools.map((school) => (
+                      <SelectItem key={school.id} value={school.id}>
+                        {school.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-shift">Período *</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecionar período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="morning">Manhã</SelectItem>
+                    <SelectItem value="afternoon">Tarde</SelectItem>
+                    <SelectItem value="night">Noite</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-class">Turma *</Label>
+                <Select
+                  value={newActivity.class}
+                  onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, class: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a turma" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classes.map((cls) => (
+                      <SelectItem key={cls.id} value={cls.id}>
+                        {cls.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-subject">Disciplina *</Label>
+                <Select
+                  value={newActivity.subject}
+                  onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, subject: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a disciplina" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject} value={subject}>
+                        {subject}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-bimester">Bimestre *</Label>
+                <Select
+                  value={newActivity.bimester}
+                  onValueChange={(value) =>
+                    setNewActivity((prev) => ({ ...prev, bimester: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o bimestre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bimesters.map((bimester) => (
+                      <SelectItem key={bimester.value} value={bimester.value}>
+                        {bimester.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-date">Data *</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !newActivity.date && 'text-muted-foreground'
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {newActivity.date ? (
+                        format(newActivity.date, 'PPP')
+                      ) : (
+                        <span>Escolha uma data</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={newActivity.date}
+                      onSelect={(date) =>
+                        setNewActivity((prev) => ({ ...prev, date }))
+                      }
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Descrição (Opcional)</Label>
+              <Textarea
+                id="edit-description"
+                value={newActivity.description}
+                onChange={(e) =>
+                  setNewActivity((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder="Instruções ou detalhes adicionais..."
+                rows={4}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleCancelEdit}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveEdit}>Salvar Alterações</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="Confirmar Exclusão"
+        description="Tem certeza que deseja excluir a atividade"
+        itemName={activityToDelete?.title}
+      />
 
       {/* Grade Modal */}
       <Dialog open={gradeModalOpen} onOpenChange={setGradeModalOpen}>
