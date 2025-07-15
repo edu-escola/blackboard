@@ -50,7 +50,6 @@ const ProfessorManagement = () => {
   const [selectedProfessor, setSelectedProfessor] = useState<any>(null)
   const [sideSheetOpen, setSideSheetOpen] = useState(false)
   const [newProfessorModalOpen, setNewProfessorModalOpen] = useState(false)
-  const [modalStep, setModalStep] = useState(1)
 
   // Mock data
   const schools = [
@@ -119,12 +118,8 @@ const ProfessorManagement = () => {
   }
 
   const handleNewProfessor = () => {
-    setModalStep(1)
     setNewProfessorModalOpen(true)
   }
-
-  const nextStep = () => setModalStep(2)
-  const prevStep = () => setModalStep(1)
 
   const getStatusColor = (status: string) => {
     return status === 'Active'
@@ -317,91 +312,42 @@ const ProfessorManagement = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs value={`step-${modalStep}`} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="step-1" disabled={modalStep < 1}>
-                Informações pessoais
-              </TabsTrigger>
-              <TabsTrigger value="step-2" disabled={modalStep < 2}>
-                Atribuição
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="step-1" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome Completo</Label>
-                <Input id="name" placeholder="Dr. John Doe" />
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome Completo</Label>
+              <Input id="name" placeholder="Dr. John Doe" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="john.doe@school.edu"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Matérias</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {subjects.map((subject) => (
+                  <div key={subject} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={subject}
+                      className="rounded border-gray-300"
+                    />
+                    <Label htmlFor={subject} className="text-sm font-normal">
+                      {subject}
+                    </Label>
+                  </div>
+                ))}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="john.doe@school.edu"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input id="phone" placeholder="+1 (555) 123-4567" />
-              </div>
-              <div className="flex justify-end">
-                <Button onClick={nextStep}>Próximo passo</Button>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="step-2" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label>Atribuir Escolas</Label>
-                <div className="space-y-2">
-                  {schools.map((school) => (
-                    <div
-                      key={school.id}
-                      className="flex items-center space-x-2"
-                    >
-                      <input
-                        type="checkbox"
-                        id={school.id}
-                        className="rounded border-gray-300"
-                      />
-                      <Label
-                        htmlFor={school.id}
-                        className="text-sm font-normal"
-                      >
-                        {school.name}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Assign Subjects</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {subjects.map((subject) => (
-                    <div key={subject} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id={subject}
-                        className="rounded border-gray-300"
-                      />
-                      <Label htmlFor={subject} className="text-sm font-normal">
-                        {subject}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-between">
-                <Button variant="outline" onClick={prevStep}>
-                  Anterior
-                </Button>
-                <Button onClick={() => setNewProfessorModalOpen(false)}>
-                  Criar Professor
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={() => setNewProfessorModalOpen(false)}>
+                Criar Professor
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
