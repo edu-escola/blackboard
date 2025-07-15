@@ -218,6 +218,7 @@ const AdministratorManagement = () => {
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead>Email</TableHead>
+                  <TableHead>Data de Criação</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Ações</TableHead>
                 </TableRow>
@@ -233,6 +234,7 @@ const AdministratorManagement = () => {
                       {administrator.name}
                     </TableCell>
                     <TableCell>{administrator.email}</TableCell>
+                    <TableCell>{administrator.joinDate}</TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(administrator.status)}>
                         {administrator.status}
