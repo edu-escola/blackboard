@@ -429,12 +429,23 @@ const AttendancePage = () => {
                           </p>
                         </div>
                         <div className="flex items-center space-x-3">
-                          <span className="text-sm text-gray-600">
+                          <span
+                            className={`text-sm font-medium ${
+                              attendance[student.id]
+                                ? 'text-green-600'
+                                : 'text-red-600'
+                            }`}
+                          >
                             {attendance[student.id] ? 'Presente' : 'Ausente'}
                           </span>
                           <Switch
                             checked={attendance[student.id] || false}
                             onCheckedChange={() => toggleAttendance(student.id)}
+                            className={`${
+                              attendance[student.id]
+                                ? 'data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600'
+                                : 'data-[state=unchecked]:bg-red-600 data-[state=unchecked]:border-red-600'
+                            }`}
                           />
                         </div>
                       </div>
