@@ -34,6 +34,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import { DeleteConfirmationDialog } from '@/components/shared'
 import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 
@@ -149,6 +150,66 @@ const StudentManagement = () => {
   const handleRowClick = (student: any) => {
     setSelectedStudent(student)
     setSideSheetOpen(true)
+  }
+
+  const handleDeleteClick = (e: React.MouseEvent, student: any) => {
+    e.stopPropagation()
+    setStudentToDelete(student)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditClick = (e: React.MouseEvent, student: any) => {
+    e.stopPropagation()
+    setEditingStudent(student)
+    setEditForm({
+      name: student.name,
+      status: student.status,
+      class: student.class,
+      address: student.address,
+      parentName: student.parentName,
+      parentPhone: student.parentPhone,
+    })
+    setEditModalOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    // Aqui você implementaria a lógica para deletar o aluno
+    console.log('Deletando aluno:', studentToDelete)
+    setDeleteDialogOpen(false)
+    setStudentToDelete(null)
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false)
+    setStudentToDelete(null)
+  }
+
+  const handleSaveEdit = () => {
+    // Aqui você implementaria a lógica para salvar as alterações
+    console.log('Salvando alterações:', editForm)
+    setEditModalOpen(false)
+    setEditingStudent(null)
+    setEditForm({
+      name: '',
+      status: '',
+      class: '',
+      address: '',
+      parentName: '',
+      parentPhone: '',
+    })
+  }
+
+  const handleCancelEdit = () => {
+    setEditModalOpen(false)
+    setEditingStudent(null)
+    setEditForm({
+      name: '',
+      status: '',
+      class: '',
+      address: '',
+      parentName: '',
+      parentPhone: '',
+    })
   }
 
   const getStatusColor = (status: string) => {

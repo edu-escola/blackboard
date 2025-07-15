@@ -42,6 +42,14 @@ import {
 } from '@/components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { DeleteConfirmationDialog } from '@/components/shared'
 import { useNavigate } from 'react-router-dom'
 
 const ProfessorManagement = () => {
@@ -50,7 +58,15 @@ const ProfessorManagement = () => {
   const [selectedProfessor, setSelectedProfessor] = useState<any>(null)
   const [sideSheetOpen, setSideSheetOpen] = useState(false)
   const [newProfessorModalOpen, setNewProfessorModalOpen] = useState(false)
-  const [modalStep, setModalStep] = useState(1)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [professorToDelete, setProfessorToDelete] = useState<any>(null)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingProfessor, setEditingProfessor] = useState<any>(null)
+  const [editForm, setEditForm] = useState({
+    name: '',
+    email: '',
+    status: '',
+  })
 
   // Mock data
   const schools = [
@@ -119,15 +135,54 @@ const ProfessorManagement = () => {
   }
 
   const handleNewProfessor = () => {
-    setModalStep(1)
     setNewProfessorModalOpen(true)
   }
 
-  const nextStep = () => setModalStep(2)
-  const prevStep = () => setModalStep(1)
+  const handleDeleteClick = (e: React.MouseEvent, professor: any) => {
+    e.stopPropagation()
+    setProfessorToDelete(professor)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleEditClick = (e: React.MouseEvent, professor: any) => {
+    e.stopPropagation()
+    setEditingProfessor(professor)
+    setEditForm({
+      name: professor.name,
+      email: professor.email,
+      status: professor.status,
+    })
+    setEditModalOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    // Aqui você implementaria a lógica para deletar o professor
+    console.log('Deletando professor:', professorToDelete)
+    setDeleteDialogOpen(false)
+    setProfessorToDelete(null)
+  }
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false)
+    setProfessorToDelete(null)
+  }
+
+  const handleSaveEdit = () => {
+    // Aqui você implementaria a lógica para salvar as alterações
+    console.log('Salvando alterações:', editForm)
+    setEditModalOpen(false)
+    setEditingProfessor(null)
+    setEditForm({ name: '', email: '', status: '' })
+  }
+
+  const handleCancelEdit = () => {
+    setEditModalOpen(false)
+    setEditingProfessor(null)
+    setEditForm({ name: '', email: '', status: '' })
+  }
 
   const getStatusColor = (status: string) => {
-    return status === 'Active'
+    return status === 'Ativo'
       ? 'bg-green-100 text-green-800'
       : 'bg-red-100 text-red-800'
   }
@@ -188,6 +243,7 @@ const ProfessorManagement = () => {
                   <TableHead>Matérias</TableHead>
                   <TableHead>Turmas</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -221,6 +277,24 @@ const ProfessorManagement = () => {
                       <Badge className={getStatusColor(professor.status)}>
                         {professor.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleEditClick(e, professor)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleDeleteClick(e, professor)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -317,93 +391,137 @@ const ProfessorManagement = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs value={`step-${modalStep}`} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="step-1" disabled={modalStep < 1}>
-                Informações pessoais
-              </TabsTrigger>
-              <TabsTrigger value="step-2" disabled={modalStep < 2}>
-                Atribuição
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="step-1" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome Completo</Label>
-                <Input id="name" placeholder="Dr. John Doe" />
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome Completo</Label>
+              <Input id="name" placeholder="Dr. John Doe" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="john.doe@school.edu"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Matérias</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {subjects.map((subject) => (
+                  <div key={subject} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={subject}
+                      className="rounded border-gray-300"
+                    />
+                    <Label htmlFor={subject} className="text-sm font-normal">
+                      {subject}
+                    </Label>
+                  </div>
+                ))}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="john.doe@school.edu"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input id="phone" placeholder="+1 (555) 123-4567" />
-              </div>
-              <div className="flex justify-end">
-                <Button onClick={nextStep}>Próximo passo</Button>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="step-2" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label>Atribuir Escolas</Label>
-                <div className="space-y-2">
-                  {schools.map((school) => (
-                    <div
-                      key={school.id}
-                      className="flex items-center space-x-2"
-                    >
-                      <input
-                        type="checkbox"
-                        id={school.id}
-                        className="rounded border-gray-300"
-                      />
-                      <Label
-                        htmlFor={school.id}
-                        className="text-sm font-normal"
-                      >
-                        {school.name}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Assign Subjects</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {subjects.map((subject) => (
-                    <div key={subject} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id={subject}
-                        className="rounded border-gray-300"
-                      />
-                      <Label htmlFor={subject} className="text-sm font-normal">
-                        {subject}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-between">
-                <Button variant="outline" onClick={prevStep}>
-                  Anterior
-                </Button>
-                <Button onClick={() => setNewProfessorModalOpen(false)}>
-                  Criar Professor
-                </Button>
-              </div>
-            </TabsContent>
-          </Tabs>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={() => setNewProfessorModalOpen(false)}>
+                Criar Professor
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Professor Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Editar Professor</DialogTitle>
+            <DialogDescription>
+              Edite as informações do professor.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Nome Completo</Label>
+              <Input
+                id="edit-name"
+                value={editForm.name}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, name: e.target.value })
+                }
+                placeholder="Digite o nome completo"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">E-mail</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editForm.email}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, email: e.target.value })
+                }
+                placeholder="exemplo@email.com"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-status">Status</Label>
+              <Select
+                value={editForm.status}
+                onValueChange={(value) =>
+                  setEditForm({ ...editForm, status: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Ativo">Ativo</SelectItem>
+                  <SelectItem value="Inativo">Inativo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Matérias</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {subjects.map((subject) => (
+                  <div key={subject} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={`edit-${subject}`}
+                      className="rounded border-gray-300"
+                    />
+                    <Label
+                      htmlFor={`edit-${subject}`}
+                      className="text-sm font-normal"
+                    >
+                      {subject}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleCancelEdit}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveEdit}>Salvar Alterações</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="Confirmar Exclusão"
+        description="Tem certeza que deseja excluir o professor"
+        itemName={professorToDelete?.name}
+      />
     </div>
   )
 }
