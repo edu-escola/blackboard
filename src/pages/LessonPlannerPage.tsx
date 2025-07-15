@@ -1,8 +1,17 @@
 import { useState } from 'react'
-import { ArrowLeft, Plus, Calendar, Copy, Save } from 'lucide-react'
+import {
+  ArrowLeft,
+  Plus,
+  Calendar,
+  Copy,
+  Save,
+  Edit,
+  Trash2,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -24,18 +33,27 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
+import { DeleteConfirmationDialog } from '@/components/shared'
 
 interface LessonRow {
   id: string
   date: Date | undefined
-  hour: string // nova coluna
-  theme: string // agora é Tema
-  objectives: string // agora é Objetivos de aprendizagem
-  skills: string // nova coluna Habilidades
+  hour: string
+  theme: string
+  objectives: string
+  skills: string
   subject: string
 }
 
@@ -83,6 +101,34 @@ const LessonPlannerPage = () => {
   const [observacoes, setObservacoes] = useState('')
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
+  // Estados para modal de edição
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingLesson, setEditingLesson] = useState<LessonRow | null>(null)
+  const [editForm, setEditForm] = useState<LessonRow>({
+    id: '',
+    date: undefined,
+    hour: '',
+    theme: '',
+    objectives: '',
+    skills: '',
+    subject: '',
+  })
+
+  // Estados para modal de exclusão
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [lessonToDelete, setLessonToDelete] = useState<LessonRow | null>(null)
+
+  // Estados para modal de nova aula
+  const [newLessonModalOpen, setNewLessonModalOpen] = useState(false)
+  const [newLessonForm, setNewLessonForm] = useState<Omit<LessonRow, 'id'>>({
+    date: undefined,
+    hour: '',
+    theme: '',
+    objectives: '',
+    skills: '',
+    subject: '',
+  })
+
   // Mock data
   const schools = [
     { id: 'lincoln', name: 'Lincoln Elementary' },
@@ -109,12 +155,39 @@ const LessonPlannerPage = () => {
 
   // Horários disponíveis para seleção
   const hours = [
-    "07:00", "07:30", "08:00", "08:30", "09:00", "09:30",
-    "10:00", "10:30", "11:00", "11:30", "12:00", "12:30",
-    "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
-    "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
-    "19:00", "19:30", "20:00", "20:30", "21:00", "21:30",
-    "22:00", "22:30", "23:00"
+    '07:00',
+    '07:30',
+    '08:00',
+    '08:30',
+    '09:00',
+    '09:30',
+    '10:00',
+    '10:30',
+    '11:00',
+    '11:30',
+    '12:00',
+    '12:30',
+    '13:00',
+    '13:30',
+    '14:00',
+    '14:30',
+    '15:00',
+    '15:30',
+    '16:00',
+    '16:30',
+    '17:00',
+    '17:30',
+    '18:00',
+    '18:30',
+    '19:00',
+    '19:30',
+    '20:00',
+    '20:30',
+    '21:00',
+    '21:30',
+    '22:00',
+    '22:30',
+    '23:00',
   ]
 
   const bimesters = [
@@ -126,7 +199,15 @@ const LessonPlannerPage = () => {
 
   // Mock de semanas
   const weeks = [
-    '01/01-05/01', '06/01-10/01', '11/01-15/01', '16/01-20/01', '21/01-25/01', '26/01-30/01', '01/02-05/02', '06/02-10/02', '11/02-15/02'
+    '01/01-05/01',
+    '06/01-10/01',
+    '11/01-15/01',
+    '16/01-20/01',
+    '21/01-25/01',
+    '26/01-30/01',
+    '01/02-05/02',
+    '06/02-10/02',
+    '11/02-15/02',
   ]
   const [selectedWeek, setSelectedWeek] = useState('')
 
@@ -140,30 +221,115 @@ const LessonPlannerPage = () => {
 
   // Add new lesson row
   const addLessonRow = () => {
+    setNewLessonModalOpen(true)
+  }
+
+  // Handle save new lesson
+  const handleSaveNewLesson = () => {
     const newLesson: LessonRow = {
       id: generateId(),
+      ...newLessonForm,
+    }
+    setLessons((prev) => [...prev, newLesson])
+    setNewLessonModalOpen(false)
+    setNewLessonForm({
       date: undefined,
       hour: '',
       theme: '',
       objectives: '',
       skills: '',
       subject: '',
-    }
-    setLessons((prev) => [...prev, newLesson])
+    })
   }
 
-  // Update lesson field
-  const updateLesson = (id: string, field: keyof LessonRow, value: any) => {
-    setLessons((prev) =>
-      prev.map((lesson) =>
-        lesson.id === id ? { ...lesson, [field]: value } : lesson
+  // Handle cancel new lesson
+  const handleCancelNewLesson = () => {
+    setNewLessonModalOpen(false)
+    setNewLessonForm({
+      date: undefined,
+      hour: '',
+      theme: '',
+      objectives: '',
+      skills: '',
+      subject: '',
+    })
+  }
+
+  // Handle edit click
+  const handleEditClick = (e: React.MouseEvent, lesson: LessonRow) => {
+    e.stopPropagation()
+    setEditingLesson(lesson)
+    setEditForm({
+      id: lesson.id,
+      date: lesson.date,
+      hour: lesson.hour,
+      theme: lesson.theme,
+      objectives: lesson.objectives,
+      skills: lesson.skills,
+      subject: lesson.subject,
+    })
+    setEditModalOpen(true)
+  }
+
+  // Handle delete click
+  const handleDeleteClick = (e: React.MouseEvent, lesson: LessonRow) => {
+    e.stopPropagation()
+    setLessonToDelete(lesson)
+    setDeleteDialogOpen(true)
+  }
+
+  // Handle save edit
+  const handleSaveEdit = () => {
+    if (editingLesson) {
+      setLessons((prev) =>
+        prev.map((lesson) =>
+          lesson.id === editingLesson.id ? editForm : lesson
+        )
       )
-    )
+      setEditModalOpen(false)
+      setEditingLesson(null)
+      setEditForm({
+        id: '',
+        date: undefined,
+        hour: '',
+        theme: '',
+        objectives: '',
+        skills: '',
+        subject: '',
+      })
+    }
   }
 
-  // Delete lesson row
-  const deleteLesson = (id: string) => {
-    setLessons((prev) => prev.filter((lesson) => lesson.id !== id))
+  // Handle cancel edit
+  const handleCancelEdit = () => {
+    setEditModalOpen(false)
+    setEditingLesson(null)
+    setEditForm({
+      id: '',
+      date: undefined,
+      hour: '',
+      theme: '',
+      objectives: '',
+      skills: '',
+      subject: '',
+    })
+  }
+
+  // Handle confirm delete
+  const handleConfirmDelete = () => {
+    if (lessonToDelete) {
+      setLessons((prev) =>
+        prev.filter((lesson) => lesson.id !== lessonToDelete.id)
+      )
+      setDeleteDialogOpen(false)
+      setLessonToDelete(null)
+    }
+  }
+
+  // Handle cancel delete
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false)
+    setLessonToDelete(null)
   }
 
   // Save lesson plan
@@ -191,16 +357,25 @@ const LessonPlannerPage = () => {
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/professor/dashboard')}
+              className="hover:bg-gray-100"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold text-gray-900">Plano de Aula</h1>
+          </div>
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/professor/dashboard')}
-            className="hover:bg-gray-100"
+            onClick={addLessonRow}
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar Aula
           </Button>
-          <h1 className="text-2xl font-bold text-gray-900">Plano de Aula</h1>
         </div>
       </header>
 
@@ -274,10 +449,7 @@ const LessonPlannerPage = () => {
                 </div>
                 <div className="space-y-2 w-full sm:w-auto">
                   <label className="text-sm font-medium">Semana</label>
-                  <Select
-                    value={selectedWeek}
-                    onValueChange={setSelectedWeek}
-                  >
+                  <Select value={selectedWeek} onValueChange={setSelectedWeek}>
                     <SelectTrigger className="w-full sm:w-48">
                       <SelectValue placeholder="Selecione a Semana" />
                     </SelectTrigger>
@@ -299,15 +471,11 @@ const LessonPlannerPage = () => {
       {/* Lesson Plan Table */}
       <div className="px-2 sm:px-6">
         <Card className="border-0 shadow-sm">
-          <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <CardHeader>
             <CardTitle>
               Plano de Aula -{' '}
               {bimesters.find((b) => b.value === selectedBimester)?.label}
             </CardTitle>
-            <Button onClick={addLessonRow} variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Linha
-            </Button>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
@@ -317,123 +485,56 @@ const LessonPlannerPage = () => {
                     <TableHead className="min-w-[90px] w-auto">Data</TableHead>
                     <TableHead className="min-w-[90px] w-auto">Hora</TableHead>
                     <TableHead className="min-w-[120px] w-auto">Tema</TableHead>
-                    <TableHead className="min-w-[140px] w-auto">Objetivos de aprendizagem</TableHead>
-                    <TableHead className="min-w-[100px] w-auto">Habilidades</TableHead>
-                    <TableHead className="min-w-[100px] w-auto">Matéria</TableHead>
-                    <TableHead className="min-w-[60px] w-auto">Ações</TableHead>
+                    <TableHead className="min-w-[140px] w-auto">
+                      Objetivos de aprendizagem
+                    </TableHead>
+                    <TableHead className="min-w-[100px] w-auto">
+                      Habilidades
+                    </TableHead>
+                    <TableHead className="min-w-[100px] w-auto">
+                      Matéria
+                    </TableHead>
+                    <TableHead className="min-w-[80px] w-auto">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {lessons.map((lesson) => (
                     <TableRow key={lesson.id}>
                       <TableCell className="min-w-[90px] w-auto max-w-[120px] truncate">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                'w-full justify-start text-left font-normal',
-                                !lesson.date && 'text-muted-foreground'
-                              )}
-                            >
-                              <Calendar className="mr-2 h-4 w-4" />
-                              {lesson.date ? (
-                                format(lesson.date, 'PPP')
-                              ) : (
-                                <span>Escolha uma data</span>
-                              )}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <CalendarComponent
-                              mode="single"
-                              selected={lesson.date}
-                              onSelect={(date) =>
-                                updateLesson(lesson.id, 'date', date)
-                              }
-                              initialFocus
-                              className="pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        {lesson.date ? format(lesson.date, 'dd/MM/yyyy') : '-'}
                       </TableCell>
                       <TableCell className="min-w-[90px] w-auto max-w-[120px] truncate">
-                        <Select
-                          value={lesson.hour}
-                          onValueChange={(value) =>
-                            updateLesson(lesson.id, 'hour', value)
-                          }
-                        >
-                          <SelectTrigger className="border-0 focus:ring-1 focus:ring-blue-500">
-                            <SelectValue placeholder="Selecione o horário" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {hours.map((h) => (
-                              <SelectItem key={h} value={h}>
-                                {h}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        {lesson.hour || '-'}
                       </TableCell>
                       <TableCell className="min-w-[120px] w-auto max-w-[180px] truncate">
-                        <Input
-                          value={lesson.theme}
-                          onChange={(e) =>
-                            updateLesson(lesson.id, 'theme', e.target.value)
-                          }
-                          placeholder="Descreva o tema da lição"
-                          className="border-0 focus:ring-1 focus:ring-blue-500"
-                        />
+                        {lesson.theme || '-'}
                       </TableCell>
                       <TableCell className="min-w-[140px] w-auto max-w-[220px] truncate">
-                        <Input
-                          value={lesson.objectives}
-                          onChange={(e) =>
-                            updateLesson(lesson.id, 'objectives', e.target.value)
-                          }
-                          placeholder="Descreva os objetivos de aprendizagem"
-                          className="border-0 focus:ring-1 focus:ring-blue-500"
-                        />
+                        {lesson.objectives || '-'}
                       </TableCell>
                       <TableCell className="min-w-[100px] w-auto max-w-[160px] truncate">
-                        <Input
-                          value={lesson.skills}
-                          onChange={(e) =>
-                            updateLesson(lesson.id, 'skills', e.target.value)
-                          }
-                          placeholder="Descreva as habilidades"
-                          className="border-0 focus:ring-1 focus:ring-blue-500"
-                        />
+                        {lesson.skills || '-'}
                       </TableCell>
                       <TableCell className="min-w-[100px] w-auto max-w-[140px] truncate">
-                        <Select
-                          value={lesson.subject}
-                          onValueChange={(value) =>
-                            updateLesson(lesson.id, 'subject', value)
-                          }
-                        >
-                          <SelectTrigger className="border-0 focus:ring-1 focus:ring-blue-500">
-                            <SelectValue placeholder="Selecione a Matéria" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {subjects.map((subject) => (
-                              <SelectItem key={subject} value={subject}>
-                                {subject}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        {lesson.subject || '-'}
                       </TableCell>
-                      <TableCell className="min-w-[60px] w-auto">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteLesson(lesson.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          Deletar
-                        </Button>
+                      <TableCell className="min-w-[80px] w-auto">
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleEditClick(e, lesson)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleDeleteClick(e, lesson)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -451,7 +552,11 @@ const LessonPlannerPage = () => {
           <button
             type="button"
             className="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none"
-            onClick={() => setOpenDropdown(openDropdown === 'detalhamento' ? null : 'detalhamento')}
+            onClick={() =>
+              setOpenDropdown(
+                openDropdown === 'detalhamento' ? null : 'detalhamento'
+              )
+            }
           >
             Detalhamento das Aulas
             <span>{openDropdown === 'detalhamento' ? '▲' : '▼'}</span>
@@ -461,7 +566,7 @@ const LessonPlannerPage = () => {
               <textarea
                 className="w-full border rounded p-2 mt-2 min-h-[80px] focus:ring-1 focus:ring-blue-500"
                 value={detalhamento}
-                onChange={e => setDetalhamento(e.target.value)}
+                onChange={(e) => setDetalhamento(e.target.value)}
                 placeholder="Digite o detalhamento das aulas..."
               />
             </div>
@@ -472,7 +577,9 @@ const LessonPlannerPage = () => {
           <button
             type="button"
             className="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none"
-            onClick={() => setOpenDropdown(openDropdown === 'avaliacao' ? null : 'avaliacao')}
+            onClick={() =>
+              setOpenDropdown(openDropdown === 'avaliacao' ? null : 'avaliacao')
+            }
           >
             Forma de Avaliação
             <span>{openDropdown === 'avaliacao' ? '▲' : '▼'}</span>
@@ -482,7 +589,7 @@ const LessonPlannerPage = () => {
               <textarea
                 className="w-full border rounded p-2 mt-2 min-h-[80px] focus:ring-1 focus:ring-blue-500"
                 value={avaliacao}
-                onChange={e => setAvaliacao(e.target.value)}
+                onChange={(e) => setAvaliacao(e.target.value)}
                 placeholder="Digite a forma de avaliação..."
               />
             </div>
@@ -493,7 +600,11 @@ const LessonPlannerPage = () => {
           <button
             type="button"
             className="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none"
-            onClick={() => setOpenDropdown(openDropdown === 'consideracoes' ? null : 'consideracoes')}
+            onClick={() =>
+              setOpenDropdown(
+                openDropdown === 'consideracoes' ? null : 'consideracoes'
+              )
+            }
           >
             Considerações
             <span>{openDropdown === 'consideracoes' ? '▲' : '▼'}</span>
@@ -503,7 +614,7 @@ const LessonPlannerPage = () => {
               <textarea
                 className="w-full border rounded p-2 mt-2 min-h-[80px] focus:ring-1 focus:ring-blue-500"
                 value={consideracoes}
-                onChange={e => setConsideracoes(e.target.value)}
+                onChange={(e) => setConsideracoes(e.target.value)}
                 placeholder="Digite as considerações..."
               />
             </div>
@@ -514,7 +625,11 @@ const LessonPlannerPage = () => {
           <button
             type="button"
             className="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-gray-800 hover:bg-gray-50 focus:outline-none"
-            onClick={() => setOpenDropdown(openDropdown === 'observacoes' ? null : 'observacoes')}
+            onClick={() =>
+              setOpenDropdown(
+                openDropdown === 'observacoes' ? null : 'observacoes'
+              )
+            }
           >
             Observações do Coordenador
             <span>{openDropdown === 'observacoes' ? '▲' : '▼'}</span>
@@ -524,13 +639,269 @@ const LessonPlannerPage = () => {
               <textarea
                 className="w-full border rounded p-2 mt-2 min-h-[80px] focus:ring-1 focus:ring-blue-500"
                 value={observacoes}
-                onChange={e => setObservacoes(e.target.value)}
+                onChange={(e) => setObservacoes(e.target.value)}
                 placeholder="Digite as observações do coordenador..."
               />
             </div>
           )}
         </div>
       </div>
+
+      {/* New Lesson Modal */}
+      <Dialog open={newLessonModalOpen} onOpenChange={setNewLessonModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Nova Aula</DialogTitle>
+            <DialogDescription>
+              Adicione as informações da nova aula.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="new-date">Data</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !newLessonForm.date && 'text-muted-foreground'
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {newLessonForm.date ? (
+                        format(newLessonForm.date, 'PPP')
+                      ) : (
+                        <span>Escolha uma data</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={newLessonForm.date}
+                      onSelect={(date) =>
+                        setNewLessonForm({ ...newLessonForm, date })
+                      }
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-hour">Hora</Label>
+                <Input
+                  id="new-hour"
+                  value={newLessonForm.hour}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\D/g, '') // Remove caracteres não numéricos
+                    if (value.length >= 2) {
+                      value = value.slice(0, 2) + ':' + value.slice(2, 4)
+                    }
+                    setNewLessonForm({ ...newLessonForm, hour: value })
+                  }}
+                  placeholder="HH:MM (ex: 08:30)"
+                  maxLength={5}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-theme">Tema</Label>
+              <Input
+                id="new-theme"
+                value={newLessonForm.theme}
+                onChange={(e) =>
+                  setNewLessonForm({ ...newLessonForm, theme: e.target.value })
+                }
+                placeholder="Descreva o tema da lição"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-objectives">Objetivos de aprendizagem</Label>
+              <Input
+                id="new-objectives"
+                value={newLessonForm.objectives}
+                onChange={(e) =>
+                  setNewLessonForm({
+                    ...newLessonForm,
+                    objectives: e.target.value,
+                  })
+                }
+                placeholder="Descreva os objetivos de aprendizagem"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-skills">Habilidades</Label>
+              <Input
+                id="new-skills"
+                value={newLessonForm.skills}
+                onChange={(e) =>
+                  setNewLessonForm({ ...newLessonForm, skills: e.target.value })
+                }
+                placeholder="Descreva as habilidades"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-subject">Matéria</Label>
+              <Select
+                value={newLessonForm.subject}
+                onValueChange={(value) =>
+                  setNewLessonForm({ ...newLessonForm, subject: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a Matéria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject} value={subject}>
+                      {subject}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleCancelNewLesson}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveNewLesson}>Criar Aula</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Lesson Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Editar Aula</DialogTitle>
+            <DialogDescription>Edite as informações da aula.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-date">Data</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !editForm.date && 'text-muted-foreground'
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {editForm.date ? (
+                        format(editForm.date, 'PPP')
+                      ) : (
+                        <span>Escolha uma data</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={editForm.date}
+                      onSelect={(date) => setEditForm({ ...editForm, date })}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-hour">Hora</Label>
+                <Input
+                  id="edit-hour"
+                  value={editForm.hour}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\D/g, '') // Remove caracteres não numéricos
+                    if (value.length >= 2) {
+                      value = value.slice(0, 2) + ':' + value.slice(2, 4)
+                    }
+                    setEditForm({ ...editForm, hour: value })
+                  }}
+                  placeholder="HH:MM (ex: 08:30)"
+                  maxLength={5}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-theme">Tema</Label>
+              <Input
+                id="edit-theme"
+                value={editForm.theme}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, theme: e.target.value })
+                }
+                placeholder="Descreva o tema da lição"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-objectives">Objetivos de aprendizagem</Label>
+              <Input
+                id="edit-objectives"
+                value={editForm.objectives}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, objectives: e.target.value })
+                }
+                placeholder="Descreva os objetivos de aprendizagem"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-skills">Habilidades</Label>
+              <Input
+                id="edit-skills"
+                value={editForm.skills}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, skills: e.target.value })
+                }
+                placeholder="Descreva as habilidades"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-subject">Matéria</Label>
+              <Select
+                value={editForm.subject}
+                onValueChange={(value) =>
+                  setEditForm({ ...editForm, subject: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a Matéria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject} value={subject}>
+                      {subject}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleCancelEdit}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveEdit}>Salvar Alterações</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="Confirmar Exclusão"
+        description="Tem certeza que deseja excluir a aula"
+        itemName={lessonToDelete?.theme || lessonToDelete?.objectives}
+      />
 
       {/* Sticky Save Button */}
       <div className="fixed bottom-6 right-6">
