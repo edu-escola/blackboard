@@ -56,6 +56,11 @@ const StudentManagement = () => {
     address: '',
     parentName: '',
     parentPhone: '',
+    enrollmentDate: '',
+    period: '',
+    studentSituation: '',
+    situationDate: '',
+    enrollmentNumber: '',
   })
 
   // Mock data
@@ -95,6 +100,9 @@ const StudentManagement = () => {
       address: '123 Main St, Springfield, IL',
       enrollmentDate: '2024-08-15',
       dateOfBirth: '2015-05-12',
+      period: 'Manhã',
+      studentSituation: 'TR',
+      situationDate: '2024-08-20',
     },
     {
       id: 2,
@@ -110,6 +118,9 @@ const StudentManagement = () => {
       address: '456 Oak Ave, Springfield, IL',
       enrollmentDate: '2024-08-20',
       dateOfBirth: '2008-03-18',
+      period: 'Tarde',
+      studentSituation: 'RM',
+      situationDate: '2024-09-01',
     },
     {
       id: 3,
@@ -125,8 +136,17 @@ const StudentManagement = () => {
       address: '789 Pine St, Springfield, IL',
       enrollmentDate: '2024-01-10',
       dateOfBirth: '2013-11-08',
+      period: 'Noite',
+      studentSituation: 'TE',
+      situationDate: '2024-10-10',
     },
   ]
+  const studentSituations = {
+    TR: 'Transferência recebida (foi transferido de outra escola para essa)',
+    RM: 'Mudança de sala (apenas mudou de sala)',
+    TE: 'Transferência emitida (foi transferido para outra escola)',
+    AB: 'Abandono/Baixa (abandono/baixa)',
+  } as const
 
   const filteredStudents = students.filter((student) => {
     const matchesSearch =
@@ -160,6 +180,11 @@ const StudentManagement = () => {
       address: student.address,
       parentName: student.parentName,
       parentPhone: student.parentPhone,
+      enrollmentDate: student.enrollmentDate || '',
+      period: student.period || '',
+      studentSituation: student.studentSituation || '',
+      situationDate: student.situationDate || '',
+      enrollmentNumber: student.enrollmentNumber || '',
     })
     setEditModalOpen(true)
   }
@@ -188,6 +213,11 @@ const StudentManagement = () => {
       address: '',
       parentName: '',
       parentPhone: '',
+      enrollmentDate: '',
+      period: '',
+      studentSituation: '',
+      situationDate: '',
+      enrollmentNumber: '',
     })
   }
 
@@ -201,6 +231,11 @@ const StudentManagement = () => {
       address: '',
       parentName: '',
       parentPhone: '',
+      enrollmentDate: '',
+      period: '',
+      studentSituation: '',
+      situationDate: '',
+      enrollmentNumber: '',
     })
   }
 
@@ -349,11 +384,43 @@ const StudentManagement = () => {
                   </p>
                 </div>
                 <div>
+                  <Label className="text-sm font-medium">Data de Matrícula</Label>
+                  <p className="text-sm mt-1">
+                    {selectedStudent.enrollmentDate ? new Date(selectedStudent.enrollmentDate).toLocaleDateString() : '-'}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Período</Label>
+                  <p className="text-sm mt-1">{selectedStudent.period}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Turma</Label>
+                  <p className="text-sm mt-1">{selectedStudent.class}</p>
+                </div>
+                <div>
                   <Label className="text-sm font-medium">Status</Label>
                   <div className="mt-1">
                     <Badge className={getStatusColor(selectedStudent.status)}>
                       {selectedStudent.status}
                     </Badge>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Situação do Aluno</Label>
+                  <div className="mt-1 flex items-center gap-2">
+                    {selectedStudent.studentSituation && (
+                      <span
+                        className="inline-block cursor-help"
+                        title={studentSituations[(selectedStudent.studentSituation as keyof typeof studentSituations) || 'TR']}
+                      >
+                        <Badge variant="outline">
+                          {selectedStudent.studentSituation}
+                        </Badge>
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-500">
+                      {selectedStudent.situationDate ? `(${new Date(selectedStudent.situationDate).toLocaleDateString()})` : ''}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -366,23 +433,7 @@ const StudentManagement = () => {
                 </div>
               </div>
 
-              {/* Academic Info */}
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-sm font-medium">Turma</Label>
-                  <p className="text-sm mt-1">{selectedStudent.class}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">
-                    Data de Matrícula
-                  </Label>
-                  <p className="text-sm mt-1">
-                    {new Date(
-                      selectedStudent.enrollmentDate
-                    ).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
+
 
               {/* Parent Info */}
               <div className="space-y-3">
@@ -403,53 +454,108 @@ const StudentManagement = () => {
 
       {/* New Student Modal */}
       <Dialog open={newStudentModalOpen} onOpenChange={setNewStudentModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Adicionar Novo Aluno</DialogTitle>
             <DialogDescription>Crie um novo perfil de aluno.</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Nome Completo</Label>
-              <Input id="fullName" placeholder="João Silva" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Primeira linha: Nome e Período */}
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Nome Completo</Label>
+                <Input id="fullName" placeholder="João Silva" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="period">Período</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {periods.map((period) => (
+                      <SelectItem key={period} value={period}>
+                        {period}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Segunda linha: Matrícula e Data da Matrícula */}
+              <div className="space-y-2">
+                <Label htmlFor="enrollmentNumber">Número de Matrícula</Label>
+                <Input id="enrollmentNumber" placeholder="LN2024001" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="enrollmentDate">Data da Matrícula</Label>
+                <Input id="enrollmentDate" type="date" />
+              </div>
+              {/* Terceira linha: Turma e Status */}
+              <div className="space-y-2">
+                <Label htmlFor="class">Turma</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a turma" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classes.map((cls) => (
+                      <SelectItem key={cls} value={cls}>
+                        {cls}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select defaultValue="Ativo">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Ativo">Ativo</SelectItem>
+                    <SelectItem value="Inativo">Inativo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Quarta linha: Situação do Aluno e Data da Situação */}
+              <div className="space-y-2">
+                <Label htmlFor="studentSituation">Situação do Aluno</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a situação" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(studentSituations).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>{key}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="situationDate">Data da Situação</Label>
+                <Input id="situationDate" type="date" />
+              </div>
+            </div>            
+            {/* Responsável */}
+            <div className="col-span-2 border-t pt-4 mb-2">
+              <h4 className="font-medium mb-2">Dados do Responsável</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="parentName">Nome do Responsável</Label>
+                  <Input id="parentName" placeholder="Maria da Silva" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="parentPhone">Telefone do Responsável</Label>
+                  <Input id="parentPhone" placeholder="(99) 99999-9999" />
+                </div>
+              </div>
             </div>
-
+            {/* Endereço */}
             <div className="space-y-2">
-              <Label htmlFor="enrollmentNumber">Número de Matrícula</Label>
-              <Input id="enrollmentNumber" placeholder="LN2024001" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="period">Período</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o período" />
-                </SelectTrigger>
-                <SelectContent>
-                  {periods.map((period) => (
-                    <SelectItem key={period} value={period}>
-                      {period}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="class">Turma</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a turma" />
-                </SelectTrigger>
-                <SelectContent>
-                  {classes.map((cls) => (
-                    <SelectItem key={cls} value={cls}>
-                      {cls}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="address">Endereço</Label>
+              <textarea id="address" placeholder="Rua Exemplo, 123, Bairro, Cidade" className="w-full min-h-[60px] border rounded-md p-2 text-sm" />
             </div>
 
             <div className="flex justify-end space-x-2">
@@ -469,102 +575,171 @@ const StudentManagement = () => {
 
       {/* Edit Student Modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Editar Aluno</DialogTitle>
             <DialogDescription>
               Edite as informações do aluno.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">Nome Completo</Label>
-              <Input
-                id="edit-name"
-                value={editForm.name}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, name: e.target.value })
-                }
-                placeholder="Digite o nome completo"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-address">Endereço</Label>
-              <Input
-                id="edit-address"
-                value={editForm.address}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, address: e.target.value })
-                }
-                placeholder="Digite o endereço completo"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-class">Turma</Label>
-              <Select
-                value={editForm.class}
-                onValueChange={(value) =>
-                  setEditForm({ ...editForm, class: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a turma" />
-                </SelectTrigger>
-                <SelectContent>
-                  {classes.map((cls) => (
-                    <SelectItem key={cls} value={cls}>
-                      {cls}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-status">Status</Label>
-              <Select
-                value={editForm.status}
-                onValueChange={(value) =>
-                  setEditForm({ ...editForm, status: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Ativo">Ativo</SelectItem>
-                  <SelectItem value="Inativo">Inativo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-parent-name">Nome do Responsável</Label>
-              <Input
-                id="edit-parent-name"
-                value={editForm.parentName}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, parentName: e.target.value })
-                }
-                placeholder="Digite o nome do responsável"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-parent-phone">Telefone do Responsável</Label>
-              <Input
-                id="edit-parent-phone"
-                value={editForm.parentPhone}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, parentPhone: e.target.value })
-                }
-                placeholder="Digite o telefone do responsável"
-              />
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={handleCancelEdit}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSaveEdit}>Salvar Alterações</Button>
-            </div>
-          </div>
+          {editForm && (
+            <form className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Primeira linha: Nome e Período */}
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Nome Completo</Label>
+                  <Input
+                    id="edit-name"
+                    value={editForm.name}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, name: e.target.value })
+                    }
+                    placeholder="Digite o nome completo"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-period">Período</Label>
+                  <Select
+                    value={editForm.period}
+                    onValueChange={value => setEditForm({ ...editForm, period: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o período" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {periods.map((period) => (
+                        <SelectItem key={period} value={period}>{period}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {/* Segunda linha: Matrícula e Data da Matrícula */}
+                <div className="space-y-2">
+                  <Label htmlFor="edit-enrollmentNumber">Número de Matrícula</Label>
+                  <Input
+                    id="edit-enrollmentNumber"
+                    value={editForm.enrollmentNumber || ''}
+                    onChange={e => setEditForm({ ...editForm, enrollmentNumber: e.target.value })}
+                    placeholder="Digite o número de matrícula"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-enrollmentDate">Data da Matrícula</Label>
+                  <Input
+                    id="edit-enrollmentDate"
+                    type="date"
+                    value={editForm.enrollmentDate}
+                    onChange={e => setEditForm({ ...editForm, enrollmentDate: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-class">Turma</Label>
+                  <Select
+                    value={editForm.class}
+                    onValueChange={(value) =>
+                      setEditForm({ ...editForm, class: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a turma" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {classes.map((cls) => (
+                        <SelectItem key={cls} value={cls}>
+                          {cls}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-status">Status</Label>
+                  <Select
+                    value={editForm.status}
+                    onValueChange={(value) =>
+                      setEditForm({ ...editForm, status: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ativo">Ativo</SelectItem>
+                      <SelectItem value="Inativo">Inativo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-studentSituation">Situação do Aluno</Label>
+                  <Select
+                    value={editForm.studentSituation}
+                    onValueChange={value => setEditForm({ ...editForm, studentSituation: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a situação" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(studentSituations).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>{key}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-situationDate">Data da Situação</Label>
+                  <Input
+                    id="edit-situationDate"
+                    type="date"
+                    value={editForm.situationDate}
+                    onChange={e => setEditForm({ ...editForm, situationDate: e.target.value })}
+                  />
+                </div>
+                <div className="col-span-2 border-t pt-4 mb-2">
+                  <h4 className="font-medium mb-2">Dados do Responsável</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-parent-name">Nome do Responsável</Label>
+                      <Input
+                        id="edit-parent-name"
+                        value={editForm.parentName}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, parentName: e.target.value })
+                        }
+                        placeholder="Digite o nome do responsável"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-parent-phone">Telefone do Responsável</Label>
+                      <Input
+                        id="edit-parent-phone"
+                        value={editForm.parentPhone}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, parentPhone: e.target.value })
+                        }
+                        placeholder="Digite o telefone do responsável"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="edit-address">Endereço</Label>
+                <textarea
+                  id="edit-address"
+                  className="w-full min-h-[60px] border rounded-md p-2 text-sm"
+                  value={editForm.address}
+                  onChange={e => setEditForm({ ...editForm, address: e.target.value })}
+                  placeholder="Digite o endereço completo"
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={handleCancelEdit}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleSaveEdit}>Salvar Alterações</Button>
+              </div>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
 
