@@ -490,94 +490,98 @@ const StudentManagement = () => {
 
       {/* Edit Student Modal */}
       <Dialog open={editStudentModalOpen} onOpenChange={setEditStudentModalOpen}>
-        <DialogContent className="max-w-xs sm:max-w-sm p-0">
-          <DialogHeader className="px-6 pt-6">
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
             <DialogTitle>Editar Aluno</DialogTitle>
             <DialogDescription>Edite os dados do aluno.</DialogDescription>
           </DialogHeader>
           {editStudent && (
-            <div className="space-y-4 max-h-[70vh] overflow-y-auto px-6 pb-6 pt-2">
-              <div className="space-y-2">
-                <Label htmlFor="editFullName">Nome Completo</Label>
-                <Input id="editFullName" value={editStudent.name} onChange={e => setEditStudent({ ...editStudent, name: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="editEnrollmentNumber">Número de Matrícula</Label>
-                <Input id="editEnrollmentNumber" value={editStudent.enrollmentNumber} onChange={e => setEditStudent({ ...editStudent, enrollmentNumber: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="editEnrollmentDate">Data da Matrícula</Label>
-                <Input id="editEnrollmentDate" type="date" value={editStudent.enrollmentDate} onChange={e => setEditStudent({ ...editStudent, enrollmentDate: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="editPeriod">Período</Label>
-                <Select value={editStudent.period || ''} onValueChange={value => setEditStudent({ ...editStudent, period: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o período" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {periods.map((period) => (
-                      <SelectItem key={period} value={period}>{period}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="editClass">Turma</Label>
-                <Select value={editStudent.class || ''} onValueChange={value => setEditStudent({ ...editStudent, class: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a turma" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {classes.map((cls) => (
-                      <SelectItem key={cls} value={cls}>{cls}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <form className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="editFullName">Nome Completo</Label>
+                  <Input id="editFullName" value={editStudent.name} onChange={e => setEditStudent({ ...editStudent, name: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editEnrollmentNumber">Número de Matrícula</Label>
+                  <Input id="editEnrollmentNumber" value={editStudent.enrollmentNumber} onChange={e => setEditStudent({ ...editStudent, enrollmentNumber: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editEnrollmentDate">Data da Matrícula</Label>
+                  <Input id="editEnrollmentDate" type="date" value={editStudent.enrollmentDate} onChange={e => setEditStudent({ ...editStudent, enrollmentDate: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editPeriod">Período</Label>
+                  <Select value={editStudent.period || ''} onValueChange={value => setEditStudent({ ...editStudent, period: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o período" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {periods.map((period) => (
+                        <SelectItem key={period} value={period}>{period}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editClass">Turma</Label>
+                  <Select value={editStudent.class || ''} onValueChange={value => setEditStudent({ ...editStudent, class: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a turma" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {classes.map((cls) => (
+                        <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editStatus">Status</Label>
+                  <Select value={editStudent.status || ''} onValueChange={value => setEditStudent({ ...editStudent, status: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ativo">Ativo</SelectItem>
+                      <SelectItem value="Inativo">Inativo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editSituation">Situação do Aluno</Label>
+                  <Select value={editStudent.studentSituation || ''} onValueChange={value => setEditStudent({ ...editStudent, studentSituation: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a situação" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(studentSituations).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>{key}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="editSituationDate">Data da Situação</Label>
+                  <Input id="editSituationDate" type="date" value={editStudent.situationDate || ''} onChange={e => setEditStudent({ ...editStudent, situationDate: e.target.value })} />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="editAddress">Endereço</Label>
                 <textarea id="editAddress" className="w-full min-h-[60px] border rounded-md p-2 text-sm" value={editStudent.address} onChange={e => setEditStudent({ ...editStudent, address: e.target.value })} />
               </div>
-              <div className="space-y-2 border-t pt-4">
-                <h4 className="font-medium">Responsável</h4>
-                <div className="space-y-2">
-                  <Label htmlFor="editParentName">Nome do Responsável</Label>
-                  <Input id="editParentName" value={editStudent.parentName} onChange={e => setEditStudent({ ...editStudent, parentName: e.target.value })} />
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-2">Responsável</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="editParentName">Nome do Responsável</Label>
+                    <Input id="editParentName" value={editStudent.parentName} onChange={e => setEditStudent({ ...editStudent, parentName: e.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="editParentPhone">Telefone do Responsável</Label>
+                    <Input id="editParentPhone" value={editStudent.parentPhone} onChange={e => setEditStudent({ ...editStudent, parentPhone: e.target.value })} />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="editParentPhone">Telefone do Responsável</Label>
-                  <Input id="editParentPhone" value={editStudent.parentPhone} onChange={e => setEditStudent({ ...editStudent, parentPhone: e.target.value })} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="editStatus">Status</Label>
-                <Select value={editStudent.status || ''} onValueChange={value => setEditStudent({ ...editStudent, status: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Ativo">Ativo</SelectItem>
-                    <SelectItem value="Inativo">Inativo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="editSituation">Situação do Aluno</Label>
-                <Select value={editStudent.studentSituation || ''} onValueChange={value => setEditStudent({ ...editStudent, studentSituation: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a situação" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(studentSituations).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>{key}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="editSituationDate">Data da Situação</Label>
-                <Input id="editSituationDate" type="date" value={editStudent.situationDate || ''} onChange={e => setEditStudent({ ...editStudent, situationDate: e.target.value })} />
               </div>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setEditStudentModalOpen(false)}>
@@ -587,7 +591,7 @@ const StudentManagement = () => {
                   Salvar Alterações
                 </Button>
               </div>
-            </div>
+            </form>
           )}
         </DialogContent>
       </Dialog>
