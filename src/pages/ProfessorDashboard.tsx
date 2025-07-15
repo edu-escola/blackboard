@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ClipboardCheck, FileEdit, Award } from 'lucide-react'
+import { Lock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Header } from '@/components/shared'
@@ -202,6 +203,27 @@ const ProfessorDashboard = () => {
                       </h4>
                       <p className="text-sm text-gray-600">
                         Registre atividades dos alunos
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card
+                className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => navigate('/professor/grades-closing')}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-3 bg-yellow-100 rounded-lg">
+                      <Lock className="h-6 w-6 text-yellow-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">
+                        Fechamento de Notas
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Finalize e envie as notas dos alunos
                       </p>
                     </div>
                   </div>
