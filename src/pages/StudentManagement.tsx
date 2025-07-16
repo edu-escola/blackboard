@@ -1,5 +1,13 @@
 import { useState } from 'react'
-import { Search, Plus, ArrowLeft, Edit, Trash2 } from 'lucide-react'
+import {
+  Search,
+  Plus,
+  ArrowLeft,
+  Edit,
+  Trash2,
+  BookOpen,
+  ChevronDown,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -49,6 +57,11 @@ const StudentManagement = () => {
   const [studentToDelete, setStudentToDelete] = useState<any>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editingStudent, setEditingStudent] = useState<any>(null)
+  const [academicDetailsModalOpen, setAcademicDetailsModalOpen] =
+    useState(false)
+  const [selectedStudentForAcademic, setSelectedStudentForAcademic] =
+    useState<any>(null)
+  const [openAccordions, setOpenAccordions] = useState<string[]>([])
   const [editForm, setEditForm] = useState({
     name: '',
     status: '',
@@ -84,6 +97,45 @@ const StudentManagement = () => {
   ]
 
   const periods = ['Manhã', 'Tarde', 'Noite', 'Integral']
+
+  const subjects = [
+    'Matemática',
+    'Ciências',
+    'Inglês',
+    'História',
+    'Física',
+    'Química',
+    'Artes',
+    'Educação Física',
+    'Música',
+  ]
+
+  const toggleAccordion = (subject: string) => {
+    setOpenAccordions((prev) =>
+      prev.includes(subject)
+        ? prev.filter((item) => item !== subject)
+        : [...prev, subject]
+    )
+  }
+
+  // Mock data para notas e faltas por matéria e bimestre
+  const getAcademicData = (subject: string) => {
+    const bimesters = [
+      { id: 1, name: '1° Bimestre' },
+      { id: 2, name: '2° Bimestre' },
+      { id: 3, name: '3° Bimestre' },
+      { id: 4, name: '4° Bimestre' },
+    ]
+
+    return bimesters.map((bimester) => ({
+      bimestre: bimester.name,
+      nota: Math.floor(Math.random() * 4) + 6, // Nota entre 6-10
+      faltas: Math.floor(Math.random() * 8) + 1, // 1-8 faltas
+      faltasCompensadas: Math.floor(Math.random() * 3), // 0-2 faltas compensadas
+      aulasDadas: Math.floor(Math.random() * 10) + 15, // 15-25 aulas dadas
+      aulasPrevistas: 20, // 20 aulas previstas por bimestre
+    }))
+  }
 
   const students = [
     {
@@ -187,6 +239,12 @@ const StudentManagement = () => {
       enrollmentNumber: student.enrollmentNumber || '',
     })
     setEditModalOpen(true)
+  }
+
+  const handleAcademicDetailsClick = (e: React.MouseEvent, student: any) => {
+    e.stopPropagation()
+    setSelectedStudentForAcademic(student)
+    setAcademicDetailsModalOpen(true)
   }
 
   const handleConfirmDelete = () => {
@@ -315,7 +373,7 @@ const StudentManagement = () => {
                   <TableHead>Matrícula</TableHead>
                   <TableHead>Turma</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Ações</TableHead>
+                  <TableHead className="text-center">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -340,11 +398,22 @@ const StudentManagement = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-2 justify-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) =>
+                            handleAcademicDetailsClick(e, student)
+                          }
+                          title="Detalhes Acadêmicos"
+                        >
+                          <BookOpen className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={(e) => handleEditClick(e, student)}
+                          title="Editar"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -352,6 +421,7 @@ const StudentManagement = () => {
                           variant="ghost"
                           size="sm"
                           onClick={(e) => handleDeleteClick(e, student)}
+                          title="Excluir"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -384,9 +454,15 @@ const StudentManagement = () => {
                   </p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Data de Matrícula</Label>
+                  <Label className="text-sm font-medium">
+                    Data de Matrícula
+                  </Label>
                   <p className="text-sm mt-1">
-                    {selectedStudent.enrollmentDate ? new Date(selectedStudent.enrollmentDate).toLocaleDateString() : '-'}
+                    {selectedStudent.enrollmentDate
+                      ? new Date(
+                          selectedStudent.enrollmentDate
+                        ).toLocaleDateString()
+                      : '-'}
                   </p>
                 </div>
                 <div>
@@ -406,12 +482,19 @@ const StudentManagement = () => {
                   </div>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Situação do Aluno</Label>
+                  <Label className="text-sm font-medium">
+                    Situação do Aluno
+                  </Label>
                   <div className="mt-1 flex items-center gap-2">
                     {selectedStudent.studentSituation && (
                       <span
                         className="inline-block cursor-help"
-                        title={studentSituations[(selectedStudent.studentSituation as keyof typeof studentSituations) || 'TR']}
+                        title={
+                          studentSituations[
+                            (selectedStudent.studentSituation as keyof typeof studentSituations) ||
+                              'TR'
+                          ]
+                        }
                       >
                         <Badge variant="outline">
                           {selectedStudent.studentSituation}
@@ -419,7 +502,9 @@ const StudentManagement = () => {
                       </span>
                     )}
                     <span className="text-xs text-gray-500">
-                      {selectedStudent.situationDate ? `(${new Date(selectedStudent.situationDate).toLocaleDateString()})` : ''}
+                      {selectedStudent.situationDate
+                        ? `(${new Date(selectedStudent.situationDate).toLocaleDateString()})`
+                        : ''}
                     </span>
                   </div>
                 </div>
@@ -432,8 +517,6 @@ const StudentManagement = () => {
                   <p className="text-sm mt-1">{selectedStudent.address}</p>
                 </div>
               </div>
-
-
 
               {/* Parent Info */}
               <div className="space-y-3">
@@ -528,7 +611,9 @@ const StudentManagement = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(studentSituations).map(([key, label]) => (
-                      <SelectItem key={key} value={key}>{key}</SelectItem>
+                      <SelectItem key={key} value={key}>
+                        {key}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -537,7 +622,7 @@ const StudentManagement = () => {
                 <Label htmlFor="situationDate">Data da Situação</Label>
                 <Input id="situationDate" type="date" />
               </div>
-            </div>            
+            </div>
             {/* Responsável */}
             <div className="col-span-2 border-t pt-4 mb-2">
               <h4 className="font-medium mb-2">Dados do Responsável</h4>
@@ -555,7 +640,11 @@ const StudentManagement = () => {
             {/* Endereço */}
             <div className="space-y-2">
               <Label htmlFor="address">Endereço</Label>
-              <textarea id="address" placeholder="Rua Exemplo, 123, Bairro, Cidade" className="w-full min-h-[60px] border rounded-md p-2 text-sm" />
+              <textarea
+                id="address"
+                placeholder="Rua Exemplo, 123, Bairro, Cidade"
+                className="w-full min-h-[60px] border rounded-md p-2 text-sm"
+              />
             </div>
 
             <div className="flex justify-end space-x-2">
@@ -601,25 +690,36 @@ const StudentManagement = () => {
                   <Label htmlFor="edit-period">Período</Label>
                   <Select
                     value={editForm.period}
-                    onValueChange={value => setEditForm({ ...editForm, period: value })}
+                    onValueChange={(value) =>
+                      setEditForm({ ...editForm, period: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o período" />
                     </SelectTrigger>
                     <SelectContent>
                       {periods.map((period) => (
-                        <SelectItem key={period} value={period}>{period}</SelectItem>
+                        <SelectItem key={period} value={period}>
+                          {period}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 {/* Segunda linha: Matrícula e Data da Matrícula */}
                 <div className="space-y-2">
-                  <Label htmlFor="edit-enrollmentNumber">Número de Matrícula</Label>
+                  <Label htmlFor="edit-enrollmentNumber">
+                    Número de Matrícula
+                  </Label>
                   <Input
                     id="edit-enrollmentNumber"
                     value={editForm.enrollmentNumber || ''}
-                    onChange={e => setEditForm({ ...editForm, enrollmentNumber: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        enrollmentNumber: e.target.value,
+                      })
+                    }
                     placeholder="Digite o número de matrícula"
                   />
                 </div>
@@ -629,7 +729,12 @@ const StudentManagement = () => {
                     id="edit-enrollmentDate"
                     type="date"
                     value={editForm.enrollmentDate}
-                    onChange={e => setEditForm({ ...editForm, enrollmentDate: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        enrollmentDate: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -670,17 +775,23 @@ const StudentManagement = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-studentSituation">Situação do Aluno</Label>
+                  <Label htmlFor="edit-studentSituation">
+                    Situação do Aluno
+                  </Label>
                   <Select
                     value={editForm.studentSituation}
-                    onValueChange={value => setEditForm({ ...editForm, studentSituation: value })}
+                    onValueChange={(value) =>
+                      setEditForm({ ...editForm, studentSituation: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a situação" />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(studentSituations).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>{key}</SelectItem>
+                        <SelectItem key={key} value={key}>
+                          {key}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -691,30 +802,45 @@ const StudentManagement = () => {
                     id="edit-situationDate"
                     type="date"
                     value={editForm.situationDate}
-                    onChange={e => setEditForm({ ...editForm, situationDate: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        situationDate: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="col-span-2 border-t pt-4 mb-2">
                   <h4 className="font-medium mb-2">Dados do Responsável</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="edit-parent-name">Nome do Responsável</Label>
+                      <Label htmlFor="edit-parent-name">
+                        Nome do Responsável
+                      </Label>
                       <Input
                         id="edit-parent-name"
                         value={editForm.parentName}
                         onChange={(e) =>
-                          setEditForm({ ...editForm, parentName: e.target.value })
+                          setEditForm({
+                            ...editForm,
+                            parentName: e.target.value,
+                          })
                         }
                         placeholder="Digite o nome do responsável"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit-parent-phone">Telefone do Responsável</Label>
+                      <Label htmlFor="edit-parent-phone">
+                        Telefone do Responsável
+                      </Label>
                       <Input
                         id="edit-parent-phone"
                         value={editForm.parentPhone}
                         onChange={(e) =>
-                          setEditForm({ ...editForm, parentPhone: e.target.value })
+                          setEditForm({
+                            ...editForm,
+                            parentPhone: e.target.value,
+                          })
                         }
                         placeholder="Digite o telefone do responsável"
                       />
@@ -728,7 +854,9 @@ const StudentManagement = () => {
                   id="edit-address"
                   className="w-full min-h-[60px] border rounded-md p-2 text-sm"
                   value={editForm.address}
-                  onChange={e => setEditForm({ ...editForm, address: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, address: e.target.value })
+                  }
                   placeholder="Digite o endereço completo"
                 />
               </div>
@@ -753,6 +881,148 @@ const StudentManagement = () => {
         description="Tem certeza que deseja excluir o aluno"
         itemName={studentToDelete?.name}
       />
+
+      {/* Academic Details Modal */}
+      <Dialog
+        open={academicDetailsModalOpen}
+        onOpenChange={setAcademicDetailsModalOpen}
+      >
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes Acadêmicos</DialogTitle>
+            <DialogDescription>
+              Informações acadêmicas completas do aluno
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedStudentForAcademic && (
+            <div className="space-y-6">
+              {/* Header do aluno */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {selectedStudentForAcademic.name}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Matrícula: {selectedStudentForAcademic.enrollmentNumber}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Turma: {selectedStudentForAcademic.class}
+                </p>
+              </div>
+
+              {/* Accordion de Matérias */}
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                  Disciplinas e Notas
+                </h4>
+
+                {subjects.map((subject) => (
+                  <div key={subject} className="border rounded-lg">
+                    <button
+                      onClick={() => toggleAccordion(subject)}
+                      className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="font-medium text-gray-900">
+                        {subject}
+                      </span>
+                      <ChevronDown
+                        className={`h-5 w-5 text-gray-500 transition-transform ${
+                          openAccordions.includes(subject) ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+
+                    {openAccordions.includes(subject) && (
+                      <div className="px-4 pb-4 border-t">
+                        <div className="pt-4">
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="text-center">
+                                    Bimestre
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Nota
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Faltas
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Faltas Compensadas
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Aulas Dadas
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Aulas Previstas
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {getAcademicData(subject).map((data, index) => (
+                                  <TableRow key={index}>
+                                    <TableCell className="text-center font-medium">
+                                      {data.bimestre}
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                      <Badge
+                                        variant={
+                                          data.nota >= 7
+                                            ? 'default'
+                                            : 'destructive'
+                                        }
+                                        className="font-mono"
+                                      >
+                                        {data.nota}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                      <Badge
+                                        variant="outline"
+                                        className="font-mono"
+                                      >
+                                        {data.faltas}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                      <Badge
+                                        variant="secondary"
+                                        className="font-mono"
+                                      >
+                                        {data.faltasCompensadas}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-center font-mono">
+                                      {data.aulasDadas}
+                                    </TableCell>
+                                    <TableCell className="text-center font-mono">
+                                      {data.aulasPrevistas}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setAcademicDetailsModalOpen(false)}
+            >
+              Fechar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
