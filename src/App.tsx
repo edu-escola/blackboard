@@ -18,7 +18,7 @@ import NotFound from './pages/NotFound'
 import AdministratorManagement from './pages/AdministratorManagement'
 import DashboardSelection from './pages/DashboardSelection'
 import { ProtectedRoute } from './components/ProtectedRoute'
-import GradesClosing from './pages/GradesClosing'
+import GradesManagement from './pages/GradesManagement'
 
 const queryClient = new QueryClient()
 
@@ -69,7 +69,7 @@ const App = () => (
             />
             <Route
               path="/professor/grades-closing"
-              element={<GradesClosing />}
+              element={<GradesManagement/>}
             />
           </Route>
 
