@@ -19,8 +19,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
-import { Edit } from 'lucide-react'
+import { ArrowLeft, Edit, Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -81,7 +81,31 @@ const students = [
   },
 ]
 
-const FechamentoNotas = () => {
+// Mock de fechamentos já realizados
+const closedGrades = [
+  {
+    id: 1,
+    bimester: '1',
+    period: 'Manhã',
+    class: 'Turma 1A',
+    subject: 'Matemática',
+    plannedLessons: 20,
+    givenLessons: 18,
+    students,
+  },
+  {
+    id: 2,
+    bimester: '2',
+    period: 'Tarde',
+    class: 'Turma 2B',
+    subject: 'História',
+    plannedLessons: 22,
+    givenLessons: 21,
+    students,
+  },
+]
+
+const GradesManagement = () => {
   const navigate = useNavigate()
   const [bimester, setBimester] = useState<string | undefined>(undefined)
   const [period, setPeriod] = useState<string | undefined>(undefined)
@@ -92,8 +116,22 @@ const FechamentoNotas = () => {
   const [editingStudent, setEditingStudent] = useState<any>(null)
   const [plannedLessons, setPlannedLessons] = useState('')
   const [givenLessons, setGivenLessons] = useState('')
+  const [selectedClosing, setSelectedClosing] = useState<any>(null)
+  const [newClosingModalOpen, setNewClosingModalOpen] = useState(false)
+  const [newClosing, setNewClosing] = useState({
+    bimester: undefined,
+    period: undefined,
+    class: undefined,
+    subject: undefined,
+  })
+  // Novo estado para saber se está criando novo fechamento
+  const [isCreating, setIsCreating] = useState(false)
+  // Novo estado para modal de edição de aulas
+  const [editLessonsModalOpen, setEditLessonsModalOpen] = useState(false)
+  const [editLessons, setEditLessons] = useState({ plannedLessons: '', givenLessons: '' })
 
-  const filteredStudents = students.filter((student) => {
+  // Filtro para alunos só na tela de detalhes
+  const filteredStudents = (selectedClosing?.students || students).filter((student: any) => {
     const matchesSearch =
       student.name.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesSearch
@@ -105,163 +143,276 @@ const FechamentoNotas = () => {
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div className="flex items-center space-x-4">
-            <button
-              className="hover:bg-gray-100 rounded-full p-2"
-              onClick={() => navigate(-1)}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <h1 className="text-2xl font-bold text-gray-900">Fechamento de Notas</h1>
+            {selectedClosing ? (
+              <button
+                className="hover:bg-gray-100 rounded-full p-2"
+                onClick={() => setSelectedClosing(null)}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+            ) : null}
+            <h1 className="text-2xl font-bold text-gray-900">
+              {selectedClosing ? 'Detalhes do Fechamento de Notas' : 'Fechamentos de Notas'}
+            </h1>
           </div>
+          {/* Botão e subtítulo só na tela inicial */}
+          {!selectedClosing && (
+            <div className="flex flex-col sm:items-end">              
+              <Button
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                onClick={() => setNewClosingModalOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Fechamento
+              </Button>
+            </div>
+          )}
         </div>
       </header>
 
       {/* Main Content */}
       <main className="p-6 max-w-7xl mx-auto space-y-6">
-        {/* Filtros */}
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Input
-                  placeholder="Pesquise alunos por nome..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+        {/* Filtros - só na tela inicial */}
+        {!selectedClosing && (
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 min-w-[180px]">
+                  <Label htmlFor="bimester">Bimestre</Label>
+                  <Select value={bimester} onValueChange={setBimester}>
+                    <SelectTrigger id="bimester">
+                      <SelectValue placeholder="Bimestre" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bimesters.map((b) => (
+                        <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1 min-w-[180px]">
+                  <Label htmlFor="period">Período</Label>
+                  <Select value={period} onValueChange={setPeriod}>
+                    <SelectTrigger id="period">
+                      <SelectValue placeholder="Período" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {periods.map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1 min-w-[180px]">
+                  <Label htmlFor="class">Turma</Label>
+                  <Select value={classFilter} onValueChange={setClassFilter}>
+                    <SelectTrigger id="class">
+                      <SelectValue placeholder="Turma" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {classes.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1 min-w-[180px]">
+                  <Label htmlFor="subject">Matéria</Label>
+                  <Select value={subject} onValueChange={setSubject}>
+                    <SelectTrigger id="subject">
+                      <SelectValue placeholder="Matéria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subjects.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <Select value={bimester} onValueChange={setBimester}>
-                <SelectTrigger className="w-full md:w-40">
-                  <SelectValue placeholder="Bimestre" />
-                </SelectTrigger>
-                <SelectContent>
-                  {bimesters.map((b) => (
-                    <SelectItem key={b.value} value={b.value}>
-                      {b.label}
-                    </SelectItem>
+            </CardContent>
+          </Card>
+        )}
+        {/* Listagem de fechamentos ou detalhes */}
+        {!selectedClosing ? (
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Fechamentos Concluídos</h2>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Bimestre</TableHead>
+                    <TableHead>Período</TableHead>
+                    <TableHead>Turma</TableHead>
+                    <TableHead>Matéria</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {closedGrades.map((closing) => (
+                    <TableRow
+                      key={closing.id}
+                      className="cursor-pointer hover:bg-gray-50"
+                      onClick={() => setSelectedClosing(closing)}
+                    >
+                      <TableCell>{bimesters.find(b => b.value === closing.bimester)?.label}</TableCell>
+                      <TableCell>{closing.period}</TableCell>
+                      <TableCell>{closing.class}</TableCell>
+                      <TableCell>{closing.subject}</TableCell>
+                    </TableRow>
                   ))}
-                </SelectContent>
-              </Select>
-              <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger className="w-full md:w-32">
-                  <SelectValue placeholder="Período" />
-                </SelectTrigger>
-                <SelectContent>
-                  {periods.map((p) => (
-                    <SelectItem key={p} value={p}>
-                      {p}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={classFilter} onValueChange={setClassFilter}>
-                <SelectTrigger className="w-full md:w-40">
-                  <SelectValue placeholder="Sala" />
-                </SelectTrigger>
-                <SelectContent>
-                  {classes.map((cls) => (
-                    <SelectItem key={cls} value={cls}>
-                      {cls}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={subject} onValueChange={setSubject}>
-                <SelectTrigger className="w-full md:w-40">
-                  <SelectValue placeholder="Matéria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects.map((subj) => (
-                    <SelectItem key={subj} value={subj}>
-                      {subj}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Gerenciamento de aulas */}
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            {/* Gerenciamento de aulas */}
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   Gerenciamento de aulas
                   <span className="ml-4 text-sm font-normal text-gray-500">
-                    {bimester ? `Bimestre: ${bimesters.find(b => b.value === bimester)?.label}` : ''}
-                    {period ? ` | Período: ${period}` : ''}
-                    {classFilter ? ` | Turma: ${classFilter}` : ''}
-                    {subject ? ` | Matéria: ${subject}` : ''}
+                    {bimesters.find(b => b.value === selectedClosing.bimester)?.label}
+                    {selectedClosing.period ? ` | Período: ${selectedClosing.period}` : ''}
+                    {selectedClosing.class ? ` | Turma: ${selectedClosing.class}` : ''}
+                    {selectedClosing.subject ? ` | Matéria: ${selectedClosing.subject}` : ''}
                   </span>
                 </h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Aulas Previstas</TableHead>
+                      <TableHead>Aulas Dadas</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>{selectedClosing.plannedLessons}</TableCell>
+                      <TableCell>{selectedClosing.givenLessons}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setEditLessons({
+                              plannedLessons: selectedClosing.plannedLessons,
+                              givenLessons: selectedClosing.givenLessons,
+                            })
+                            setEditLessonsModalOpen(true)
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+            {/* Tabela de alunos */}
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Nota (Média)</TableHead>
+                      <TableHead>Faltas</TableHead>
+                      <TableHead>Faltas Compensadas</TableHead>
+                      {!isCreating && <TableHead>Ações</TableHead>}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredStudents.map((student: any, idx: number) => (
+                      <TableRow key={student.id}>
+                        <TableCell className="font-medium">{student.name}</TableCell>
+                        <TableCell>
+                          {isCreating ? (
+                            <Input
+                              type="number"
+                              min={0}
+                              max={10}
+                              step={0.1}
+                              value={selectedClosing.students[idx].average}
+                              onChange={e => {
+                                const updated = [...selectedClosing.students]
+                                updated[idx].average = e.target.value
+                                setSelectedClosing({ ...selectedClosing, students: updated })
+                              }}
+                            />
+                          ) : (
+                            student.average
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isCreating ? (
+                            <Input
+                              type="number"
+                              min={0}
+                              value={selectedClosing.students[idx].absences}
+                              onChange={e => {
+                                const updated = [...selectedClosing.students]
+                                updated[idx].absences = e.target.value
+                                setSelectedClosing({ ...selectedClosing, students: updated })
+                              }}
+                            />
+                          ) : (
+                            student.absences
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isCreating ? (
+                            <Input
+                              type="number"
+                              min={0}
+                              value={selectedClosing.students[idx].justifiedAbsences}
+                              onChange={e => {
+                                const updated = [...selectedClosing.students]
+                                updated[idx].justifiedAbsences = e.target.value
+                                setSelectedClosing({ ...selectedClosing, students: updated })
+                              }}
+                            />
+                          ) : (
+                            student.justifiedAbsences
+                          )}
+                        </TableCell>
+                        {!isCreating && (
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setEditingStudent(student)
+                                setEditModalOpen(true)
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+            {/* Botão de salvar fechamento no topo da tela de criação */}
+            {isCreating && (
+              <div className="flex justify-end mb-4">
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={() => {
+                    // Aqui você pode implementar a lógica de salvar o fechamento
+                    setIsCreating(false)
+                  }}
+                >
+                  Salvar Fechamento
+                </Button>
               </div>
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <Label htmlFor="planned-lessons">Aulas Previstas</Label>
-                  <Input
-                    id="planned-lessons"
-                    type="number"
-                    min={0}
-                    value={plannedLessons}
-                    onChange={e => setPlannedLessons(e.target.value)}
-                    placeholder="Quantidade de aulas previstas"
-                  />
-                </div>
-                <div className="flex-1">
-                  <Label htmlFor="given-lessons">Aulas Dadas</Label>
-                  <Input
-                    id="given-lessons"
-                    type="number"
-                    min={0}
-                    value={givenLessons}
-                    onChange={e => setGivenLessons(e.target.value)}
-                    placeholder="Quantidade de aulas dadas"
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Tabela de alunos */}
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Nota (Média)</TableHead>
-                  <TableHead>Faltas</TableHead>
-                  <TableHead>Faltas Compensadas</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredStudents.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell className="font-medium">{student.name}</TableCell>
-                    <TableCell>{student.average}</TableCell>
-                    <TableCell>{student.absences}</TableCell>
-                    <TableCell>{student.justifiedAbsences}</TableCell>
-                    <TableCell>
-                      <button
-                        className="p-2 rounded hover:bg-gray-100"
-                        title="Editar"
-                        onClick={() => {
-                          setEditingStudent(student)
-                          setEditModalOpen(true)
-                        }}
-                      >
-                        <Edit className="h-4 w-4 text-gray-600" />
-                      </button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+            )}
+          </>
+        )}
       </main>
 
       {/* Edit Student Modal */}
@@ -327,8 +478,150 @@ const FechamentoNotas = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* New Closing Modal */}
+      <Dialog open={newClosingModalOpen} onOpenChange={setNewClosingModalOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Novo Fechamento de Notas</DialogTitle>
+            <DialogDescription>Preencha os dados para criar um novo fechamento.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="new-bimester">Bimestre</Label>
+              <Select
+                value={newClosing.bimester}
+                onValueChange={v => setNewClosing(c => ({ ...c, bimester: v }))}
+              >
+                <SelectTrigger id="new-bimester">
+                  <SelectValue placeholder="Bimestre" />
+                </SelectTrigger>
+                <SelectContent>
+                  {bimesters.map(b => (
+                    <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="new-period">Período</Label>
+              <Select
+                value={newClosing.period}
+                onValueChange={v => setNewClosing(c => ({ ...c, period: v }))}
+              >
+                <SelectTrigger id="new-period">
+                  <SelectValue placeholder="Período" />
+                </SelectTrigger>
+                <SelectContent>
+                  {periods.map(p => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="new-class">Turma</Label>
+              <Select
+                value={newClosing.class}
+                onValueChange={v => setNewClosing(c => ({ ...c, class: v }))}
+              >
+                <SelectTrigger id="new-class">
+                  <SelectValue placeholder="Turma" />
+                </SelectTrigger>
+                <SelectContent>
+                  {classes.map(c => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="new-subject">Matéria</Label>
+              <Select
+                value={newClosing.subject}
+                onValueChange={v => setNewClosing(c => ({ ...c, subject: v }))}
+              >
+                <SelectTrigger id="new-subject">
+                  <SelectValue placeholder="Matéria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map(s => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setNewClosingModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => {
+                  if (newClosing.bimester && newClosing.period && newClosing.class && newClosing.subject) {
+                    navigate('/professor/grades-closing/new', { state: newClosing })
+                    setNewClosingModalOpen(false)
+                    setNewClosing({ bimester: undefined, period: undefined, class: undefined, subject: undefined })
+                  }
+                }}
+                disabled={!(newClosing.bimester && newClosing.period && newClosing.class && newClosing.subject)}
+              >
+                Criar Fechamento
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Lessons Modal */}
+      <Dialog open={editLessonsModalOpen} onOpenChange={setEditLessonsModalOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Editar Aulas</DialogTitle>
+            <DialogDescription>Altere a quantidade de aulas previstas e dadas.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-planned">Aulas Previstas</Label>
+              <Input
+                id="edit-planned"
+                type="number"
+                min={0}
+                value={editLessons.plannedLessons}
+                onChange={e => setEditLessons(l => ({ ...l, plannedLessons: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-given">Aulas Dadas</Label>
+              <Input
+                id="edit-given"
+                type="number"
+                min={0}
+                value={editLessons.givenLessons}
+                onChange={e => setEditLessons(l => ({ ...l, givenLessons: e.target.value }))}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setEditLessonsModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => {
+                  setSelectedClosing({
+                    ...selectedClosing,
+                    plannedLessons: editLessons.plannedLessons,
+                    givenLessons: editLessons.givenLessons,
+                  })
+                  setEditLessonsModalOpen(false)
+                }}
+              >
+                Salvar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
-export default FechamentoNotas 
+export default GradesManagement 

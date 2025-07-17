@@ -19,6 +19,7 @@ import AdministratorManagement from './pages/AdministratorManagement'
 import DashboardSelection from './pages/DashboardSelection'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import GradesManagement from './pages/GradesManagement'
+import GradesClosingEdit from './pages/GradesClosingEdit'
 
 const queryClient = new QueryClient()
 
@@ -71,6 +72,7 @@ const App = () => (
               path="/professor/grades-closing"
               element={<GradesManagement/>}
             />
+            <Route path="/professor/grades-closing/new" element={<GradesClosingEdit/>} />
           </Route>
 
           <Route path="/error" element={<ServerError />} />
