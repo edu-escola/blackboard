@@ -9,6 +9,7 @@ import {
   Edit,
   Trash2,
 } from 'lucide-react'
+import api from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -28,7 +29,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
 import {
   Sheet,
@@ -52,8 +52,7 @@ const AdministratorManagement = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedAdministrator, setSelectedAdministrator] = useState<any>(null)
   const [sideSheetOpen, setSideSheetOpen] = useState(false)
-  const [newAdministratorModalOpen, setNewAdministratorModalOpen] =
-    useState(false)
+  const [newAdministratorModalOpen, setCreateAdminModal] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [administratorToDelete, setAdministratorToDelete] = useState<any>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
@@ -63,6 +62,14 @@ const AdministratorManagement = () => {
     email: '',
     status: '',
   })
+
+  const [adminForm, setAdminForm] = useState({
+    name: '',
+    email: '',
+  })
+
+  const [isCreating, setIsCreating] = useState(false)
+  const [createError, setCreateError] = useState('')
 
   const administrators = [
     {
@@ -100,8 +107,13 @@ const AdministratorManagement = () => {
     setSideSheetOpen(true)
   }
 
-  const handleNewAdministrator = () => {
-    setNewAdministratorModalOpen(true)
+  const handleNewAdmin = () => {
+    setCreateAdminModal(true)
+    setAdminForm({
+      name: '',
+      email: '',
+    })
+    setCreateError('')
   }
 
   const handleDeleteClick = (e: React.MouseEvent, administrator: any) => {
@@ -134,7 +146,6 @@ const AdministratorManagement = () => {
   }
 
   const handleSaveEdit = () => {
-    // Aqui você implementaria a lógica para salvar as alterações
     console.log('Salvando alterações:', editForm)
     setEditModalOpen(false)
     setEditingAdministrator(null)
@@ -145,6 +156,50 @@ const AdministratorManagement = () => {
     setEditModalOpen(false)
     setEditingAdministrator(null)
     setEditForm({ name: '', email: '', status: '' })
+  }
+
+  const handleCreateAdmin = async () => {
+    if (!adminForm.name.trim()) {
+      setCreateError('Nome é obrigatório')
+      return
+    }
+    if (!adminForm.email.trim()) {
+      setCreateError('Email é obrigatório')
+      return
+    }
+
+    setIsCreating(true)
+    setCreateError('')
+
+    try {
+      const response = await api.post('/users', {
+        name: adminForm.name,
+        email: adminForm.email.trim().toLowerCase(),
+        isAdmin: true,
+      })
+
+      console.log('Administrador criado com sucesso:', response.data)
+
+      setCreateAdminModal(false)
+      setAdminForm({
+        name: '',
+        email: '',
+      })
+    } catch (error: any) {
+      console.error('Erro ao criar administrador:', error)
+      setCreateError('Erro desconhecido. Tente novamente mais tarde.')
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  const handleCancelCreate = () => {
+    setCreateAdminModal(false)
+    setAdminForm({
+      name: '',
+      email: '',
+    })
+    setCreateError('')
   }
 
   const getStatusColor = (status: string) => {
@@ -172,7 +227,7 @@ const AdministratorManagement = () => {
             </h1>
           </div>
           <Button
-            onClick={handleNewAdministrator}
+            onClick={handleNewAdmin}
             className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -308,7 +363,7 @@ const AdministratorManagement = () => {
       {/* New Administrator Modal */}
       <Dialog
         open={newAdministratorModalOpen}
-        onOpenChange={setNewAdministratorModalOpen}
+        onOpenChange={setCreateAdminModal}
       >
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -318,23 +373,50 @@ const AdministratorManagement = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {createError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-600">{createError}</p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="name">Nome Completo</Label>
-              <Input id="name" placeholder="Digite o nome completo" />
+              <Input
+                id="name"
+                placeholder="Digite o nome completo"
+                value={adminForm.name}
+                onChange={(e) =>
+                  setAdminForm({
+                    ...adminForm,
+                    name: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" placeholder="exemplo@email.com" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="exemplo@email.com"
+                value={adminForm.email}
+                onChange={(e) =>
+                  setAdminForm({
+                    ...adminForm,
+                    email: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="flex justify-end space-x-2">
               <Button
                 variant="outline"
-                onClick={() => setNewAdministratorModalOpen(false)}
+                onClick={handleCancelCreate}
+                disabled={isCreating}
               >
                 Cancelar
               </Button>
-              <Button onClick={() => setNewAdministratorModalOpen(false)}>
-                Criar Administrador
+              <Button onClick={handleCreateAdmin} disabled={isCreating}>
+                {isCreating ? 'Criando...' : 'Criar Administrador'}
               </Button>
             </div>
           </div>
