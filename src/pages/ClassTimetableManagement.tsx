@@ -46,13 +46,14 @@ const ClassTimetableManagement = () => {
   const { toast } = useToast()
   
   const [rooms, setRooms] = useState<any[]>([])
+  const [periods, setPeriods] = useState<any[]>([])
+  const [classes, setClasses] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
   const [newClassModalOpen, setNewClassModalOpen] = useState(false)
   const [newRoomModalOpen, setNewRoomModalOpen] = useState(false)
   const [periodFilter, setPeriodFilter] = useState('all')
-  const [classFilter, setClassFilter] = useState('all')
   const [roomFilter, setRoomFilter] = useState('all')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [classToDelete, setClassToDelete] = useState<any>(null)
@@ -71,6 +72,9 @@ const ClassTimetableManagement = () => {
   const [deleteRoomDialogOpen, setDeleteRoomDialogOpen] = useState(false)
   const [roomToDelete, setRoomToDelete] = useState<any>(null)
   const [newRoomName, setNewRoomName] = useState('')
+  const [newClassName, setNewClassName] = useState('')
+  const [newClassRoomId, setNewClassRoomId] = useState('')
+  const [newClassPeriodId, setNewClassPeriodId] = useState('')
 
   // Funções da API
   const fetchRooms = async () => {
@@ -132,52 +136,93 @@ const ClassTimetableManagement = () => {
     }
   }
 
-  // Carrega as salas ao montar o componente
+  // Função para buscar períodos
+  const fetchPeriods = async () => {
+    try {
+      const response = await api.get('/periods')
+      setPeriods(response.data.data || [])
+    } catch (err) {
+      console.error('Error fetching periods:', err)
+    }
+  }
+
+  // Função para buscar turmas
+  const fetchClasses = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await api.get('/classes')
+      setClasses(response.data.data || [])
+    } catch (err) {
+      setError('Erro ao carregar turmas')
+      console.error('Error fetching classes:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const createClass = async (name: string, roomId: string, periodId: string) => {
+    try {
+      setLoading(true)
+      setError(null)
+      await api.post('/classes', { name, roomId, periodId })
+      await fetchClasses() // Recarrega a lista
+    } catch (err) {
+      setError('Erro ao criar turma')
+      console.error('Error creating class:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateClass = async (id: string, name: string, roomId: string, periodId: string) => {
+    try {
+      setLoading(true)
+      setError(null)
+      await api.put(`/classes/${id}`, { name, roomId, periodId })
+      await fetchClasses() // Recarrega a lista
+    } catch (err) {
+      setError('Erro ao atualizar turma')
+      console.error('Error updating class:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const deleteClass = async (id: string) => {
+    try {
+      setLoading(true)
+      setError(null)
+      await api.delete(`/classes/${id}`)
+      await fetchClasses() // Recarrega a lista
+    } catch (err) {
+      setError('Erro ao excluir turma')
+      console.error('Error deleting class:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Carrega as salas, períodos e turmas ao montar o componente
   useEffect(() => {
     fetchRooms()
+    fetchPeriods()
+    fetchClasses()
   }, [])
 
-  // Mock data for classes (mantido por enquanto)
-  const classes = [
-    {
-      id: 1,
-      name: 'Mathematics 101',
-      year: '2024',
-      room: 'Room A101',
-      shift: 'Morning',
-      students: 28,
-      professors: ['Dr. Sarah Johnson'],
-      capacity: 30,
-    },
-    {
-      id: 2,
-      name: 'Science Lab',
-      year: '2024',
-      room: 'Lab B201',
-      shift: 'Afternoon',
-      students: 22,
-      professors: ['Prof. Michael Chen'],
-      capacity: 25,
-    },
-    {
-      id: 3,
-      name: 'English Literature',
-      year: '2024',
-      room: 'Room A101',
-      shift: 'Night',
-      students: 25,
-      professors: ['Ms. Emily Rodriguez'],
-      capacity: 30,
-    },
-  ]
-
-  const getShiftColor = (shift: string) => {
-    switch (shift) {
-      case 'Morning':
+  const getShiftColor = (periodName: string) => {
+    switch (periodName?.toLowerCase()) {
+      case 'manhã':
+      case 'morning':
         return 'bg-yellow-100 text-yellow-800'
-      case 'Afternoon':
+      case 'tarde':
+      case 'afternoon':
         return 'bg-blue-100 text-blue-800'
-      case 'Night':
+      case 'noite':
+      case 'night':
         return 'bg-purple-100 text-purple-800'
       default:
         return 'bg-gray-100 text-gray-800'
@@ -187,14 +232,11 @@ const ClassTimetableManagement = () => {
   const filteredClasses = classes.filter((classItem) => {
     const matchesPeriod =
       periodFilter === 'all' ||
-      classItem.shift.toLowerCase() === periodFilter.toLowerCase()
-    const matchesClass =
-      classFilter === 'all' ||
-      classItem.name.toLowerCase().includes(classFilter.toLowerCase())
+      (classItem.period?.name && classItem.period.name.toLowerCase() === periodFilter.toLowerCase())
     const matchesRoom =
       roomFilter === 'all' ||
-      classItem.room.toLowerCase().includes(roomFilter.toLowerCase())
-    return matchesPeriod && matchesClass && matchesRoom
+      (classItem.room?.name && classItem.room.name.toLowerCase().includes(roomFilter.toLowerCase()))
+    return matchesPeriod && matchesRoom
   })
 
   const filteredRooms = rooms.filter((room) => {
@@ -207,8 +249,8 @@ const ClassTimetableManagement = () => {
     setEditingClass(classItem)
     setEditForm({
       name: classItem.name,
-      room: classItem.room,
-      shift: classItem.shift,
+      room: classItem.roomId,
+      shift: classItem.periodId,
     })
     setEditModalOpen(true)
   }
@@ -219,11 +261,22 @@ const ClassTimetableManagement = () => {
     setDeleteDialogOpen(true)
   }
 
-  const handleConfirmDelete = () => {
-    // Aqui você implementaria a lógica para deletar a turma
-    console.log('Deletando turma:', classToDelete)
-    setDeleteDialogOpen(false)
-    setClassToDelete(null)
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteClass(classToDelete.id)
+      setDeleteDialogOpen(false)
+      setClassToDelete(null)
+      toast({
+        title: 'Turma excluída',
+        description: `${classToDelete.name} foi excluída com sucesso.`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao excluir turma.',
+        variant: 'destructive',
+      })
+    }
   }
 
   const handleCancelDelete = () => {
@@ -231,12 +284,32 @@ const ClassTimetableManagement = () => {
     setClassToDelete(null)
   }
 
-  const handleSaveEdit = () => {
-    // Aqui você implementaria a lógica para salvar as alterações
-    console.log('Salvando alterações:', editForm)
-    setEditModalOpen(false)
-    setEditingClass(null)
-    setEditForm({ name: '', room: '', shift: '' })
+  const handleSaveEdit = async () => {
+    if (!editForm.name.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'Nome da turma é obrigatório.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    try {
+      await updateClass(editingClass.id, editForm.name.trim(), editForm.room, editForm.shift)
+      setEditModalOpen(false)
+      setEditingClass(null)
+      setEditForm({ name: '', room: '', shift: '' })
+      toast({
+        title: 'Turma atualizada',
+        description: `${editForm.name} foi atualizada com sucesso.`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao atualizar turma.',
+        variant: 'destructive',
+      })
+    }
   }
 
   const handleCancelEdit = () => {
@@ -344,6 +417,53 @@ const ClassTimetableManagement = () => {
     }
   }
 
+  const handleCreateClass = async () => {
+    if (!newClassName.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'Nome da turma é obrigatório.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (!newClassRoomId) {
+      toast({
+        title: 'Erro',
+        description: 'Sala é obrigatória.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (!newClassPeriodId) {
+      toast({
+        title: 'Erro',
+        description: 'Período é obrigatório.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    try {
+      await createClass(newClassName.trim(), newClassRoomId, newClassPeriodId)
+      setNewClassModalOpen(false)
+      setNewClassName('')
+      setNewClassRoomId('')
+      setNewClassPeriodId('')
+      toast({
+        title: 'Turma criada',
+        description: `${newClassName} foi criada com sucesso.`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao criar turma.',
+        variant: 'destructive',
+      })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -375,19 +495,6 @@ const ClassTimetableManagement = () => {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Turmas</CardTitle>
                 <div className="flex items-center space-x-4">
-                  <Select value={classFilter} onValueChange={setClassFilter}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Todas as turmas" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas as Turmas</SelectItem>
-                      {classes.map((cls) => (
-                        <SelectItem key={cls.id} value={cls.name}>
-                          {cls.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <Select value={roomFilter} onValueChange={setRoomFilter}>
                     <SelectTrigger className="w-48">
                       <SelectValue placeholder="Todas as salas" />
@@ -407,9 +514,11 @@ const ClassTimetableManagement = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todos os Períodos</SelectItem>
-                      <SelectItem value="morning">Manhã</SelectItem>
-                      <SelectItem value="afternoon">Tarde</SelectItem>
-                      <SelectItem value="night">Noite</SelectItem>
+                      {periods.map((period) => (
+                        <SelectItem key={period.id} value={period.name}>
+                          {period.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <Button onClick={() => setNewClassModalOpen(true)}>
@@ -419,54 +528,60 @@ const ClassTimetableManagement = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nome da Turma</TableHead>
-                      <TableHead>Sala</TableHead>
-                      <TableHead>Período</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredClasses.map((classItem) => (
-                      <TableRow key={classItem.id}>
-                        <TableCell className="font-medium">
-                          {classItem.name}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <MapPin className="h-4 w-4 text-gray-500" />
-                            <span>{classItem.room}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getShiftColor(classItem.shift)}>
-                            {classItem.shift}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => handleEditClass(e, classItem)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => handleDeleteClass(e, classItem)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                {loading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <div className="text-gray-500">Carregando turmas...</div>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome da Turma</TableHead>
+                        <TableHead>Sala</TableHead>
+                        <TableHead>Período</TableHead>
+                        <TableHead>Ações</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredClasses.map((classItem) => (
+                        <TableRow key={classItem.id}>
+                          <TableCell className="font-medium">
+                            {classItem.name}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <MapPin className="h-4 w-4 text-gray-500" />
+                              <span>{classItem.room?.name || 'N/A'}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getShiftColor(classItem.period?.name)}>
+                              {classItem.period?.name || 'N/A'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => handleEditClass(e, classItem)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => handleDeleteClass(e, classItem)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -537,18 +652,23 @@ const ClassTimetableManagement = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="className">Nome da Turma</Label>
-              <Input id="className" placeholder="1A" />
+              <Input 
+                id="className" 
+                placeholder="1A"
+                value={newClassName}
+                onChange={(e) => setNewClassName(e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="room">Sala</Label>
-              <Select>
+              <Select value={newClassRoomId} onValueChange={setNewClassRoomId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecionar Sala" />
                 </SelectTrigger>
                 <SelectContent>
                   {rooms.map((room) => (
-                    <SelectItem key={room.id} value={room.name}>
+                    <SelectItem key={room.id} value={room.id}>
                       {room.name}
                     </SelectItem>
                   ))}
@@ -558,14 +678,16 @@ const ClassTimetableManagement = () => {
 
             <div className="space-y-2">
               <Label htmlFor="shift">Período</Label>
-              <Select>
+              <Select value={newClassPeriodId} onValueChange={setNewClassPeriodId}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecionar período" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="morning">Manhã</SelectItem>
-                  <SelectItem value="afternoon">Tarde</SelectItem>
-                  <SelectItem value="night">Noite</SelectItem>
+                  {periods.map((period) => (
+                    <SelectItem key={period.id} value={period.id}>
+                      {period.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -573,12 +695,17 @@ const ClassTimetableManagement = () => {
             <div className="flex justify-end space-x-2">
               <Button
                 variant="outline"
-                onClick={() => setNewClassModalOpen(false)}
+                onClick={() => {
+                  setNewClassModalOpen(false)
+                  setNewClassName('')
+                  setNewClassRoomId('')
+                  setNewClassPeriodId('')
+                }}
               >
                 Cancelar
               </Button>
-              <Button onClick={() => setNewClassModalOpen(false)}>
-                Criar Turma
+              <Button onClick={handleCreateClass} disabled={loading}>
+                {loading ? 'Criando...' : 'Criar Turma'}
               </Button>
             </div>
           </div>
@@ -668,7 +795,7 @@ const ClassTimetableManagement = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {rooms.map((room) => (
-                    <SelectItem key={room.id} value={room.name}>
+                    <SelectItem key={room.id} value={room.id}>
                       {room.name}
                     </SelectItem>
                   ))}
@@ -688,9 +815,11 @@ const ClassTimetableManagement = () => {
                   <SelectValue placeholder="Selecionar período" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="morning">Manhã</SelectItem>
-                  <SelectItem value="afternoon">Tarde</SelectItem>
-                  <SelectItem value="night">Noite</SelectItem>
+                  {periods.map((period) => (
+                    <SelectItem key={period.id} value={period.id}>
+                      {period.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
