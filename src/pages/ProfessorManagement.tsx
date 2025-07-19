@@ -211,13 +211,15 @@ const ProfessorManagement = () => {
   const handleCreateProfessor = async () => {
     try {
       setIsCreating(true)
+      // Remover duplicatas do array de turmas antes de enviar
+      const uniqueClasses = Array.from(new Set(createProfessorForm.classes))
       const response = await api.post('/users', {
         name: createProfessorForm.name,
         email: createProfessorForm.email,
         subjects: createProfessorForm.subjects,
         isTeacher: true,
         phone: createProfessorForm.phone,
-        classes: createProfessorForm.classes,
+        classes: uniqueClasses,
       })
       getProfessorList()
       setCreateProfessorForm({
@@ -402,26 +404,7 @@ const ProfessorManagement = () => {
                   )}
                 </div>
               </div>
-
-              {/* Actions */}
-              <div className="space-y-3 pt-4 border-t">
-                <Button className="w-full" variant="outline">
-                  <GraduationCap className="h-4 w-4 mr-2" />
-                  Atribuir escola
-                </Button>
-                <Button className="w-full" variant="outline">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Atribuir assunto
-                </Button>
-                <Button className="w-full" variant="outline">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Editar perfil
-                </Button>
-                <Button className="w-full" variant="destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Remover Professor
-                </Button>
-              </div>
+              {/* Removido bloco de botões de ações */}
             </div>
           )}
         </SheetContent>
@@ -495,18 +478,20 @@ const ProfessorManagement = () => {
                       type="checkbox"
                       id={subject.id}
                       className="rounded border-gray-300"
-                      checked={createProfessorForm.subjects.includes(
-                        subject.id
-                      )}
-                      onChange={(e) =>
-                        setCreateProfessorForm({
-                          ...createProfessorForm,
-                          subjects: [
-                            ...createProfessorForm.subjects,
-                            subject.id,
-                          ],
-                        })
-                      }
+                      checked={createProfessorForm.subjects.includes(subject.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setCreateProfessorForm({
+                            ...createProfessorForm,
+                            subjects: [...createProfessorForm.subjects, subject.id],
+                          })
+                        } else {
+                          setCreateProfessorForm({
+                            ...createProfessorForm,
+                            subjects: createProfessorForm.subjects.filter((id) => id !== subject.id),
+                          })
+                        }
+                      }}
                     />
                     <Label htmlFor={subject.id} className="text-sm font-normal">
                       {subject.name}
@@ -527,18 +512,20 @@ const ProfessorManagement = () => {
                       type="checkbox"
                       id={classItem.id}
                       className="rounded border-gray-300"
-                      checked={createProfessorForm.classes.includes(
-                        classItem.id
-                      )}
-                      onChange={(e) =>
-                        setCreateProfessorForm({
-                          ...createProfessorForm,
-                          classes: [
-                            ...createProfessorForm.classes,
-                            classItem.id,
-                          ],
-                        })
-                      }
+                      checked={createProfessorForm.classes.includes(classItem.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setCreateProfessorForm({
+                            ...createProfessorForm,
+                            classes: [...createProfessorForm.classes, classItem.id],
+                          })
+                        } else {
+                          setCreateProfessorForm({
+                            ...createProfessorForm,
+                            classes: createProfessorForm.classes.filter((id) => id !== classItem.id),
+                          })
+                        }
+                      }}
                     />
                     <Label
                       htmlFor={classItem.id}
