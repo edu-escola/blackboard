@@ -69,10 +69,10 @@ const App = () => (
               element={<ProfessorDashboard />}
             />
             <Route
-              path="/professor/grades-closing"
+              path="/professor/grades-managament"
               element={<GradesManagement/>}
             />
-            <Route path="/professor/grades-closing/new" element={<GradesClosingEdit/>} />
+            <Route path="/professor/grades-managament/new" element={<GradesClosingEdit/>} />
           </Route>
 
           <Route path="/error" element={<ServerError />} />

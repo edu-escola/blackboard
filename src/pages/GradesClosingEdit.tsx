@@ -63,20 +63,22 @@ const GradesClosingEdit = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-          <div>
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/professor/grades-managament')}
+              className="hover:bg-gray-100"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </Button>
             <h1 className="text-2xl font-bold text-gray-900">Novo Fechamento de Notas</h1>
-            <div className="text-gray-600 text-sm mt-1">
-              {form.bimester && `${bimesters.find(b => b.value === form.bimester)?.label}`}
-              {form.period && ` | Período: ${form.period}`}
-              {form.class && ` | Turma: ${form.class}`}
-              {form.subject && ` | Matéria: ${form.subject}`}
-            </div>
           </div>
           <Button
             className="bg-blue-600 hover:bg-blue-700"
             onClick={() => {
               // Aqui você pode implementar a lógica de salvar o fechamento
-              navigate('/professor/grades-closing')
+              navigate('/professor/grades-managament')
             }}
           >
             Salvar Fechamento
@@ -99,24 +101,12 @@ const GradesClosingEdit = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="plannedLessons">Aulas Previstas</Label>
-                <Input
-                  id="plannedLessons"
-                  type="number"
-                  min={0}
-                  value={form.plannedLessons}
-                  onChange={e => setForm(f => ({ ...f, plannedLessons: e.target.value }))}
-                />
+                <Label>Aulas Previstas</Label>
+                <p className="mt-1 text-gray-900 font-medium">{initial.plannedLessons || form.plannedLessons || '-'}</p>
               </div>
               <div>
-                <Label htmlFor="givenLessons">Aulas Dadas</Label>
-                <Input
-                  id="givenLessons"
-                  type="number"
-                  min={0}
-                  value={form.givenLessons}
-                  onChange={e => setForm(f => ({ ...f, givenLessons: e.target.value }))}
-                />
+                <Label>Aulas Dadas</Label>
+                <p className="mt-1 text-gray-900 font-medium">{initial.givenLessons || form.givenLessons || '-'}</p>
               </div>
             </div>
           </CardContent>

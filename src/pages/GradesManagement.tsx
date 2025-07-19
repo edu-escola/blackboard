@@ -123,6 +123,8 @@ const GradesManagement = () => {
     period: undefined,
     class: undefined,
     subject: undefined,
+    plannedLessons: undefined,
+    givenLessons: undefined,
   })
   // Novo estado para saber se está criando novo fechamento
   const [isCreating, setIsCreating] = useState(false)
@@ -143,14 +145,20 @@ const GradesManagement = () => {
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div className="flex items-center space-x-4">
-            {selectedClosing ? (
-              <button
-                className="hover:bg-gray-100 rounded-full p-2"
-                onClick={() => setSelectedClosing(null)}
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-            ) : null}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (selectedClosing) {
+                  setSelectedClosing(null)
+                } else {
+                  navigate('/professor/dashboard')
+                }
+              }}
+              className="hover:bg-gray-100"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
             <h1 className="text-2xl font-bold text-gray-900">
               {selectedClosing ? 'Detalhes do Fechamento de Notas' : 'Fechamentos de Notas'}
             </h1>
@@ -316,18 +324,18 @@ const GradesManagement = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Nota (Média)</TableHead>
-                      <TableHead>Faltas</TableHead>
-                      <TableHead>Faltas Compensadas</TableHead>
-                      {!isCreating && <TableHead>Ações</TableHead>}
+                      <TableHead className="w-[22%]">Nome</TableHead>
+                      <TableHead className="w-[18%] text-center">Nota (Média)</TableHead>
+                      <TableHead className="w-[18%] text-center">Faltas</TableHead>
+                      <TableHead className="w-[18%] text-center">Faltas Compensadas</TableHead>
+                      {!isCreating && <TableHead className="w-[18%] text-center">Ações</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredStudents.map((student: any, idx: number) => (
                       <TableRow key={student.id}>
                         <TableCell className="font-medium">{student.name}</TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                           {isCreating ? (
                             <Input
                               type="number"
@@ -345,7 +353,7 @@ const GradesManagement = () => {
                             student.average
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                           {isCreating ? (
                             <Input
                               type="number"
@@ -361,7 +369,7 @@ const GradesManagement = () => {
                             student.absences
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-center">
                           {isCreating ? (
                             <Input
                               type="number"
@@ -378,7 +386,7 @@ const GradesManagement = () => {
                           )}
                         </TableCell>
                         {!isCreating && (
-                          <TableCell>
+                          <TableCell className="text-center">
                             <Button
                               variant="ghost"
                               size="icon"
@@ -426,7 +434,7 @@ const GradesManagement = () => {
             <div className="space-y-4">
               <div>
                 <Label htmlFor="edit-name">Nome</Label>
-                <Input id="edit-name" value={editingStudent.name} disabled />
+                <p className="mt-1 text-gray-900 font-medium">{editingStudent.name}</p>
               </div>
               <div>
                 <Label htmlFor="edit-average">Nota (Média)</Label>
@@ -551,19 +559,39 @@ const GradesManagement = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label htmlFor="new-planned-lessons">Aulas Previstas</Label>
+              <Input
+                id="new-planned-lessons"
+                type="number"
+                min={0}
+                value={newClosing.plannedLessons || ''}
+                onChange={e => setNewClosing(c => ({ ...c, plannedLessons: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="new-given-lessons">Aulas Dadas</Label>
+              <Input
+                id="new-given-lessons"
+                type="number"
+                min={0}
+                value={newClosing.givenLessons || ''}
+                onChange={e => setNewClosing(c => ({ ...c, givenLessons: e.target.value }))}
+              />
+            </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setNewClosingModalOpen(false)}>
                 Cancelar
               </Button>
               <Button
                 onClick={() => {
-                  if (newClosing.bimester && newClosing.period && newClosing.class && newClosing.subject) {
-                    navigate('/professor/grades-closing/new', { state: newClosing })
+                  if (newClosing.bimester && newClosing.period && newClosing.class && newClosing.subject && newClosing.plannedLessons && newClosing.givenLessons) {
+                    navigate('/professor/grades-managament/new', { state: newClosing })
                     setNewClosingModalOpen(false)
-                    setNewClosing({ bimester: undefined, period: undefined, class: undefined, subject: undefined })
+                    setNewClosing({ bimester: undefined, period: undefined, class: undefined, subject: undefined, plannedLessons: undefined, givenLessons: undefined })
                   }
                 }}
-                disabled={!(newClosing.bimester && newClosing.period && newClosing.class && newClosing.subject)}
+                disabled={!(newClosing.bimester && newClosing.period && newClosing.class && newClosing.subject && newClosing.plannedLessons && newClosing.givenLessons)}
               >
                 Criar Fechamento
               </Button>
