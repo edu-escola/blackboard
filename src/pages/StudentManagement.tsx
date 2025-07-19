@@ -52,7 +52,6 @@ const StudentManagement = () => {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
-  const [schoolFilter, setSchoolFilter] = useState('all')
   const [classFilter, setClassFilter] = useState('all')
   const [selectedStudent, setSelectedStudent] = useState<any>(null)
   const [sideSheetOpen, setSideSheetOpen] = useState(false)
@@ -78,7 +77,6 @@ const StudentManagement = () => {
     registrationDate: '',
     periodId: '',
     classId: '',
-    status: 'Ativo',
     enrollmentStatus: '',
     enrollmentDate: '',
     studentSituation: '',
@@ -90,7 +88,6 @@ const StudentManagement = () => {
 
   const [editForm, setEditForm] = useState({
     name: '',
-    status: '',
     class: '',
     address: '',
     parentName: '',
@@ -109,8 +106,6 @@ const StudentManagement = () => {
     { id: 'roosevelt', name: 'Roosevelt Middle School' },
     { id: 'jefferson', name: 'Jefferson Academy' },
   ]
-
-
 
   const subjects = [
     'Matemática',
@@ -160,8 +155,11 @@ const StudentManagement = () => {
   const filteredStudents = students.filter((student) => {
     const matchesSearch =
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesClass = classFilter === 'all' || student.class?.name === classFilter
+      student.registrationNumber
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    const matchesClass =
+      classFilter === 'all' || student.class?.name === classFilter
     return matchesSearch && matchesClass
   })
 
@@ -179,10 +177,9 @@ const StudentManagement = () => {
   const handleEditClick = (e: React.MouseEvent, student: any) => {
     e.stopPropagation()
     setEditingStudent(student)
-    
+
     setEditForm({
       name: student.name,
-      status: student.status,
       class: safeValue(student.class?.name),
       address: safeValue(student.guardianAddress),
       parentName: safeValue(student.guardianName),
@@ -214,15 +211,15 @@ const StudentManagement = () => {
 
     try {
       setLoading(true)
-      
+
       await api.delete(`/students/${studentToDelete.id}`)
-      
+
       setDeleteDialogOpen(false)
       setStudentToDelete(null)
-      
+
       // Recarrega a lista de alunos
       await fetchStudents()
-      
+
       toast({
         title: 'Aluno excluído',
         description: `${studentToDelete.name} foi excluído com sucesso.`,
@@ -265,24 +262,34 @@ const StudentManagement = () => {
 
     try {
       setLoading(true)
-      
+
       // Preparar dados para atualização
       const updateData: any = {}
-      
+
       if (editForm.name !== editingStudent.name) updateData.name = editForm.name
-      if (editForm.status !== editingStudent.status) updateData.status = editForm.status
-      if (editForm.enrollmentNumber !== editingStudent.registrationNumber) updateData.registrationNumber = editForm.enrollmentNumber
-      if (editForm.parentName !== editingStudent.guardianName) updateData.guardianName = editForm.parentName
-      if (editForm.parentPhone !== editingStudent.guardianPhone) updateData.guardianPhone = editForm.parentPhone
-      if (editForm.address !== editingStudent.guardianAddress) updateData.guardianAddress = editForm.address
-      if (editForm.studentSituation !== editingStudent.enrollmentStatus) updateData.enrollmentStatus = editForm.studentSituation
-      
+      if (editForm.enrollmentNumber !== editingStudent.registrationNumber)
+        updateData.registrationNumber = editForm.enrollmentNumber
+      if (editForm.parentName !== editingStudent.guardianName)
+        updateData.guardianName = editForm.parentName
+      if (editForm.parentPhone !== editingStudent.guardianPhone)
+        updateData.guardianPhone = editForm.parentPhone
+      if (editForm.address !== editingStudent.guardianAddress)
+        updateData.guardianAddress = editForm.address
+      if (editForm.studentSituation !== editingStudent.enrollmentStatus)
+        updateData.enrollmentStatus = editForm.studentSituation
+
       // Comparar datas formatadas
-      const originalEnrollmentDate = formatDateForInput(editingStudent.enrollmentDate)
-      const originalRegistrationDate = formatDateForInput(editingStudent.registrationDate)
-      
-      if (editForm.situationDate !== originalEnrollmentDate) updateData.enrollmentDate = editForm.situationDate
-      if (editForm.enrollmentDate !== originalRegistrationDate) updateData.registrationDate = editForm.enrollmentDate
+      const originalEnrollmentDate = formatDateForInput(
+        editingStudent.enrollmentDate
+      )
+      const originalRegistrationDate = formatDateForInput(
+        editingStudent.registrationDate
+      )
+
+      if (editForm.situationDate !== originalEnrollmentDate)
+        updateData.enrollmentDate = editForm.situationDate
+      if (editForm.enrollmentDate !== originalRegistrationDate)
+        updateData.registrationDate = editForm.enrollmentDate
 
       // Se não há mudanças, não faz a requisição
       if (Object.keys(updateData).length === 0) {
@@ -295,8 +302,11 @@ const StudentManagement = () => {
         return
       }
 
-      const response = await api.put(`/students/${editingStudent.id}`, updateData)
-      
+      const response = await api.put(
+        `/students/${editingStudent.id}`,
+        updateData
+      )
+
       setEditModalOpen(false)
       setEditingStudent(null)
       setEditForm({
@@ -312,10 +322,10 @@ const StudentManagement = () => {
         situationDate: '',
         enrollmentNumber: '',
       })
-      
+
       // Recarrega a lista de alunos
       await fetchStudents()
-      
+
       toast({
         title: 'Aluno atualizado',
         description: `${editForm.name} foi atualizado com sucesso.`,
@@ -398,14 +408,14 @@ const StudentManagement = () => {
 
     try {
       setLoading(true)
-      
+
       // Preparar dados para envio, convertendo valores vazios para null
       const studentData = {
         ...newStudentForm,
         enrollmentDate: toNullIfEmpty(newStudentForm.situationDate),
         enrollmentStatus: toNullIfEmpty(newStudentForm.studentSituation),
       }
-      
+
       const response = await api.post('/students', studentData)
       setNewStudentModalOpen(false)
       setNewStudentForm({
@@ -414,7 +424,6 @@ const StudentManagement = () => {
         registrationDate: '',
         periodId: '',
         classId: '',
-        status: 'Ativo',
         enrollmentStatus: '',
         enrollmentDate: '',
         studentSituation: '',
@@ -449,7 +458,6 @@ const StudentManagement = () => {
       registrationDate: '',
       periodId: '',
       classId: '',
-      status: 'Ativo',
       enrollmentStatus: '',
       enrollmentDate: '',
       studentSituation: '',
@@ -469,7 +477,7 @@ const StudentManagement = () => {
 
   // Função auxiliar para tratar valores nulos/undefined
   const safeValue = (value: any) => value ?? ''
-  
+
   // Função auxiliar para converter valores vazios em null
   const toNullIfEmpty = (value: any) => value || null
 
@@ -502,7 +510,9 @@ const StudentManagement = () => {
       setStudents(response.data.data || [])
     } catch (err: any) {
       console.error('Error fetching students:', err)
-      setError(err.response?.data?.error || err.message || 'Erro ao carregar alunos')
+      setError(
+        err.response?.data?.error || err.message || 'Erro ao carregar alunos'
+      )
     } finally {
       setLoading(false)
     }
@@ -606,7 +616,10 @@ const StudentManagement = () => {
                   </TableRow>
                 ) : error ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-red-600">
+                    <TableCell
+                      colSpan={5}
+                      className="text-center py-8 text-red-600"
+                    >
                       {error}
                     </TableCell>
                   </TableRow>
@@ -619,13 +632,14 @@ const StudentManagement = () => {
                         </div>
                         <div className="text-center">
                           <h3 className="text-lg font-medium text-gray-900 mb-2">
-                            {searchTerm || classFilter !== 'all' ? 'Nenhum aluno encontrado' : 'Nenhum aluno cadastrado'}
+                            {searchTerm || classFilter !== 'all'
+                              ? 'Nenhum aluno encontrado'
+                              : 'Nenhum aluno cadastrado'}
                           </h3>
                           <p className="text-gray-500 mb-4">
-                            {searchTerm || classFilter !== 'all' 
-                              ? 'Tente ajustar os filtros de busca ou turma.' 
-                              : 'Cadastre o primeiro aluno para começar a gerenciar a lista de estudantes.'
-                            }
+                            {searchTerm || classFilter !== 'all'
+                              ? 'Tente ajustar os filtros de busca ou turma.'
+                              : 'Cadastre o primeiro aluno para começar a gerenciar a lista de estudantes.'}
                           </p>
                         </div>
                       </div>
@@ -645,7 +659,9 @@ const StudentManagement = () => {
                         {student.registrationNumber}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary">{safeValue(student.class?.name) || '-'}</Badge>
+                        <Badge variant="secondary">
+                          {safeValue(student.class?.name) || '-'}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(student.status)}>
@@ -723,11 +739,15 @@ const StudentManagement = () => {
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Período</Label>
-                  <p className="text-sm mt-1">{safeValue(selectedStudent.period?.name) || '-'}</p>
+                  <p className="text-sm mt-1">
+                    {safeValue(selectedStudent.period?.name) || '-'}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Turma</Label>
-                  <p className="text-sm mt-1">{safeValue(selectedStudent.class?.name) || '-'}</p>
+                  <p className="text-sm mt-1">
+                    {safeValue(selectedStudent.class?.name) || '-'}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Status</Label>
@@ -770,7 +790,9 @@ const StudentManagement = () => {
               <div className="space-y-3">
                 <div>
                   <Label className="text-sm font-medium">Endereço</Label>
-                  <p className="text-sm mt-1">{safeValue(selectedStudent.guardianAddress) || '-'}</p>
+                  <p className="text-sm mt-1">
+                    {safeValue(selectedStudent.guardianAddress) || '-'}
+                  </p>
                 </div>
               </div>
 
@@ -779,11 +801,15 @@ const StudentManagement = () => {
                 <h4 className="font-medium">Informações dos Responsáveis</h4>
                 <div>
                   <Label className="text-sm font-medium">Nome</Label>
-                  <p className="text-sm mt-1">{safeValue(selectedStudent.guardianName) || '-'}</p>
+                  <p className="text-sm mt-1">
+                    {safeValue(selectedStudent.guardianName) || '-'}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Telefone</Label>
-                  <p className="text-sm mt-1">{safeValue(selectedStudent.guardianPhone) || '-'}</p>
+                  <p className="text-sm mt-1">
+                    {safeValue(selectedStudent.guardianPhone) || '-'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -804,16 +830,26 @@ const StudentManagement = () => {
               {/* Primeira linha: Nome e Período */}
               <div className="space-y-2">
                 <Label htmlFor="fullName">Nome Completo</Label>
-                <Input 
-                  id="fullName" 
+                <Input
+                  id="fullName"
                   placeholder="João Silva"
                   value={newStudentForm.name}
-                  onChange={(e) => setNewStudentForm({...newStudentForm, name: e.target.value})}
+                  onChange={(e) =>
+                    setNewStudentForm({
+                      ...newStudentForm,
+                      name: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="period">Período</Label>
-                <Select value={newStudentForm.periodId} onValueChange={(value) => setNewStudentForm({...newStudentForm, periodId: value})}>
+                <Select
+                  value={newStudentForm.periodId}
+                  onValueChange={(value) =>
+                    setNewStudentForm({ ...newStudentForm, periodId: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o período" />
                   </SelectTrigger>
@@ -829,26 +865,41 @@ const StudentManagement = () => {
               {/* Segunda linha: Matrícula e Data da Matrícula */}
               <div className="space-y-2">
                 <Label htmlFor="enrollmentNumber">Número de Matrícula</Label>
-                <Input 
-                  id="enrollmentNumber" 
+                <Input
+                  id="enrollmentNumber"
                   placeholder="LN2024001"
                   value={newStudentForm.registrationNumber}
-                  onChange={(e) => setNewStudentForm({...newStudentForm, registrationNumber: e.target.value})}
+                  onChange={(e) =>
+                    setNewStudentForm({
+                      ...newStudentForm,
+                      registrationNumber: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="enrollmentDate">Data da Matrícula</Label>
-                <Input 
-                  id="enrollmentDate" 
+                <Input
+                  id="enrollmentDate"
                   type="date"
                   value={newStudentForm.registrationDate}
-                  onChange={(e) => setNewStudentForm({...newStudentForm, registrationDate: e.target.value})}
+                  onChange={(e) =>
+                    setNewStudentForm({
+                      ...newStudentForm,
+                      registrationDate: e.target.value,
+                    })
+                  }
                 />
               </div>
               {/* Terceira linha: Turma e Status */}
               <div className="space-y-2">
                 <Label htmlFor="class">Turma</Label>
-                <Select value={newStudentForm.classId} onValueChange={(value) => setNewStudentForm({...newStudentForm, classId: value})}>
+                <Select
+                  value={newStudentForm.classId}
+                  onValueChange={(value) =>
+                    setNewStudentForm({ ...newStudentForm, classId: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a turma" />
                   </SelectTrigger>
@@ -861,22 +912,18 @@ const StudentManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select value={newStudentForm.status} onValueChange={(value) => setNewStudentForm({...newStudentForm, status: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Ativo">Ativo</SelectItem>
-                    <SelectItem value="Inativo">Inativo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
               {/* Quarta linha: Situação do Aluno e Data da Situação */}
               <div className="space-y-2">
                 <Label htmlFor="studentSituation">Situação do Aluno</Label>
-                <Select value={newStudentForm.studentSituation} onValueChange={(value) => setNewStudentForm({...newStudentForm, studentSituation: value})}>
+                <Select
+                  value={newStudentForm.studentSituation}
+                  onValueChange={(value) =>
+                    setNewStudentForm({
+                      ...newStudentForm,
+                      studentSituation: value,
+                    })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a situação" />
                   </SelectTrigger>
@@ -891,11 +938,16 @@ const StudentManagement = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="situationDate">Data da Situação</Label>
-                <Input 
-                  id="situationDate" 
+                <Input
+                  id="situationDate"
                   type="date"
                   value={newStudentForm.situationDate}
-                  onChange={(e) => setNewStudentForm({...newStudentForm, situationDate: e.target.value})}
+                  onChange={(e) =>
+                    setNewStudentForm({
+                      ...newStudentForm,
+                      situationDate: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -905,20 +957,30 @@ const StudentManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="parentName">Nome do Responsável</Label>
-                  <Input 
-                    id="parentName" 
+                  <Input
+                    id="parentName"
                     placeholder="Maria da Silva"
                     value={newStudentForm.guardianName}
-                    onChange={(e) => setNewStudentForm({...newStudentForm, guardianName: e.target.value})}
+                    onChange={(e) =>
+                      setNewStudentForm({
+                        ...newStudentForm,
+                        guardianName: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="parentPhone">Telefone do Responsável</Label>
-                  <Input 
-                    id="parentPhone" 
+                  <Input
+                    id="parentPhone"
                     placeholder="(99) 99999-9999"
                     value={newStudentForm.guardianPhone}
-                    onChange={(e) => setNewStudentForm({...newStudentForm, guardianPhone: e.target.value})}
+                    onChange={(e) =>
+                      setNewStudentForm({
+                        ...newStudentForm,
+                        guardianPhone: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -931,15 +993,17 @@ const StudentManagement = () => {
                 placeholder="Rua Exemplo, 123, Bairro, Cidade"
                 className="w-full min-h-[60px] border rounded-md p-2 text-sm"
                 value={newStudentForm.guardianAddress}
-                onChange={(e) => setNewStudentForm({...newStudentForm, guardianAddress: e.target.value})}
+                onChange={(e) =>
+                  setNewStudentForm({
+                    ...newStudentForm,
+                    guardianAddress: e.target.value,
+                  })
+                }
               />
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button
-                variant="outline"
-                onClick={handleCancelCreate}
-              >
+              <Button variant="outline" onClick={handleCancelCreate}>
                 Cancelar
               </Button>
               <Button onClick={handleCreateStudent} disabled={loading}>
@@ -1046,23 +1110,6 @@ const StudentManagement = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-status">Status</Label>
-                  <Select
-                    value={editForm.status}
-                    onValueChange={(value) =>
-                      setEditForm({ ...editForm, status: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Ativo">Ativo</SelectItem>
-                      <SelectItem value="Inativo">Inativo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="edit-studentSituation">
                     Situação do Aluno
                   </Label>
@@ -1149,7 +1196,11 @@ const StudentManagement = () => {
                 />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={handleCancelEdit} disabled={loading}>
+                <Button
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  disabled={loading}
+                >
                   Cancelar
                 </Button>
                 <Button onClick={handleSaveEdit} disabled={loading}>
@@ -1197,7 +1248,8 @@ const StudentManagement = () => {
                   Matrícula: {selectedStudentForAcademic.registrationNumber}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Turma: {safeValue(selectedStudentForAcademic.class?.name) || '-'}
+                  Turma:{' '}
+                  {safeValue(selectedStudentForAcademic.class?.name) || '-'}
                 </p>
               </div>
 
