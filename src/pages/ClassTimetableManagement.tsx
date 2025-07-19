@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   ArrowLeft,
   Plus,
@@ -38,9 +38,17 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DeleteConfirmationDialog } from '@/components/shared'
 import { useNavigate } from 'react-router-dom'
+import { useToast } from '@/hooks/use-toast'
+import api from '@/lib/api'
 
 const ClassTimetableManagement = () => {
   const navigate = useNavigate()
+  const { toast } = useToast()
+  
+  const [rooms, setRooms] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  
   const [newClassModalOpen, setNewClassModalOpen] = useState(false)
   const [newRoomModalOpen, setNewRoomModalOpen] = useState(false)
   const [periodFilter, setPeriodFilter] = useState('all')
@@ -62,23 +70,74 @@ const ClassTimetableManagement = () => {
   })
   const [deleteRoomDialogOpen, setDeleteRoomDialogOpen] = useState(false)
   const [roomToDelete, setRoomToDelete] = useState<any>(null)
+  const [newRoomName, setNewRoomName] = useState('')
 
-  // Mock data
-  const rooms = [
-    {
-      id: 1,
-      name: 'Room A101',
-    },
-    {
-      id: 2,
-      name: 'Lab B201',
-    },
-    {
-      id: 3,
-      name: 'Auditorium C301',
-    },
-  ]
+  // Funções da API
+  const fetchRooms = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await api.get('/rooms')
+      setRooms(response.data.data || [])
+    } catch (err) {
+      setError('Erro ao carregar salas')
+      console.error('Error fetching rooms:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
+  const createRoom = async (name: string) => {
+    try {
+      setLoading(true)
+      setError(null)
+      await api.post('/rooms', { name })
+      await fetchRooms() // Recarrega a lista
+    } catch (err) {
+      setError('Erro ao criar sala')
+      console.error('Error creating room:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateRoom = async (id: string, name: string) => {
+    try {
+      setLoading(true)
+      setError(null)
+      await api.put(`/rooms/${id}`, { name })
+      await fetchRooms() // Recarrega a lista
+    } catch (err) {
+      setError('Erro ao atualizar sala')
+      console.error('Error updating room:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const deleteRoom = async (id: string) => {
+    try {
+      setLoading(true)
+      setError(null)
+      await api.delete(`/rooms/${id}`)
+      await fetchRooms() // Recarrega a lista
+    } catch (err) {
+      setError('Erro ao excluir sala')
+      console.error('Error deleting room:', err)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Carrega as salas ao montar o componente
+  useEffect(() => {
+    fetchRooms()
+  }, [])
+
+  // Mock data for classes (mantido por enquanto)
   const classes = [
     {
       id: 1,
@@ -201,11 +260,22 @@ const ClassTimetableManagement = () => {
     setDeleteRoomDialogOpen(true)
   }
 
-  const handleConfirmDeleteRoom = () => {
-    // Aqui você implementaria a lógica para deletar a sala
-    console.log('Deletando sala:', roomToDelete)
-    setDeleteRoomDialogOpen(false)
-    setRoomToDelete(null)
+  const handleConfirmDeleteRoom = async () => {
+    try {
+      await deleteRoom(roomToDelete.id)
+      setDeleteRoomDialogOpen(false)
+      setRoomToDelete(null)
+      toast({
+        title: 'Sala excluída',
+        description: `${roomToDelete.name} foi excluída com sucesso.`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao excluir sala.',
+        variant: 'destructive',
+      })
+    }
   }
 
   const handleCancelDeleteRoom = () => {
@@ -213,18 +283,65 @@ const ClassTimetableManagement = () => {
     setRoomToDelete(null)
   }
 
-  const handleSaveEditRoom = () => {
-    // Aqui você implementaria a lógica para salvar as alterações da sala
-    console.log('Salvando alterações da sala:', editRoomForm)
-    setEditRoomModalOpen(false)
-    setEditingRoom(null)
-    setEditRoomForm({ name: '' })
+  const handleSaveEditRoom = async () => {
+    if (!editRoomForm.name.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'Nome da sala é obrigatório.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    try {
+      await updateRoom(editingRoom.id, editRoomForm.name.trim())
+      setEditRoomModalOpen(false)
+      setEditingRoom(null)
+      setEditRoomForm({ name: '' })
+      toast({
+        title: 'Sala atualizada',
+        description: `${editRoomForm.name} foi atualizada com sucesso.`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao atualizar sala.',
+        variant: 'destructive',
+      })
+    }
   }
 
   const handleCancelEditRoom = () => {
     setEditRoomModalOpen(false)
     setEditingRoom(null)
     setEditRoomForm({ name: '' })
+  }
+
+  const handleCreateRoom = async () => {
+    if (!newRoomName.trim()) {
+      toast({
+        title: 'Erro',
+        description: 'Nome da sala é obrigatório.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    try {
+      await createRoom(newRoomName.trim())
+      setNewRoomModalOpen(false)
+      setNewRoomName('')
+      toast({
+        title: 'Sala criada',
+        description: `${newRoomName} foi criada com sucesso.`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao criar sala.',
+        variant: 'destructive',
+      })
+    }
   }
 
   return (
@@ -360,19 +477,9 @@ const ClassTimetableManagement = () => {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Salas</CardTitle>
                 <div className="flex items-center space-x-4">
-                  <Select value={roomFilter} onValueChange={setRoomFilter}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Todas as salas" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas as Salas</SelectItem>
-                      {rooms.map((room) => (
-                        <SelectItem key={room.id} value={room.name}>
-                          {room.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {error && (
+                    <div className="text-red-600 text-sm">{error}</div>
+                  )}
                   <Button onClick={() => setNewRoomModalOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Nova Sala
@@ -380,31 +487,37 @@ const ClassTimetableManagement = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredRooms.map((room) => (
-                    <Card key={room.id} className="border border-gray-200">
-                      <CardContent className="p-4">
-                        <CardTitle className="text-lg">{room.name}</CardTitle>
-                        <div className="flex space-x-2 mt-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => handleEditRoom(e, room)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => handleDeleteRoom(e, room)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                {loading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <div className="text-gray-500">Carregando salas...</div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredRooms.map((room) => (
+                      <Card key={room.id} className="border border-gray-200">
+                        <CardContent className="p-4">
+                          <CardTitle className="text-lg">{room.name}</CardTitle>
+                          <div className="flex space-x-2 mt-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => handleEditRoom(e, room)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => handleDeleteRoom(e, room)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -483,18 +596,26 @@ const ClassTimetableManagement = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="roomName">Nome da Sala</Label>
-              <Input id="roomName" placeholder="Room A101" />
+              <Input 
+                id="roomName" 
+                placeholder="Room A101"
+                value={newRoomName}
+                onChange={(e) => setNewRoomName(e.target.value)}
+              />
             </div>
 
             <div className="flex justify-end space-x-2">
               <Button
                 variant="outline"
-                onClick={() => setNewRoomModalOpen(false)}
+                onClick={() => {
+                  setNewRoomModalOpen(false)
+                  setNewRoomName('')
+                }}
               >
                 Cancelar
               </Button>
-              <Button onClick={() => setNewRoomModalOpen(false)}>
-                Adicionar Sala
+              <Button onClick={handleCreateRoom} disabled={loading}>
+                {loading ? 'Criando...' : 'Adicionar Sala'}
               </Button>
             </div>
           </div>
@@ -608,7 +729,9 @@ const ClassTimetableManagement = () => {
               <Button variant="outline" onClick={handleCancelEditRoom}>
                 Cancelar
               </Button>
-              <Button onClick={handleSaveEditRoom}>Salvar</Button>
+              <Button onClick={handleSaveEditRoom} disabled={loading}>
+                {loading ? 'Salvando...' : 'Salvar'}
+              </Button>
             </div>
           </div>
         </DialogContent>
