@@ -1,23 +1,20 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Search,
   Plus,
   ArrowLeft,
   Mail,
   Phone,
-  MapPin,
   GraduationCap,
   BookOpen,
-  Users,
   Edit,
   Trash2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-
 import {
   Table,
   TableBody,
@@ -40,8 +37,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -51,78 +46,55 @@ import {
 } from '@/components/ui/select'
 import { DeleteConfirmationDialog } from '@/components/shared'
 import { useNavigate } from 'react-router-dom'
+import api from '@/lib/api'
 
 const ProfessorManagement = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedProfessor, setSelectedProfessor] = useState<any>(null)
   const [sideSheetOpen, setSideSheetOpen] = useState(false)
-  const [newProfessorModalOpen, setNewProfessorModalOpen] = useState(false)
+  const [createProfessorModal, setCreateProfessorModal] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [professorToDelete, setProfessorToDelete] = useState<any>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
-  const [editingProfessor, setEditingProfessor] = useState<any>(null)
+  const [editProfessor, setEditProfessor] = useState<any>(null)
   const [editForm, setEditForm] = useState({
     name: '',
     email: '',
     status: '',
+    subjects: [],
+    phone: '',
   })
+  const [professorList, setProfessorList] = useState([])
+  const [subjectsList, setSubjectsList] = useState([])
+  const [createProfessorForm, setCreateProfessorForm] = useState({
+    name: '',
+    email: '',
+    subjects: [],
+    phone: '',
+  })
+  const [isCreating, setIsCreating] = useState(false)
 
-  // Mock data
-  const schools = [
-    { id: 'lincoln', name: 'Lincoln Elementary' },
-    { id: 'washington', name: 'Washington High School' },
-    { id: 'roosevelt', name: 'Roosevelt Middle School' },
-    { id: 'jefferson', name: 'Jefferson Academy' },
-  ]
+  const getProfessorList = async () => {
+    const response = await api.get('/users', {
+      params: {
+        isTeacher: true,
+      },
+    })
+    setProfessorList(response.data.data)
+  }
 
-  const subjects = [
-    'Matemática',
-    'Ciências',
-    'Inglês',
-    'História',
-    'Artes',
-    'Educação Física',
-    'Música',
-  ]
+  const getSubjectsList = async () => {
+    const response = await api.get('/subjects')
+    setSubjectsList(response.data.data)
+  }
 
-  const professors = [
-    {
-      id: 1,
-      name: 'Dr. Sarah Johnson',
-      email: 'sarah.johnson@lincoln.edu',
-      phone: '+1 (555) 123-4567',
-      schools: ['Lincoln Elementary', 'Roosevelt Middle School'],
-      subjects: ['Matemática', 'Ciências'],
-      classes: 8,
-      status: 'Ativo',
-      joinDate: '2019-08-15',
-    },
-    {
-      id: 2,
-      name: 'Prof. Michael Chen',
-      email: 'm.chen@washington.edu',
-      phone: '+1 (555) 234-5678',
-      schools: ['Washington High School'],
-      subjects: ['Inglês', 'História'],
-      classes: 12,
-      status: 'Ativo',
-      joinDate: '2020-01-10',
-    },
-    {
-      id: 3,
-      name: 'Ms. Emily Rodriguez',
-      email: 'emily.r@jefferson.edu',
-      phone: '+1 (555) 345-6789',
-      schools: ['Jefferson Academy'],
-      subjects: ['Artes', 'Música'],
-      classes: 6,
-      status: 'Inativo',
-      joinDate: '2021-03-22',
-    },
-  ]
+  useEffect(() => {
+    getProfessorList()
+    getSubjectsList()
+  }, [])
 
-  const filteredProfessors = professors.filter((professor) => {
+  const filterProfessor = professorList.filter((professor) => {
     const matchesSearch =
       professor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       professor.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -135,7 +107,7 @@ const ProfessorManagement = () => {
   }
 
   const handleNewProfessor = () => {
-    setNewProfessorModalOpen(true)
+    setCreateProfessorModal(true)
   }
 
   const handleDeleteClick = (e: React.MouseEvent, professor: any) => {
@@ -146,20 +118,28 @@ const ProfessorManagement = () => {
 
   const handleEditClick = (e: React.MouseEvent, professor: any) => {
     e.stopPropagation()
-    setEditingProfessor(professor)
+    setEditProfessor(professor)
     setEditForm({
       name: professor.name,
       email: professor.email,
       status: professor.status,
+      phone: professor.phone,
+      subjects: professor.UserSubject.map(
+        (userSubject: any) => userSubject.subject.id
+      ),
     })
     setEditModalOpen(true)
   }
 
-  const handleConfirmDelete = () => {
-    // Aqui você implementaria a lógica para deletar o professor
-    console.log('Deletando professor:', professorToDelete)
-    setDeleteDialogOpen(false)
-    setProfessorToDelete(null)
+  const handleConfirmDelete = async () => {
+    try {
+      const response = await api.delete(`/users/${professorToDelete.id}`)
+      getProfessorList()
+    } catch (error) {
+    } finally {
+      setDeleteDialogOpen(false)
+      setProfessorToDelete(null)
+    }
   }
 
   const handleCancelDelete = () => {
@@ -167,24 +147,62 @@ const ProfessorManagement = () => {
     setProfessorToDelete(null)
   }
 
-  const handleSaveEdit = () => {
-    // Aqui você implementaria a lógica para salvar as alterações
-    console.log('Salvando alterações:', editForm)
-    setEditModalOpen(false)
-    setEditingProfessor(null)
-    setEditForm({ name: '', email: '', status: '' })
+  const handleSaveEdit = async () => {
+    try {
+      const response = await api.put(`/users/${editProfessor.id}`, {
+        name: editForm.name,
+        email: editForm.email,
+        status: editForm.status,
+        subjects: editForm.subjects,
+        phone: editForm.phone,
+      })
+      getProfessorList()
+    } catch (error) {
+    } finally {
+      setEditModalOpen(false)
+      setEditProfessor(null)
+      setEditForm({ name: '', email: '', status: '', subjects: [], phone: '' })
+    }
   }
 
   const handleCancelEdit = () => {
     setEditModalOpen(false)
-    setEditingProfessor(null)
-    setEditForm({ name: '', email: '', status: '' })
+    setEditProfessor(null)
+    setEditForm({ name: '', email: '', status: '', subjects: [], phone: '' })
   }
 
   const getStatusColor = (status: string) => {
-    return status === 'Ativo'
+    return status === 'active'
       ? 'bg-green-100 text-green-800'
       : 'bg-red-100 text-red-800'
+  }
+
+  const getStatusText = (status: string) => {
+    return status === 'active' ? 'Ativo' : 'Inativo'
+  }
+
+  const handleCreateProfessor = async () => {
+    try {
+      setIsCreating(true)
+      const response = await api.post('/users', {
+        name: createProfessorForm.name,
+        email: createProfessorForm.email,
+        subjects: createProfessorForm.subjects,
+        isTeacher: true,
+        phone: createProfessorForm.phone,
+      })
+      getProfessorList()
+      setCreateProfessorForm({
+        name: '',
+        email: '',
+        subjects: [],
+        phone: '',
+      })
+      setCreateProfessorModal(false)
+    } catch (error) {
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   return (
@@ -247,7 +265,7 @@ const ProfessorManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProfessors.map((professor) => (
+                {filterProfessor.map((professor) => (
                   <TableRow
                     key={professor.id}
                     className="cursor-pointer hover:bg-gray-50"
@@ -259,23 +277,25 @@ const ProfessorManagement = () => {
                     <TableCell>{professor.email}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {professor.subjects.map((subject, index) => (
+                        {professor.UserSubject.map((userSubject, index) => (
                           <Badge
                             key={index}
                             variant="outline"
                             className="text-xs"
                           >
-                            {subject}
+                            {userSubject.subject.name}
                           </Badge>
                         ))}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{professor.classes}</Badge>
+                      <Badge variant="secondary">
+                        {professor.UserClass.length}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(professor.status)}>
-                        {professor.status}
+                        {getStatusText(professor.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -330,10 +350,10 @@ const ProfessorManagement = () => {
               <div>
                 <h4 className="font-medium mb-2">Escolas</h4>
                 <div className="flex flex-wrap gap-2">
-                  {selectedProfessor.schools.map(
-                    (school: string, index: number) => (
+                  {selectedProfessor.schools?.map(
+                    (school: any, index: number) => (
                       <Badge key={index} variant="secondary">
-                        {school}
+                        {school.name}
                       </Badge>
                     )
                   )}
@@ -344,10 +364,10 @@ const ProfessorManagement = () => {
               <div>
                 <h4 className="font-medium mb-2">Matérias</h4>
                 <div className="flex flex-wrap gap-2">
-                  {selectedProfessor.subjects.map(
-                    (subject: string, index: number) => (
+                  {selectedProfessor.UserSubject.map(
+                    (subject: any, index: number) => (
                       <Badge key={index} variant="outline">
-                        {subject}
+                        {subject.subject.name}
                       </Badge>
                     )
                   )}
@@ -380,8 +400,8 @@ const ProfessorManagement = () => {
 
       {/* New Professor Modal */}
       <Dialog
-        open={newProfessorModalOpen}
-        onOpenChange={setNewProfessorModalOpen}
+        open={createProfessorModal}
+        onOpenChange={setCreateProfessorModal}
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -394,7 +414,17 @@ const ProfessorManagement = () => {
           <div className="space-y-4 mt-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nome Completo</Label>
-              <Input id="name" placeholder="Dr. John Doe" />
+              <Input
+                id="name"
+                placeholder="Dr. John Doe"
+                value={createProfessorForm.name}
+                onChange={(e) =>
+                  setCreateProfessorForm({
+                    ...createProfessorForm,
+                    name: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -402,28 +432,63 @@ const ProfessorManagement = () => {
                 id="email"
                 type="email"
                 placeholder="john.doe@school.edu"
+                value={createProfessorForm.email}
+                onChange={(e) =>
+                  setCreateProfessorForm({
+                    ...createProfessorForm,
+                    email: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefone</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="(11) 99999-9999"
+                value={createProfessorForm.phone}
+                onChange={(e) =>
+                  setCreateProfessorForm({
+                    ...createProfessorForm,
+                    phone: e.target.value,
+                  })
+                }
               />
             </div>
             <div className="space-y-2">
               <Label>Matérias</Label>
               <div className="grid grid-cols-2 gap-2">
-                {subjects.map((subject) => (
-                  <div key={subject} className="flex items-center space-x-2">
+                {subjectsList.map((subject) => (
+                  <div key={subject.id} className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      id={subject}
+                      id={subject.id}
                       className="rounded border-gray-300"
+                      checked={createProfessorForm.subjects.includes(
+                        subject.id
+                      )}
+                      onChange={(e) =>
+                        setCreateProfessorForm({
+                          ...createProfessorForm,
+                          subjects: [
+                            ...createProfessorForm.subjects,
+                            subject.id,
+                          ],
+                        })
+                      }
                     />
-                    <Label htmlFor={subject} className="text-sm font-normal">
-                      {subject}
+                    <Label htmlFor={subject.id} className="text-sm font-normal">
+                      {subject.name}
                     </Label>
                   </div>
                 ))}
               </div>
             </div>
             <div className="flex justify-end">
-              <Button onClick={() => setNewProfessorModalOpen(false)}>
-                Criar Professor
+              <Button onClick={handleCreateProfessor} disabled={isCreating}>
+                {isCreating ? 'Criando...' : 'Criar Professor'}
               </Button>
             </div>
           </div>
@@ -463,7 +528,18 @@ const ProfessorManagement = () => {
                 placeholder="exemplo@email.com"
               />
             </div>
-
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Telefone</Label>
+              <Input
+                id="edit-phone"
+                type="tel"
+                value={editForm.phone}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, phone: e.target.value })
+                }
+                placeholder="(11) 99999-9999"
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="edit-status">Status</Label>
               <Select
@@ -476,8 +552,8 @@ const ProfessorManagement = () => {
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Ativo">Ativo</SelectItem>
-                  <SelectItem value="Inativo">Inativo</SelectItem>
+                  <SelectItem value="active">Ativo</SelectItem>
+                  <SelectItem value="inactive">Inativo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -485,18 +561,29 @@ const ProfessorManagement = () => {
             <div className="space-y-2">
               <Label>Matérias</Label>
               <div className="grid grid-cols-2 gap-2">
-                {subjects.map((subject) => (
-                  <div key={subject} className="flex items-center space-x-2">
+                {subjectsList.map((subject) => (
+                  <div key={subject.id} className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      id={`edit-${subject}`}
+                      id={`edit-${subject.id}`}
                       className="rounded border-gray-300"
+                      checked={editForm.subjects.includes(subject.id)}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          subjects: editForm.subjects.includes(subject.id)
+                            ? editForm.subjects.filter(
+                                (id: number) => id !== subject.id
+                              )
+                            : [...editForm.subjects, subject.id],
+                        })
+                      }
                     />
                     <Label
-                      htmlFor={`edit-${subject}`}
+                      htmlFor={`edit-${subject.id}`}
                       className="text-sm font-normal"
                     >
-                      {subject}
+                      {subject.name}
                     </Label>
                   </div>
                 ))}
