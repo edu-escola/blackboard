@@ -50,13 +50,13 @@ import { useNavigate } from 'react-router-dom'
 const AdministratorManagement = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedAdministrator, setSelectedAdministrator] = useState<any>(null)
+  const [selectedAdmin, setSelectAdmin] = useState(null)
   const [sideSheetOpen, setSideSheetOpen] = useState(false)
   const [newAdministratorModalOpen, setCreateAdminModal] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [adminToDelete, setAdminToDelete] = useState<any>(null)
+  const [adminToDelete, setAdminToDelete] = useState(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
-  const [editingAdministrator, setEditingAdministrator] = useState<any>(null)
+  const [editAdmin, setEditAdmin] = useState(null)
   const [adminList, setAdminList] = useState([])
 
   const [editForm, setEditForm] = useState({
@@ -72,6 +72,7 @@ const AdministratorManagement = () => {
 
   const [isCreating, setIsCreating] = useState(false)
   const [createError, setCreateError] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
 
   const getAdminList = async () => {
     const response = await api.get('/users', {
@@ -94,7 +95,7 @@ const AdministratorManagement = () => {
   })
 
   const handleRowClick = (administrator: any) => {
-    setSelectedAdministrator(administrator)
+    setSelectAdmin(administrator)
     setSideSheetOpen(true)
   }
 
@@ -115,7 +116,7 @@ const AdministratorManagement = () => {
 
   const handleEditClick = (e: React.MouseEvent, admin: any) => {
     e.stopPropagation()
-    setEditingAdministrator(admin)
+    setEditAdmin(admin)
     setEditForm({
       name: admin.name,
       email: admin.email,
@@ -142,16 +143,29 @@ const AdministratorManagement = () => {
     setAdminToDelete(null)
   }
 
-  const handleSaveEdit = () => {
-    console.log('Salvando alterações:', editForm)
-    setEditModalOpen(false)
-    setEditingAdministrator(null)
-    setEditForm({ name: '', email: '', status: '' })
+  const handleSaveEdit = async () => {
+    try {
+      setIsSaving(true)
+      console.log('Salvando alterações:', editForm)
+      await api.put(`/users/${editAdmin.id}`, {
+        name: editForm.name,
+        email: editForm.email,
+        status: editForm.status,
+      })
+      getAdminList()
+    } catch (error) {
+      console.error('Erro ao salvar alterações:', error)
+    } finally {
+      setEditModalOpen(false)
+      setEditAdmin(null)
+      setEditForm({ name: '', email: '', status: '' })
+      setIsSaving(false)
+    }
   }
 
   const handleCancelEdit = () => {
     setEditModalOpen(false)
-    setEditingAdministrator(null)
+    setEditAdmin(null)
     setEditForm({ name: '', email: '', status: '' })
   }
 
@@ -324,7 +338,7 @@ const AdministratorManagement = () => {
               Informações do administrador selecionado.
             </SheetDescription>
           </SheetHeader>
-          {selectedAdministrator && (
+          {selectedAdmin && (
             <div className="mt-6 space-y-6">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
@@ -332,7 +346,7 @@ const AdministratorManagement = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">
-                    {selectedAdministrator.name}
+                    {selectedAdmin.name}
                   </h3>
                   <p className="text-sm text-gray-600">Administrador</p>
                 </div>
@@ -342,18 +356,14 @@ const AdministratorManagement = () => {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <Mail className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm">
-                      {selectedAdministrator.email}
-                    </span>
+                    <span className="text-sm">{selectedAdmin.email}</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Shield className="h-4 w-4 text-gray-400" />
                     <div className="text-sm">
                       <div className="font-medium">Status:</div>
-                      <Badge
-                        className={getStatusColor(selectedAdministrator.status)}
-                      >
-                        {selectedAdministrator.status}
+                      <Badge className={getStatusColor(selectedAdmin.status)}>
+                        {getStatusText(selectedAdmin.status)}
                       </Badge>
                     </div>
                   </div>
@@ -472,8 +482,8 @@ const AdministratorManagement = () => {
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Ativo">Ativo</SelectItem>
-                  <SelectItem value="Inativo">Inativo</SelectItem>
+                  <SelectItem value="active">Ativo</SelectItem>
+                  <SelectItem value="inactive">Inativo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -481,7 +491,9 @@ const AdministratorManagement = () => {
               <Button variant="outline" onClick={handleCancelEdit}>
                 Cancelar
               </Button>
-              <Button onClick={handleSaveEdit}>Salvar Alterações</Button>
+              <Button onClick={handleSaveEdit} disabled={isSaving}>
+                {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+              </Button>
             </div>
           </div>
         </DialogContent>
