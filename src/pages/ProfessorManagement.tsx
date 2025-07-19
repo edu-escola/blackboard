@@ -104,10 +104,12 @@ const ProfessorManagement = () => {
   }, [])
 
   const filterProfessor = professorList.filter((professor) => {
+    const name = professor.name || '';
+    const email = professor.email || '';
     const matchesSearch =
-      professor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      professor.email.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesSearch
+      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      email.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
   })
 
   const handleRowClick = (professor: any) => {
