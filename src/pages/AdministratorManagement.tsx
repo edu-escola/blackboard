@@ -54,7 +54,7 @@ const AdministratorManagement = () => {
   const [sideSheetOpen, setSideSheetOpen] = useState(false)
   const [newAdministratorModalOpen, setCreateAdminModal] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [administratorToDelete, setAdministratorToDelete] = useState<any>(null)
+  const [adminToDelete, setAdminToDelete] = useState<any>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editingAdministrator, setEditingAdministrator] = useState<any>(null)
   const [adminList, setAdminList] = useState([])
@@ -107,32 +107,39 @@ const AdministratorManagement = () => {
     setCreateError('')
   }
 
-  const handleDeleteClick = (e: React.MouseEvent, administrator: any) => {
+  const handleDeleteClick = (e: React.MouseEvent, admin: any) => {
     e.stopPropagation()
-    setAdministratorToDelete(administrator)
+    setAdminToDelete(admin)
     setDeleteDialogOpen(true)
   }
 
-  const handleEditClick = (e: React.MouseEvent, administrator: any) => {
+  const handleEditClick = (e: React.MouseEvent, admin: any) => {
     e.stopPropagation()
-    setEditingAdministrator(administrator)
+    setEditingAdministrator(admin)
     setEditForm({
-      name: administrator.name,
-      email: administrator.email,
-      status: administrator.status,
+      name: admin.name,
+      email: admin.email,
+      status: admin.status,
     })
     setEditModalOpen(true)
   }
 
-  const handleConfirmDelete = () => {
-    console.log('Deletando administrador:', administratorToDelete)
-    setDeleteDialogOpen(false)
-    setAdministratorToDelete(null)
+  const handleConfirmDelete = async () => {
+    try {
+      console.log('Deletando administrador:', adminToDelete)
+      await api.delete(`/users/${adminToDelete.id}`)
+      getAdminList()
+    } catch (error) {
+      console.error('Erro ao deletar administrador:', error)
+    } finally {
+      setDeleteDialogOpen(false)
+      setAdminToDelete(null)
+    }
   }
 
   const handleCancelDelete = () => {
     setDeleteDialogOpen(false)
-    setAdministratorToDelete(null)
+    setAdminToDelete(null)
   }
 
   const handleSaveEdit = () => {
@@ -175,6 +182,7 @@ const AdministratorManagement = () => {
         name: '',
         email: '',
       })
+      getAdminList()
     } catch (error: any) {
       console.error('Erro ao criar administrador:', error)
       setCreateError('Erro desconhecido. Tente novamente mais tarde.')
@@ -487,7 +495,7 @@ const AdministratorManagement = () => {
         onCancel={handleCancelDelete}
         title="Confirmar Exclusão"
         description="Tem certeza que deseja excluir o administrador"
-        itemName={administratorToDelete?.name}
+        itemName={adminToDelete?.name}
       />
     </div>
   )
