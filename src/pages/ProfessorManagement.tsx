@@ -64,6 +64,7 @@ const ProfessorManagement = () => {
     status: '',
     subjects: [],
     phone: '',
+    classes: [],
   })
   const [professorList, setProfessorList] = useState([])
   const [subjectsList, setSubjectsList] = useState([])
@@ -72,8 +73,10 @@ const ProfessorManagement = () => {
     email: '',
     subjects: [],
     phone: '',
+    classes: [],
   })
   const [isCreating, setIsCreating] = useState(false)
+  const [classesList, setClassesList] = useState([])
 
   const getProfessorList = async () => {
     const response = await api.get('/users', {
@@ -89,9 +92,15 @@ const ProfessorManagement = () => {
     setSubjectsList(response.data.data)
   }
 
+  const getClassesList = async () => {
+    const response = await api.get('/classes')
+    setClassesList(response.data.data)
+  }
+
   useEffect(() => {
     getProfessorList()
     getSubjectsList()
+    getClassesList()
   }, [])
 
   const filterProfessor = professorList.filter((professor) => {
@@ -127,6 +136,7 @@ const ProfessorManagement = () => {
       subjects: professor.UserSubject.map(
         (userSubject: any) => userSubject.subject.id
       ),
+      classes: professor.UserClass.map((userClass: any) => userClass.class.id),
     })
     setEditModalOpen(true)
   }
@@ -149,26 +159,41 @@ const ProfessorManagement = () => {
 
   const handleSaveEdit = async () => {
     try {
-      const response = await api.put(`/users/${editProfessor.id}`, {
+      await api.put(`/users/${editProfessor.id}`, {
         name: editForm.name,
         email: editForm.email,
         status: editForm.status,
         subjects: editForm.subjects,
         phone: editForm.phone,
+        classes: editForm.classes,
       })
       getProfessorList()
     } catch (error) {
     } finally {
       setEditModalOpen(false)
       setEditProfessor(null)
-      setEditForm({ name: '', email: '', status: '', subjects: [], phone: '' })
+      setEditForm({
+        name: '',
+        email: '',
+        status: '',
+        subjects: [],
+        phone: '',
+        classes: [],
+      })
     }
   }
 
   const handleCancelEdit = () => {
     setEditModalOpen(false)
     setEditProfessor(null)
-    setEditForm({ name: '', email: '', status: '', subjects: [], phone: '' })
+    setEditForm({
+      name: '',
+      email: '',
+      status: '',
+      subjects: [],
+      phone: '',
+      classes: [],
+    })
   }
 
   const getStatusColor = (status: string) => {
@@ -190,6 +215,7 @@ const ProfessorManagement = () => {
         subjects: createProfessorForm.subjects,
         isTeacher: true,
         phone: createProfessorForm.phone,
+        classes: createProfessorForm.classes,
       })
       getProfessorList()
       setCreateProfessorForm({
@@ -197,6 +223,7 @@ const ProfessorManagement = () => {
         email: '',
         subjects: [],
         phone: '',
+        classes: [],
       })
       setCreateProfessorModal(false)
     } catch (error) {
@@ -486,6 +513,41 @@ const ProfessorManagement = () => {
                 ))}
               </div>
             </div>
+            <div className="space-y-2">
+              <Label>Turmas</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {classesList.map((classItem) => (
+                  <div
+                    key={classItem.id}
+                    className="flex items-center space-x-2"
+                  >
+                    <input
+                      type="checkbox"
+                      id={classItem.id}
+                      className="rounded border-gray-300"
+                      checked={createProfessorForm.classes.includes(
+                        classItem.id
+                      )}
+                      onChange={(e) =>
+                        setCreateProfessorForm({
+                          ...createProfessorForm,
+                          classes: [
+                            ...createProfessorForm.classes,
+                            classItem.id,
+                          ],
+                        })
+                      }
+                    />
+                    <Label
+                      htmlFor={classItem.id}
+                      className="text-sm font-normal"
+                    >
+                      {classItem.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="flex justify-end">
               <Button onClick={handleCreateProfessor} disabled={isCreating}>
                 {isCreating ? 'Criando...' : 'Criar Professor'}
@@ -584,6 +646,40 @@ const ProfessorManagement = () => {
                       className="text-sm font-normal"
                     >
                       {subject.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Turmas</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {classesList.map((classItem) => (
+                  <div
+                    key={classItem.id}
+                    className="flex items-center space-x-2"
+                  >
+                    <input
+                      type="checkbox"
+                      id={`edit-${classItem.id}`}
+                      className="rounded border-gray-300"
+                      checked={editForm.classes.includes(classItem.id)}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          classes: editForm.classes.includes(classItem.id)
+                            ? editForm.classes.filter(
+                                (id: number) => id !== classItem.id
+                              )
+                            : [...editForm.classes, classItem.id],
+                        })
+                      }
+                    />
+                    <Label
+                      htmlFor={`edit-${classItem.id}`}
+                      className="text-sm font-normal"
+                    >
+                      {classItem.name}
                     </Label>
                   </div>
                 ))}
