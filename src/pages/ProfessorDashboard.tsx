@@ -211,7 +211,7 @@ const ProfessorDashboard = () => {
 
               <Card
                 className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => navigate('/professor/grades-closing')}
+                onClick={() => navigate('/professor/grades-managament')}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
