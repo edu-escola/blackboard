@@ -404,7 +404,6 @@ const ProfessorManagement = () => {
                   )}
                 </div>
               </div>
-              {/* Removido bloco de botões de ações */}
             </div>
           )}
         </SheetContent>
