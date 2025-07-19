@@ -88,10 +88,12 @@ const AdministratorManagement = () => {
   }, [])
 
   const filterAdmin = adminList.filter((administrator) => {
+    const name = administrator.name || '';
+    const email = administrator.email || '';
     const matchesSearch =
-      administrator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      administrator.email.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesSearch
+      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      email.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
   })
 
   const handleRowClick = (administrator: any) => {
