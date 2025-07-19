@@ -43,7 +43,11 @@ const LoginForm = () => {
       }
     } catch (error) {
       console.error(error)
-      setError('Erro desconhecido. Tente novamente mais tarde.')
+      if (error.response?.data?.error === 'USER_INACTIVE') {
+        setError('Usuário inativo. Contate o administrador do sistema.')
+      } else {
+        setError('Erro desconhecido. Tente novamente mais tarde.')
+      }
       await new Promise((resolve) => setTimeout(resolve, 500))
       setIsSending(false)
     }
