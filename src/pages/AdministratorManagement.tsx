@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Search,
   Plus,
@@ -57,6 +57,8 @@ const AdministratorManagement = () => {
   const [administratorToDelete, setAdministratorToDelete] = useState<any>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editingAdministrator, setEditingAdministrator] = useState<any>(null)
+  const [adminList, setAdminList] = useState([])
+
   const [editForm, setEditForm] = useState({
     name: '',
     email: '',
@@ -71,31 +73,20 @@ const AdministratorManagement = () => {
   const [isCreating, setIsCreating] = useState(false)
   const [createError, setCreateError] = useState('')
 
-  const administrators = [
-    {
-      id: 1,
-      name: 'Maria Silva',
-      email: 'maria.silva@admin.edu',
-      status: 'Ativo',
-      joinDate: '2020-01-15',
-    },
-    {
-      id: 2,
-      name: 'João Santos',
-      email: 'joao.santos@admin.edu',
-      status: 'Ativo',
-      joinDate: '2021-03-10',
-    },
-    {
-      id: 3,
-      name: 'Ana Costa',
-      email: 'ana.costa@admin.edu',
-      status: 'Inativo',
-      joinDate: '2022-08-22',
-    },
-  ]
+  const getAdminList = async () => {
+    const response = await api.get('/users', {
+      params: {
+        isAdmin: true,
+      },
+    })
+    setAdminList(response.data.data)
+  }
 
-  const filteredAdministrators = administrators.filter((administrator) => {
+  useEffect(() => {
+    getAdminList()
+  }, [])
+
+  const filterAdmin = adminList.filter((administrator) => {
     const matchesSearch =
       administrator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       administrator.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -134,7 +125,6 @@ const AdministratorManagement = () => {
   }
 
   const handleConfirmDelete = () => {
-    // Aqui você implementaria a lógica para deletar o administrador
     console.log('Deletando administrador:', administratorToDelete)
     setDeleteDialogOpen(false)
     setAdministratorToDelete(null)
@@ -203,9 +193,17 @@ const AdministratorManagement = () => {
   }
 
   const getStatusColor = (status: string) => {
-    return status === 'Ativo'
+    return status === 'active'
       ? 'bg-green-100 text-green-800'
       : 'bg-red-100 text-red-800'
+  }
+
+  const getStatusText = (status: string) => {
+    return status === 'active' ? 'Ativo' : 'Inativo'
+  }
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('pt-BR')
   }
 
   return (
@@ -269,20 +267,18 @@ const AdministratorManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAdministrators.map((administrator) => (
+                {filterAdmin.map((admin) => (
                   <TableRow
-                    key={administrator.id}
+                    key={admin.id}
                     className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => handleRowClick(administrator)}
+                    onClick={() => handleRowClick(admin)}
                   >
-                    <TableCell className="font-medium">
-                      {administrator.name}
-                    </TableCell>
-                    <TableCell>{administrator.email}</TableCell>
-                    <TableCell>{administrator.joinDate}</TableCell>
+                    <TableCell className="font-medium">{admin.name}</TableCell>
+                    <TableCell>{admin.email}</TableCell>
+                    <TableCell>{formatDate(admin.createdAt)}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(administrator.status)}>
-                        {administrator.status}
+                      <Badge className={getStatusColor(admin.status)}>
+                        {getStatusText(admin.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -290,14 +286,14 @@ const AdministratorManagement = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={(e) => handleEditClick(e, administrator)}
+                          onClick={(e) => handleEditClick(e, admin)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={(e) => handleDeleteClick(e, administrator)}
+                          onClick={(e) => handleDeleteClick(e, admin)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
