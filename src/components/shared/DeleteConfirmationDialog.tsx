@@ -18,6 +18,7 @@ interface DeleteConfirmationDialogProps {
   title: string
   description: string
   itemName?: string
+  loading?: boolean
 }
 
 const DeleteConfirmationDialog = ({
@@ -28,6 +29,7 @@ const DeleteConfirmationDialog = ({
   title,
   description,
   itemName,
+  loading = false,
 }: DeleteConfirmationDialogProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -48,12 +50,15 @@ const DeleteConfirmationDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel onClick={onCancel} disabled={loading}>
+            Cancelar
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
+            disabled={loading}
             className="bg-red-600 hover:bg-red-700"
           >
-            Excluir
+            {loading ? 'Excluindo...' : 'Excluir'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
