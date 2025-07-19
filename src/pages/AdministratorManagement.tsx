@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Search,
   Plus,
@@ -9,6 +9,7 @@ import {
   Edit,
   Trash2,
 } from 'lucide-react'
+import api from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -28,7 +29,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
 import {
   Sheet,
@@ -50,45 +50,44 @@ import { useNavigate } from 'react-router-dom'
 const AdministratorManagement = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedAdministrator, setSelectedAdministrator] = useState<any>(null)
+  const [selectedAdmin, setSelectAdmin] = useState(null)
   const [sideSheetOpen, setSideSheetOpen] = useState(false)
-  const [newAdministratorModalOpen, setNewAdministratorModalOpen] =
-    useState(false)
+  const [newAdministratorModalOpen, setCreateAdminModal] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [administratorToDelete, setAdministratorToDelete] = useState<any>(null)
+  const [adminToDelete, setAdminToDelete] = useState(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
-  const [editingAdministrator, setEditingAdministrator] = useState<any>(null)
+  const [editAdmin, setEditAdmin] = useState(null)
+  const [adminList, setAdminList] = useState([])
+
   const [editForm, setEditForm] = useState({
     name: '',
     email: '',
     status: '',
   })
 
-  const administrators = [
-    {
-      id: 1,
-      name: 'Maria Silva',
-      email: 'maria.silva@admin.edu',
-      status: 'Ativo',
-      joinDate: '2020-01-15',
-    },
-    {
-      id: 2,
-      name: 'João Santos',
-      email: 'joao.santos@admin.edu',
-      status: 'Ativo',
-      joinDate: '2021-03-10',
-    },
-    {
-      id: 3,
-      name: 'Ana Costa',
-      email: 'ana.costa@admin.edu',
-      status: 'Inativo',
-      joinDate: '2022-08-22',
-    },
-  ]
+  const [adminForm, setAdminForm] = useState({
+    name: '',
+    email: '',
+  })
 
-  const filteredAdministrators = administrators.filter((administrator) => {
+  const [isCreating, setIsCreating] = useState(false)
+  const [createError, setCreateError] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+
+  const getAdminList = async () => {
+    const response = await api.get('/users', {
+      params: {
+        isAdmin: true,
+      },
+    })
+    setAdminList(response.data.data)
+  }
+
+  useEffect(() => {
+    getAdminList()
+  }, [])
+
+  const filterAdmin = adminList.filter((administrator) => {
     const matchesSearch =
       administrator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       administrator.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -96,61 +95,137 @@ const AdministratorManagement = () => {
   })
 
   const handleRowClick = (administrator: any) => {
-    setSelectedAdministrator(administrator)
+    setSelectAdmin(administrator)
     setSideSheetOpen(true)
   }
 
-  const handleNewAdministrator = () => {
-    setNewAdministratorModalOpen(true)
+  const handleNewAdmin = () => {
+    setCreateAdminModal(true)
+    setAdminForm({
+      name: '',
+      email: '',
+    })
+    setCreateError('')
   }
 
-  const handleDeleteClick = (e: React.MouseEvent, administrator: any) => {
+  const handleDeleteClick = (e: React.MouseEvent, admin: any) => {
     e.stopPropagation()
-    setAdministratorToDelete(administrator)
+    setAdminToDelete(admin)
     setDeleteDialogOpen(true)
   }
 
-  const handleEditClick = (e: React.MouseEvent, administrator: any) => {
+  const handleEditClick = (e: React.MouseEvent, admin: any) => {
     e.stopPropagation()
-    setEditingAdministrator(administrator)
+    setEditAdmin(admin)
     setEditForm({
-      name: administrator.name,
-      email: administrator.email,
-      status: administrator.status,
+      name: admin.name,
+      email: admin.email,
+      status: admin.status,
     })
     setEditModalOpen(true)
   }
 
-  const handleConfirmDelete = () => {
-    // Aqui você implementaria a lógica para deletar o administrador
-    console.log('Deletando administrador:', administratorToDelete)
-    setDeleteDialogOpen(false)
-    setAdministratorToDelete(null)
+  const handleConfirmDelete = async () => {
+    try {
+      console.log('Deletando administrador:', adminToDelete)
+      await api.delete(`/users/${adminToDelete.id}`)
+      getAdminList()
+    } catch (error) {
+      console.error('Erro ao deletar administrador:', error)
+    } finally {
+      setDeleteDialogOpen(false)
+      setAdminToDelete(null)
+    }
   }
 
   const handleCancelDelete = () => {
     setDeleteDialogOpen(false)
-    setAdministratorToDelete(null)
+    setAdminToDelete(null)
   }
 
-  const handleSaveEdit = () => {
-    // Aqui você implementaria a lógica para salvar as alterações
-    console.log('Salvando alterações:', editForm)
-    setEditModalOpen(false)
-    setEditingAdministrator(null)
-    setEditForm({ name: '', email: '', status: '' })
+  const handleSaveEdit = async () => {
+    try {
+      setIsSaving(true)
+      console.log('Salvando alterações:', editForm)
+      await api.put(`/users/${editAdmin.id}`, {
+        name: editForm.name,
+        email: editForm.email,
+        status: editForm.status,
+      })
+      getAdminList()
+    } catch (error) {
+      console.error('Erro ao salvar alterações:', error)
+    } finally {
+      setEditModalOpen(false)
+      setEditAdmin(null)
+      setEditForm({ name: '', email: '', status: '' })
+      setIsSaving(false)
+    }
   }
 
   const handleCancelEdit = () => {
     setEditModalOpen(false)
-    setEditingAdministrator(null)
+    setEditAdmin(null)
     setEditForm({ name: '', email: '', status: '' })
   }
 
+  const handleCreateAdmin = async () => {
+    if (!adminForm.name.trim()) {
+      setCreateError('Nome é obrigatório')
+      return
+    }
+    if (!adminForm.email.trim()) {
+      setCreateError('Email é obrigatório')
+      return
+    }
+
+    setIsCreating(true)
+    setCreateError('')
+
+    try {
+      const response = await api.post('/users', {
+        name: adminForm.name,
+        email: adminForm.email.trim().toLowerCase(),
+        isAdmin: true,
+      })
+
+      console.log('Administrador criado com sucesso:', response.data)
+
+      setCreateAdminModal(false)
+      setAdminForm({
+        name: '',
+        email: '',
+      })
+      getAdminList()
+    } catch (error: any) {
+      console.error('Erro ao criar administrador:', error)
+      setCreateError('Erro desconhecido. Tente novamente mais tarde.')
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  const handleCancelCreate = () => {
+    setCreateAdminModal(false)
+    setAdminForm({
+      name: '',
+      email: '',
+    })
+    setCreateError('')
+  }
+
   const getStatusColor = (status: string) => {
-    return status === 'Ativo'
+    return status === 'active'
       ? 'bg-green-100 text-green-800'
       : 'bg-red-100 text-red-800'
+  }
+
+  const getStatusText = (status: string) => {
+    return status === 'active' ? 'Ativo' : 'Inativo'
+  }
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('pt-BR')
   }
 
   return (
@@ -172,7 +247,7 @@ const AdministratorManagement = () => {
             </h1>
           </div>
           <Button
-            onClick={handleNewAdministrator}
+            onClick={handleNewAdmin}
             className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -214,20 +289,18 @@ const AdministratorManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAdministrators.map((administrator) => (
+                {filterAdmin.map((admin) => (
                   <TableRow
-                    key={administrator.id}
+                    key={admin.id}
                     className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => handleRowClick(administrator)}
+                    onClick={() => handleRowClick(admin)}
                   >
-                    <TableCell className="font-medium">
-                      {administrator.name}
-                    </TableCell>
-                    <TableCell>{administrator.email}</TableCell>
-                    <TableCell>{administrator.joinDate}</TableCell>
+                    <TableCell className="font-medium">{admin.name}</TableCell>
+                    <TableCell>{admin.email}</TableCell>
+                    <TableCell>{formatDate(admin.createdAt)}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(administrator.status)}>
-                        {administrator.status}
+                      <Badge className={getStatusColor(admin.status)}>
+                        {getStatusText(admin.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -235,14 +308,14 @@ const AdministratorManagement = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={(e) => handleEditClick(e, administrator)}
+                          onClick={(e) => handleEditClick(e, admin)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={(e) => handleDeleteClick(e, administrator)}
+                          onClick={(e) => handleDeleteClick(e, admin)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -265,7 +338,7 @@ const AdministratorManagement = () => {
               Informações do administrador selecionado.
             </SheetDescription>
           </SheetHeader>
-          {selectedAdministrator && (
+          {selectedAdmin && (
             <div className="mt-6 space-y-6">
               <div className="flex items-center space-x-4">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
@@ -273,7 +346,7 @@ const AdministratorManagement = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">
-                    {selectedAdministrator.name}
+                    {selectedAdmin.name}
                   </h3>
                   <p className="text-sm text-gray-600">Administrador</p>
                 </div>
@@ -283,18 +356,14 @@ const AdministratorManagement = () => {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <Mail className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm">
-                      {selectedAdministrator.email}
-                    </span>
+                    <span className="text-sm">{selectedAdmin.email}</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Shield className="h-4 w-4 text-gray-400" />
                     <div className="text-sm">
                       <div className="font-medium">Status:</div>
-                      <Badge
-                        className={getStatusColor(selectedAdministrator.status)}
-                      >
-                        {selectedAdministrator.status}
+                      <Badge className={getStatusColor(selectedAdmin.status)}>
+                        {getStatusText(selectedAdmin.status)}
                       </Badge>
                     </div>
                   </div>
@@ -308,7 +377,7 @@ const AdministratorManagement = () => {
       {/* New Administrator Modal */}
       <Dialog
         open={newAdministratorModalOpen}
-        onOpenChange={setNewAdministratorModalOpen}
+        onOpenChange={setCreateAdminModal}
       >
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -318,23 +387,50 @@ const AdministratorManagement = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {createError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-600">{createError}</p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="name">Nome Completo</Label>
-              <Input id="name" placeholder="Digite o nome completo" />
+              <Input
+                id="name"
+                placeholder="Digite o nome completo"
+                value={adminForm.name}
+                onChange={(e) =>
+                  setAdminForm({
+                    ...adminForm,
+                    name: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" placeholder="exemplo@email.com" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="exemplo@email.com"
+                value={adminForm.email}
+                onChange={(e) =>
+                  setAdminForm({
+                    ...adminForm,
+                    email: e.target.value,
+                  })
+                }
+              />
             </div>
             <div className="flex justify-end space-x-2">
               <Button
                 variant="outline"
-                onClick={() => setNewAdministratorModalOpen(false)}
+                onClick={handleCancelCreate}
+                disabled={isCreating}
               >
                 Cancelar
               </Button>
-              <Button onClick={() => setNewAdministratorModalOpen(false)}>
-                Criar Administrador
+              <Button onClick={handleCreateAdmin} disabled={isCreating}>
+                {isCreating ? 'Criando...' : 'Criar Administrador'}
               </Button>
             </div>
           </div>
@@ -386,8 +482,8 @@ const AdministratorManagement = () => {
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Ativo">Ativo</SelectItem>
-                  <SelectItem value="Inativo">Inativo</SelectItem>
+                  <SelectItem value="active">Ativo</SelectItem>
+                  <SelectItem value="inactive">Inativo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -395,7 +491,9 @@ const AdministratorManagement = () => {
               <Button variant="outline" onClick={handleCancelEdit}>
                 Cancelar
               </Button>
-              <Button onClick={handleSaveEdit}>Salvar Alterações</Button>
+              <Button onClick={handleSaveEdit} disabled={isSaving}>
+                {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -409,7 +507,7 @@ const AdministratorManagement = () => {
         onCancel={handleCancelDelete}
         title="Confirmar Exclusão"
         description="Tem certeza que deseja excluir o administrador"
-        itemName={administratorToDelete?.name}
+        itemName={adminToDelete?.name}
       />
     </div>
   )
