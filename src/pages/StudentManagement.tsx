@@ -102,47 +102,7 @@ const StudentManagement = () => {
     enrollmentNumber: '',
   })
 
-  // Função para buscar turmas
-  const fetchClasses = async () => {
-    try {
-      const response = await api.get('/classes')
-      setClasses(response.data.data || [])
-    } catch (err) {
-      console.error('Error fetching classes:', err)
-    }
-  }
 
-  // Função para buscar períodos
-  const fetchPeriods = async () => {
-    try {
-      const response = await api.get('/periods')
-      setPeriods(response.data.data || [])
-    } catch (err) {
-      console.error('Error fetching periods:', err)
-    }
-  }
-
-  // Função para buscar alunos
-  const fetchStudents = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await api.get('/students')
-      setStudents(response.data.data || [])
-    } catch (err: any) {
-      console.error('Error fetching students:', err)
-      setError(err.response?.data?.error || err.message || 'Erro ao carregar alunos')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Carrega as turmas, períodos e alunos ao montar o componente
-  useEffect(() => {
-    fetchClasses()
-    fetchPeriods()
-    fetchStudents()
-  }, [])
 
 
 
@@ -194,8 +154,6 @@ const StudentManagement = () => {
       aulasPrevistas: 20, // 20 aulas previstas por bimestre
     }))
   }
-
-
   const studentSituations = {
     TR: 'Transferência recebida (foi transferido de outra escola para essa)',
     RM: 'Mudança de sala (apenas mudou de sala)',
@@ -225,18 +183,19 @@ const StudentManagement = () => {
   const handleEditClick = (e: React.MouseEvent, student: any) => {
     e.stopPropagation()
     setEditingStudent(student)
+    
     setEditForm({
       name: student.name,
       status: student.status,
-      class: student.class?.name || '',
-      address: student.guardianAddress || '',
-      parentName: student.guardianName || '',
-      parentPhone: student.guardianPhone || '',
-      enrollmentDate: student.registrationDate || '',
-      period: student.period?.name || '',
-      studentSituation: student.enrollmentStatus || '',
-      situationDate: student.enrollmentDate || '',
-      enrollmentNumber: student.registrationNumber || '',
+      class: safeValue(student.class?.name),
+      address: safeValue(student.guardianAddress),
+      parentName: safeValue(student.guardianName),
+      parentPhone: safeValue(student.guardianPhone),
+      enrollmentDate: formatDateForInput(student.registrationDate),
+      period: safeValue(student.period?.name),
+      studentSituation: safeValue(student.enrollmentStatus),
+      situationDate: formatDateForInput(student.enrollmentDate),
+      enrollmentNumber: safeValue(student.registrationNumber),
     })
     setEditModalOpen(true)
   }
@@ -321,7 +280,13 @@ const StudentManagement = () => {
       if (editForm.parentPhone !== editingStudent.guardianPhone) updateData.guardianPhone = editForm.parentPhone
       if (editForm.address !== editingStudent.guardianAddress) updateData.guardianAddress = editForm.address
       if (editForm.studentSituation !== editingStudent.enrollmentStatus) updateData.enrollmentStatus = editForm.studentSituation
-      if (editForm.situationDate !== editingStudent.enrollmentDate) updateData.enrollmentDate = editForm.situationDate
+      
+      // Comparar datas formatadas
+      const originalEnrollmentDate = formatDateForInput(editingStudent.enrollmentDate)
+      const originalRegistrationDate = formatDateForInput(editingStudent.registrationDate)
+      
+      if (editForm.situationDate !== originalEnrollmentDate) updateData.enrollmentDate = editForm.situationDate
+      if (editForm.enrollmentDate !== originalRegistrationDate) updateData.registrationDate = editForm.enrollmentDate
 
       // Se não há mudanças, não faz a requisição
       if (Object.keys(updateData).length === 0) {
@@ -437,7 +402,15 @@ const StudentManagement = () => {
 
     try {
       setLoading(true)
-      const response = await api.post('/students', newStudentForm)
+      
+      // Preparar dados para envio, convertendo valores vazios para null
+      const studentData = {
+        ...newStudentForm,
+        enrollmentDate: toNullIfEmpty(newStudentForm.situationDate),
+        enrollmentStatus: toNullIfEmpty(newStudentForm.studentSituation),
+      }
+      
+      const response = await api.post('/students', studentData)
       setNewStudentModalOpen(false)
       setNewStudentForm({
         name: '',
@@ -490,6 +463,61 @@ const StudentManagement = () => {
       guardianAddress: '',
     })
   }
+
+  // Função auxiliar para formatar datas
+  const formatDateForInput = (dateString: string | Date | null) => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    return date.toISOString().split('T')[0]
+  }
+
+  // Função auxiliar para tratar valores nulos/undefined
+  const safeValue = (value: any) => value ?? ''
+  
+  // Função auxiliar para converter valores vazios em null
+  const toNullIfEmpty = (value: any) => value || null
+
+  // Função para buscar turmas
+  const fetchClasses = async () => {
+    try {
+      const response = await api.get('/classes')
+      setClasses(response.data.data || [])
+    } catch (err) {
+      console.error('Error fetching classes:', err)
+    }
+  }
+
+  // Função para buscar períodos
+  const fetchPeriods = async () => {
+    try {
+      const response = await api.get('/periods')
+      setPeriods(response.data.data || [])
+    } catch (err) {
+      console.error('Error fetching periods:', err)
+    }
+  }
+
+  // Função para buscar alunos
+  const fetchStudents = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await api.get('/students')
+      setStudents(response.data.data || [])
+    } catch (err: any) {
+      console.error('Error fetching students:', err)
+      setError(err.response?.data?.error || err.message || 'Erro ao carregar alunos')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Carrega as turmas, períodos e alunos ao montar o componente
+  useEffect(() => {
+    fetchClasses()
+    fetchPeriods()
+    fetchStudents()
+  }, [])
 
   const getStatusColor = (status: string) => {
     return status === 'Ativo'
@@ -609,57 +637,57 @@ const StudentManagement = () => {
                   </TableRow>
                 ) : (
                   filteredStudents.map((student) => (
-                  <TableRow
-                    key={student.id}
-                    className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => handleRowClick(student)}
-                  >
-                    <TableCell className="font-medium">
-                      {student.name}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {student.registrationNumber}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{student.class?.name || '-'}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(student.status)}>
-                        {student.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2 justify-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) =>
-                            handleAcademicDetailsClick(e, student)
-                          }
-                          title="Detalhes Acadêmicos"
-                        >
-                          <BookOpen className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => handleEditClick(e, student)}
-                          title="Editar"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => handleDeleteClick(e, student)}
-                          title="Excluir"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+                    <TableRow
+                      key={student.id}
+                      className="cursor-pointer hover:bg-gray-50"
+                      onClick={() => handleRowClick(student)}
+                    >
+                      <TableCell className="font-medium">
+                        {student.name}
+                      </TableCell>
+                      <TableCell className="font-mono text-sm">
+                        {student.registrationNumber}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{safeValue(student.class?.name) || '-'}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(student.status)}>
+                          {student.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2 justify-center">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) =>
+                              handleAcademicDetailsClick(e, student)
+                            }
+                            title="Detalhes Acadêmicos"
+                          >
+                            <BookOpen className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleEditClick(e, student)}
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleDeleteClick(e, student)}
+                            title="Excluir"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
@@ -693,17 +721,17 @@ const StudentManagement = () => {
                     {selectedStudent.registrationDate
                       ? new Date(
                           selectedStudent.registrationDate
-                        ).toLocaleDateString()
+                        ).toLocaleDateString('pt-BR')
                       : '-'}
                   </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Período</Label>
-                  <p className="text-sm mt-1">{selectedStudent.period?.name || '-'}</p>
+                  <p className="text-sm mt-1">{safeValue(selectedStudent.period?.name) || '-'}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Turma</Label>
-                  <p className="text-sm mt-1">{selectedStudent.class?.name || '-'}</p>
+                  <p className="text-sm mt-1">{safeValue(selectedStudent.class?.name) || '-'}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Status</Label>
@@ -718,24 +746,24 @@ const StudentManagement = () => {
                     Situação do Aluno
                   </Label>
                   <div className="mt-1 flex items-center gap-2">
-                    {selectedStudent.studentSituation && (
+                    {selectedStudent.enrollmentStatus && (
                       <span
                         className="inline-block cursor-help"
                         title={
                           studentSituations[
-                            (selectedStudent.studentSituation as keyof typeof studentSituations) ||
+                            (selectedStudent.enrollmentStatus as keyof typeof studentSituations) ||
                               'TR'
                           ]
                         }
                       >
                         <Badge variant="outline">
-                          {selectedStudent.studentSituation}
+                          {selectedStudent.enrollmentStatus}
                         </Badge>
                       </span>
                     )}
                     <span className="text-xs text-gray-500">
-                      {selectedStudent.situationDate
-                        ? `(${new Date(selectedStudent.situationDate).toLocaleDateString()})`
+                      {selectedStudent.enrollmentDate
+                        ? `(${new Date(selectedStudent.enrollmentDate).toLocaleDateString('pt-BR')})`
                         : ''}
                     </span>
                   </div>
@@ -746,7 +774,7 @@ const StudentManagement = () => {
               <div className="space-y-3">
                 <div>
                   <Label className="text-sm font-medium">Endereço</Label>
-                  <p className="text-sm mt-1">{selectedStudent.guardianAddress || '-'}</p>
+                  <p className="text-sm mt-1">{safeValue(selectedStudent.guardianAddress) || '-'}</p>
                 </div>
               </div>
 
@@ -755,11 +783,11 @@ const StudentManagement = () => {
                 <h4 className="font-medium">Informações dos Responsáveis</h4>
                 <div>
                   <Label className="text-sm font-medium">Nome</Label>
-                  <p className="text-sm mt-1">{selectedStudent.guardianName || '-'}</p>
+                  <p className="text-sm mt-1">{safeValue(selectedStudent.guardianName) || '-'}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Telefone</Label>
-                  <p className="text-sm mt-1">{selectedStudent.guardianPhone || '-'}</p>
+                  <p className="text-sm mt-1">{safeValue(selectedStudent.guardianPhone) || '-'}</p>
                 </div>
               </div>
             </div>
@@ -1173,7 +1201,7 @@ const StudentManagement = () => {
                   Matrícula: {selectedStudentForAcademic.registrationNumber}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Turma: {selectedStudentForAcademic.class?.name || '-'}
+                  Turma: {safeValue(selectedStudentForAcademic.class?.name) || '-'}
                 </p>
               </div>
 
