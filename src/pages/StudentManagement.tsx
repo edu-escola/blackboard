@@ -102,10 +102,6 @@ const StudentManagement = () => {
     enrollmentNumber: '',
   })
 
-
-
-
-
   // Mock data
   const schools = [
     { id: 'lincoln', name: 'Lincoln Elementary' },
