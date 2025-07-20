@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ArrowLeft,
   ChevronLeft,
@@ -18,92 +18,140 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
+import api from '@/lib/api'
 
 const AttendancePage = () => {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [selectedSchool, setSelectedSchool] = useState(() => {
-    const savedSchool = localStorage.getItem('selectedSchool')
-    return savedSchool || ''
-  })
   const [selectedClass, setSelectedClass] = useState('')
   const [selectedSubject, setSelectedSubject] = useState('')
+  const [selectedAttendance, setSelectedAttendance] = useState('')
   const [attendance, setAttendance] = useState<{ [key: string]: boolean }>({})
+  const [classes, setClasses] = useState([])
+  const [subjects, setSubjects] = useState([])
+  const [students, setStudents] = useState([])
 
-  const schools = [
-    { id: 'lincoln', name: 'Lincoln Elementary' },
-    { id: 'washington', name: 'Washington High School' },
-    { id: 'roosevelt', name: 'Roosevelt Middle School' },
-  ]
+  const userId = localStorage.getItem('userId')
+  const schoolId = localStorage.getItem('schoolId') // TODO: remover isso
 
-  const classes = [
-    { id: 'math101', name: 'Matemática 101', schoolId: 'lincoln' },
-    { id: 'science102', name: 'Ciências 102', schoolId: 'lincoln' },
-    { id: 'english201', name: 'Inglês 201', schoolId: 'washington' },
-    { id: 'history301', name: 'História 301', schoolId: 'washington' },
-  ]
+  const getClasses = async () => {
+    const response = await api.get('/classes', {
+      params: {
+        userId,
+      },
+    })
+    console.log('classes', response.data.data)
+    setClasses(response.data.data)
+  }
 
-  const subjects = [
-    'Matemática',
-    'Ciências',
-    'Inglês',
-    'História',
-    'Física',
-    'Química',
-  ]
+  const getSubjects = async () => {
+    const response = await api.get('/subjects', {
+      params: {
+        userId,
+      },
+    })
+    console.log('subjects', response.data.data)
+    setSubjects(response.data.data)
+  }
 
-  const students = [
-    {
-      id: '1',
-      name: 'Alice Johnson',
-      enrollmentNumber: 'LN2024001',
-      classId: 'math101',
-    },
-    {
-      id: '2',
-      name: 'Bob Wilson',
-      enrollmentNumber: 'LN2024002',
-      classId: 'math101',
-    },
-    {
-      id: '3',
-      name: 'Carol Brown',
-      enrollmentNumber: 'LN2024003',
-      classId: 'math101',
-    },
-    {
-      id: '4',
-      name: 'David Miller',
-      enrollmentNumber: 'LN2024004',
-      classId: 'math101',
-    },
-    {
-      id: '5',
-      name: 'Eva Davis',
-      enrollmentNumber: 'LN2024005',
-      classId: 'math101',
-    },
-    {
-      id: '6',
-      name: 'Frank Garcia',
-      enrollmentNumber: 'LN2024006',
-      classId: 'math101',
-    },
-    {
-      id: '7',
-      name: 'Grace Lee',
-      enrollmentNumber: 'LN2024007',
-      classId: 'math101',
-    },
-    {
-      id: '8',
-      name: 'Henry Chen',
-      enrollmentNumber: 'LN2024008',
-      classId: 'math101',
-    },
-  ]
+  useEffect(() => {
+    getClasses()
+    getSubjects()
+  }, [])
+
+  // Combined effect to handle students and attendance data
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!selectedClass || !selectedSubject) return
+
+      // If we have a date, try to get existing attendance first
+      if (selectedDate) {
+        try {
+          const attendanceResponse = await api.get('/attendance', {
+            params: {
+              userId,
+              classId: selectedClass,
+              subjectId: selectedSubject,
+              date: selectedDate,
+            },
+          })
+
+          if (attendanceResponse.data.data.length > 0) {
+            const attendanceId = attendanceResponse.data.data[0].id
+            setSelectedAttendance(attendanceId)
+
+            // Get students with attendance data
+            const studentsResponse = await api.get('/students', {
+              params: {
+                classId: selectedClass,
+                limit: 1000,
+                attendanceId,
+              },
+            })
+            setStudents(studentsResponse.data.data)
+          } else {
+            setSelectedAttendance('')
+            // Get students without attendance data
+            const studentsResponse = await api.get('/students', {
+              params: {
+                classId: selectedClass,
+                limit: 1000,
+              },
+            })
+            setStudents(studentsResponse.data.data)
+          }
+        } catch (error) {
+          console.error('Error fetching attendance data:', error)
+          // Fallback to getting students without attendance
+          const studentsResponse = await api.get('/students', {
+            params: {
+              classId: selectedClass,
+              limit: 1000,
+            },
+          })
+          setStudents(studentsResponse.data.data)
+        }
+      } else {
+        // No date selected, just get students
+        const studentsResponse = await api.get('/students', {
+          params: {
+            classId: selectedClass,
+            limit: 1000,
+          },
+        })
+        setStudents(studentsResponse.data.data)
+      }
+    }
+
+    fetchData()
+  }, [selectedClass, selectedSubject, selectedDate, selectedAttendance])
+
+  // Separate effect to handle attendance state updates
+  useEffect(() => {
+    if (selectedAttendance && students.length > 0) {
+      setAttendance(
+        students.reduce(
+          (acc, student) => {
+            acc[student.id as string] =
+              student.AttendanceStudent?.[0]?.isPresent ?? true
+            return acc
+          },
+          {} as { [key: string]: boolean }
+        )
+      )
+    } else if (students.length > 0) {
+      // Initialize all students as present when no attendance exists
+      const initialAttendance: { [key: string]: boolean } = {}
+      students.forEach((student) => {
+        initialAttendance[student.id] = true
+      })
+      setAttendance(initialAttendance)
+    } else {
+      setAttendance({})
+    }
+  }, [students])
 
   // Calendar navigation
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -169,12 +217,6 @@ const AttendancePage = () => {
   // Handle date selection
   const handleDateClick = (date: Date) => {
     setSelectedDate(date)
-    // Initialize attendance for all students as present by default
-    const initialAttendance: { [key: string]: boolean } = {}
-    students.forEach((student) => {
-      initialAttendance[student.id] = true
-    })
-    setAttendance(initialAttendance)
   }
 
   // Handle attendance toggle
@@ -195,17 +237,11 @@ const AttendancePage = () => {
   }
 
   // Save attendance
-  const saveAttendance = () => {
-    if (
-      !selectedDate ||
-      !selectedSchool ||
-      !selectedClass ||
-      !selectedSubject
-    ) {
+  const saveAttendance = async () => {
+    if (!selectedDate || !selectedClass || !selectedSubject) {
       toast({
         title: 'Erro',
-        description:
-          'Selecione a data, escola, turma e disciplina antes de salvar.',
+        description: 'Selecione a data, turma e disciplina antes de salvar.',
         variant: 'destructive',
       })
       return
@@ -214,21 +250,44 @@ const AttendancePage = () => {
     const presentCount = Object.values(attendance).filter(Boolean).length
     const totalStudents = students.length
 
-    toast({
-      title: 'Presença salva com sucesso!',
-      description: `${presentCount}/${totalStudents} alunos marcados como presentes para ${selectedDate.toLocaleDateString()}`,
-    })
+    try {
+      if (selectedAttendance) {
+        await api.put(`/attendance/${selectedAttendance}`, {
+          students: Object.entries(attendance).map(
+            ([studentId, isPresent]) => ({
+              studentId,
+              isPresent,
+            })
+          ),
+        })
+      } else {
+        const response = await api.post('/attendance', {
+          userId,
+          schoolId,
+          classId: selectedClass,
+          subjectId: selectedSubject,
+          date: selectedDate,
+          students: Object.entries(attendance).map(
+            ([studentId, isPresent]) => ({
+              studentId,
+              isPresent,
+            })
+          ),
+        })
+        setSelectedAttendance(response.data.data.id)
+      }
+      toast({
+        title: 'Presença salva com sucesso!',
+        description: `${presentCount}/${totalStudents} alunos marcados como presentes para ${selectedDate.toLocaleDateString()}`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao salvar presença.',
+        variant: 'destructive',
+      })
+    }
   }
-
-  // Filter classes by selected school
-  const filteredClasses = classes.filter(
-    (cls) => cls.schoolId === selectedSchool
-  )
-
-  // Filter students by selected class
-  const filteredStudents = students.filter(
-    (student) => student.classId === selectedClass
-  )
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -326,41 +385,18 @@ const AttendancePage = () => {
                 </CardTitle>
 
                 {/* Selectors */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Escola</label>
-                    <Select
-                      value={selectedSchool}
-                      onValueChange={(value) => {
-                        setSelectedSchool(value)
-                        localStorage.setItem('selectedSchool', value)
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a escola" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {schools.map((school) => (
-                          <SelectItem key={school.id} value={school.id}>
-                            {school.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Turma</label>
                     <Select
                       value={selectedClass}
                       onValueChange={setSelectedClass}
-                      disabled={!selectedSchool}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione a turma" />
                       </SelectTrigger>
                       <SelectContent>
-                        {filteredClasses.map((cls) => (
+                        {classes.map((cls) => (
                           <SelectItem key={cls.id} value={cls.id}>
                             {cls.name}
                           </SelectItem>
@@ -380,8 +416,8 @@ const AttendancePage = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {subjects.map((subject) => (
-                          <SelectItem key={subject} value={subject}>
-                            {subject}
+                          <SelectItem key={subject.id} value={subject.id}>
+                            {subject.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -389,13 +425,13 @@ const AttendancePage = () => {
                   </div>
                 </div>
 
-                {selectedClass && (
+                {selectedClass && selectedSubject && (
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center space-x-2">
                       <Users className="h-4 w-4 text-gray-500" />
                       <span className="text-sm text-gray-600">
                         {Object.values(attendance).filter(Boolean).length}/
-                        {filteredStudents.length} presentes
+                        {students.length} presentes
                       </span>
                     </div>
                     <Button
@@ -412,10 +448,10 @@ const AttendancePage = () => {
               </CardHeader>
 
               {/* Student List */}
-              {selectedClass && (
+              {selectedClass && selectedSubject && (
                 <CardContent className="flex-1 overflow-y-auto">
                   <div className="space-y-3">
-                    {filteredStudents.map((student) => (
+                    {students.map((student) => (
                       <div
                         key={student.id}
                         className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -425,7 +461,7 @@ const AttendancePage = () => {
                             {student.name}
                           </h4>
                           <p className="text-sm text-gray-600 font-mono">
-                            {student.enrollmentNumber}
+                            {student.registrationNumber}
                           </p>
                         </div>
                         <div className="flex items-center space-x-3">
@@ -473,7 +509,7 @@ const AttendancePage = () => {
       </div>
 
       {/* Sticky Footer */}
-      {selectedDate && selectedClass && (
+      {selectedDate && selectedClass && selectedSubject && (
         <div className="bg-white border-t border-gray-200 px-6 py-4 flex-shrink-0">
           <div className="flex justify-center lg:justify-end">
             <Button

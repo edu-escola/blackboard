@@ -19,6 +19,7 @@ export const LogoutButton = ({
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout')
+      localStorage.clear()
       navigate('/')
     } catch (error) {
       console.error(error)
