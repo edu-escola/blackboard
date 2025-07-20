@@ -22,7 +22,13 @@ export const ProtectedRoute = ({ role }: ProtectedRouteProps) => {
     api
       .get('/auth/me')
       .then((res) => {
-        const { isAdmin, isTeacher } = res.data
+        const { isAdmin, isTeacher, name, id } = res.data
+
+        if (name) {
+          localStorage.setItem('name', name)
+        }
+
+        localStorage.setItem('userId', id)
 
         if (role === 'admin' && isAdmin) {
           setStatus('authorized')
