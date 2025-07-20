@@ -84,13 +84,13 @@ const StudentManagement = () => {
 
   const [editForm, setEditForm] = useState({
     name: '',
-    class: '',
+    classId: '',
     address: '',
     parentName: '',
     parentPhone: '',
     enrollmentDate: '',
     registrationDate: '',
-    period: '',
+    periodId: '',
     enrollmentStatus: '',
     enrollmentNumber: '',
   })
@@ -169,12 +169,12 @@ const StudentManagement = () => {
 
     setEditForm({
       name: student.name,
-      class: student.class?.name,
+      classId: student.class?.id,
       address: student.guardianAddress,
       parentName: student.guardianName,
       parentPhone: student.guardianPhone,
       registrationDate: formatDateForInput(student.registrationDate),
-      period: student.period?.name,
+      periodId: student.period?.id,
       enrollmentStatus: student.enrollmentStatus,
       enrollmentDate: formatDateForInput(student.enrollmentDate),
       enrollmentNumber: student.registrationNumber,
@@ -206,11 +206,17 @@ const StudentManagement = () => {
 
   const handleSaveEdit = async () => {
     try {
-      console.log('editForm ==== ', editForm)
       await api.put(`/students/${editingStudent.id}`, {
-        ...editForm,
-        registrationDate: new Date(editForm.registrationDate).toISOString(),
+        name: editForm.name,
+        registrationNumber: editForm.enrollmentNumber,
+        guardianName: editForm.parentName,
+        guardianPhone: editForm.parentPhone,
+        guardianAddress: editForm.address,
+        enrollmentStatus: editForm.enrollmentStatus,
         enrollmentDate: new Date(editForm.enrollmentDate).toISOString(),
+        registrationDate: new Date(editForm.registrationDate).toISOString(),
+        periodId: editForm.periodId,
+        classId: editForm.classId,
       })
       getStudents()
     } catch (error) {
@@ -219,11 +225,11 @@ const StudentManagement = () => {
       setEditingStudent(null)
       setEditForm({
         name: '',
-        class: '',
+        classId: '',
         address: '',
         parentName: '',
         parentPhone: '',
-        period: '',
+        periodId: '',
         enrollmentStatus: '',
         registrationDate: '',
         enrollmentDate: '',
@@ -237,13 +243,13 @@ const StudentManagement = () => {
     setEditingStudent(null)
     setEditForm({
       name: '',
-      class: '',
+      classId: '',
       address: '',
       parentName: '',
       parentPhone: '',
       enrollmentDate: '',
       registrationDate: '',
-      period: '',
+      periodId: '',
       enrollmentStatus: '',
       enrollmentNumber: '',
     })
@@ -866,9 +872,9 @@ const StudentManagement = () => {
                 <div className="space-y-2">
                   <Label htmlFor="edit-period">Período</Label>
                   <Select
-                    value={editForm.period}
+                    value={editForm.periodId}
                     onValueChange={(value) =>
-                      setEditForm({ ...editForm, period: value })
+                      setEditForm({ ...editForm, periodId: value })
                     }
                   >
                     <SelectTrigger>
@@ -876,7 +882,7 @@ const StudentManagement = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {periods.map((period) => (
-                        <SelectItem key={period.id} value={period.name}>
+                        <SelectItem key={period.id} value={period.id}>
                           {period.name}
                         </SelectItem>
                       ))}
@@ -919,9 +925,9 @@ const StudentManagement = () => {
                 <div className="space-y-2">
                   <Label htmlFor="edit-class">Turma</Label>
                   <Select
-                    value={editForm.class}
+                    value={editForm.classId}
                     onValueChange={(value) =>
-                      setEditForm({ ...editForm, class: value })
+                      setEditForm({ ...editForm, classId: value })
                     }
                   >
                     <SelectTrigger>
@@ -929,7 +935,7 @@ const StudentManagement = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {classes.map((cls) => (
-                        <SelectItem key={cls.id} value={cls.name}>
+                        <SelectItem key={cls.id} value={cls.id}>
                           {cls.name}
                         </SelectItem>
                       ))}
