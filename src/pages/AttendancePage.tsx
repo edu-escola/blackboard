@@ -32,7 +32,9 @@ const AttendancePage = () => {
   const [classes, setClasses] = useState([])
   const [subjects, setSubjects] = useState([])
   const [students, setStudents] = useState([])
+
   const userId = localStorage.getItem('userId')
+  const schoolId = localStorage.getItem('schoolId') // TODO: remover isso
 
   const getClasses = async () => {
     const response = await api.get('/classes', {
@@ -124,7 +126,7 @@ const AttendancePage = () => {
     }
 
     fetchData()
-  }, [selectedClass, selectedSubject, selectedDate])
+  }, [selectedClass, selectedSubject, selectedDate, selectedAttendance])
 
   // Separate effect to handle attendance state updates
   useEffect(() => {
@@ -149,7 +151,7 @@ const AttendancePage = () => {
     } else {
       setAttendance({})
     }
-  }, [selectedAttendance, students])
+  }, [students])
 
   // Calendar navigation
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -215,12 +217,6 @@ const AttendancePage = () => {
   // Handle date selection
   const handleDateClick = (date: Date) => {
     setSelectedDate(date)
-    // Initialize attendance for all students as present by default [TEMP]
-    // const initialAttendance: { [key: string]: boolean } = {}
-    // students.forEach((student) => {
-    //   initialAttendance[student.id] = true
-    // })
-    // setAttendance(initialAttendance)
   }
 
   // Handle attendance toggle
@@ -241,12 +237,11 @@ const AttendancePage = () => {
   }
 
   // Save attendance
-  const saveAttendance = () => {
+  const saveAttendance = async () => {
     if (!selectedDate || !selectedClass || !selectedSubject) {
       toast({
         title: 'Erro',
-        description:
-          'Selecione a data, escola, turma e disciplina antes de salvar.',
+        description: 'Selecione a data, turma e disciplina antes de salvar.',
         variant: 'destructive',
       })
       return
@@ -255,10 +250,43 @@ const AttendancePage = () => {
     const presentCount = Object.values(attendance).filter(Boolean).length
     const totalStudents = students.length
 
-    toast({
-      title: 'Presença salva com sucesso!',
-      description: `${presentCount}/${totalStudents} alunos marcados como presentes para ${selectedDate.toLocaleDateString()}`,
-    })
+    try {
+      if (selectedAttendance) {
+        await api.put(`/attendance/${selectedAttendance}`, {
+          students: Object.entries(attendance).map(
+            ([studentId, isPresent]) => ({
+              studentId,
+              isPresent,
+            })
+          ),
+        })
+      } else {
+        const response = await api.post('/attendance', {
+          userId,
+          schoolId,
+          classId: selectedClass,
+          subjectId: selectedSubject,
+          date: selectedDate,
+          students: Object.entries(attendance).map(
+            ([studentId, isPresent]) => ({
+              studentId,
+              isPresent,
+            })
+          ),
+        })
+        setSelectedAttendance(response.data.data.id)
+      }
+      toast({
+        title: 'Presença salva com sucesso!',
+        description: `${presentCount}/${totalStudents} alunos marcados como presentes para ${selectedDate.toLocaleDateString()}`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao salvar presença.',
+        variant: 'destructive',
+      })
+    }
   }
 
   return (
