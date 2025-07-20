@@ -54,80 +54,102 @@ const AttendancePage = () => {
     setSubjects(response.data.data)
   }
 
-  const getStudents = async (attendanceId?: string) => {
-    const response = await api.get('/students', {
-      params: {
-        classId: selectedClass,
-        limit: 1000,
-        attendanceId,
-      },
-    })
-    console.log('students', response.data.data)
-    setStudents(response.data.data)
-  }
-
-  const getAttendance = async () => {
-    const response = await api.get('/attendance', {
-      params: {
-        userId,
-        classId: selectedClass,
-        subjectId: selectedSubject,
-        date: selectedDate,
-      },
-    })
-    if (response.data.data.length > 0) {
-      console.log('selected attendance', response.data.data[0].id)
-      setSelectedAttendance(response.data.data[0].id)
-    } else {
-      setSelectedAttendance('')
-    }
-  }
-
-  const getStudentsAttendance = async (attendanceId: string) => {
-    const response = await api.get('/students', {
-      params: {
-        attendanceId,
-      },
-    })
-    console.log('students attendance', response.data.data)
-  }
-
   useEffect(() => {
     getClasses()
     getSubjects()
   }, [])
 
+  // Combined effect to handle students and attendance data
   useEffect(() => {
-    if (selectedClass && selectedSubject) {
-      if (selectedAttendance) {
-        getStudents(selectedAttendance)
+    const fetchData = async () => {
+      if (!selectedClass || !selectedSubject) return
+
+      // If we have a date, try to get existing attendance first
+      if (selectedDate) {
+        try {
+          const attendanceResponse = await api.get('/attendance', {
+            params: {
+              userId,
+              classId: selectedClass,
+              subjectId: selectedSubject,
+              date: selectedDate,
+            },
+          })
+
+          if (attendanceResponse.data.data.length > 0) {
+            const attendanceId = attendanceResponse.data.data[0].id
+            setSelectedAttendance(attendanceId)
+
+            // Get students with attendance data
+            const studentsResponse = await api.get('/students', {
+              params: {
+                classId: selectedClass,
+                limit: 1000,
+                attendanceId,
+              },
+            })
+            setStudents(studentsResponse.data.data)
+          } else {
+            setSelectedAttendance('')
+            // Get students without attendance data
+            const studentsResponse = await api.get('/students', {
+              params: {
+                classId: selectedClass,
+                limit: 1000,
+              },
+            })
+            setStudents(studentsResponse.data.data)
+          }
+        } catch (error) {
+          console.error('Error fetching attendance data:', error)
+          // Fallback to getting students without attendance
+          const studentsResponse = await api.get('/students', {
+            params: {
+              classId: selectedClass,
+              limit: 1000,
+            },
+          })
+          setStudents(studentsResponse.data.data)
+        }
       } else {
-        getStudents()
+        // No date selected, just get students
+        const studentsResponse = await api.get('/students', {
+          params: {
+            classId: selectedClass,
+            limit: 1000,
+          },
+        })
+        setStudents(studentsResponse.data.data)
       }
     }
-  }, [selectedClass, selectedSubject, selectedAttendance])
 
-  useEffect(() => {
-    if (selectedDate && selectedClass && selectedSubject) {
-      getAttendance()
-    }
-  }, [selectedDate, selectedClass, selectedSubject])
+    fetchData()
+  }, [selectedClass, selectedSubject, selectedDate])
 
+  // Separate effect to handle attendance state updates
   useEffect(() => {
-    if (selectedAttendance) {
+    if (selectedAttendance && students.length > 0) {
       setAttendance(
         students.reduce(
           (acc, student) => {
-            acc[student.id as string] = student.AttendanceStudent[0].isPresent
+            acc[student.id as string] =
+              student.AttendanceStudent?.[0]?.isPresent ?? true
             return acc
           },
           {} as { [key: string]: boolean }
         )
       )
+    } else if (students.length > 0) {
+      // Initialize all students as present when no attendance exists
+      const initialAttendance: { [key: string]: boolean } = {}
+      students.forEach((student) => {
+        initialAttendance[student.id] = true
+      })
+      setAttendance(initialAttendance)
     } else {
       setAttendance({})
     }
-  }, [selectedAttendance])
+  }, [selectedAttendance, students])
 
   // Calendar navigation
   const navigateMonth = (direction: 'prev' | 'next') => {
