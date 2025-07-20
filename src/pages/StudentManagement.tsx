@@ -206,15 +206,11 @@ const StudentManagement = () => {
 
   const handleSaveEdit = async () => {
     try {
+      console.log('editForm ==== ', editForm)
       await api.put(`/students/${editingStudent.id}`, {
-        name: editForm.name,
-        registrationNumber: editForm.enrollmentNumber,
-        guardianName: editForm.parentName,
-        guardianPhone: editForm.parentPhone,
-        guardianAddress: editForm.address,
-        enrollmentStatus: editForm.enrollmentStatus,
-        enrollmentDate: editForm.enrollmentDate,
-        registrationDate: editForm.registrationDate,
+        ...editForm,
+        registrationDate: new Date(editForm.registrationDate).toISOString(),
+        enrollmentDate: new Date(editForm.enrollmentDate).toISOString(),
       })
       getStudents()
     } catch (error) {
@@ -824,10 +820,18 @@ const StudentManagement = () => {
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={handleCancelCreate}>
+              <Button
+                variant="outline"
+                onClick={handleCancelCreate}
+                type="button"
+              >
                 Cancelar
               </Button>
-              <Button onClick={handleCreateStudent} disabled={loading}>
+              <Button
+                onClick={handleCreateStudent}
+                disabled={loading}
+                type="button"
+              >
                 {loading ? 'Criando...' : 'Criar Aluno'}
               </Button>
             </div>
@@ -1023,10 +1027,15 @@ const StudentManagement = () => {
                   variant="outline"
                   onClick={handleCancelEdit}
                   disabled={loading}
+                  type="button"
                 >
                   Cancelar
                 </Button>
-                <Button onClick={handleSaveEdit} disabled={loading}>
+                <Button
+                  onClick={handleSaveEdit}
+                  disabled={loading}
+                  type="button"
+                >
                   {loading ? 'Salvando...' : 'Salvar Alterações'}
                 </Button>
               </div>
