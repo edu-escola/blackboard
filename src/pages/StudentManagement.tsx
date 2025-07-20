@@ -45,14 +45,11 @@ import {
 } from '@/components/ui/sheet'
 import { DeleteConfirmationDialog } from '@/components/shared'
 import { useNavigate } from 'react-router-dom'
-import { useToast } from '@/hooks/use-toast'
 import api from '@/lib/api'
 
 const StudentManagement = () => {
   const navigate = useNavigate()
-  const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
-  const [schoolFilter, setSchoolFilter] = useState('all')
   const [classFilter, setClassFilter] = useState('all')
   const [selectedStudent, setSelectedStudent] = useState<any>(null)
   const [sideSheetOpen, setSideSheetOpen] = useState(false)
@@ -78,11 +75,8 @@ const StudentManagement = () => {
     registrationDate: '',
     periodId: '',
     classId: '',
-    status: 'Ativo',
     enrollmentStatus: '',
     enrollmentDate: '',
-    studentSituation: '',
-    situationDate: '',
     guardianName: '',
     guardianPhone: '',
     guardianAddress: '',
@@ -90,27 +84,16 @@ const StudentManagement = () => {
 
   const [editForm, setEditForm] = useState({
     name: '',
-    status: '',
-    class: '',
+    classId: '',
     address: '',
     parentName: '',
     parentPhone: '',
     enrollmentDate: '',
-    period: '',
-    studentSituation: '',
-    situationDate: '',
+    registrationDate: '',
+    periodId: '',
+    enrollmentStatus: '',
     enrollmentNumber: '',
   })
-
-  // Mock data
-  const schools = [
-    { id: 'lincoln', name: 'Lincoln Elementary' },
-    { id: 'washington', name: 'Washington High School' },
-    { id: 'roosevelt', name: 'Roosevelt Middle School' },
-    { id: 'jefferson', name: 'Jefferson Academy' },
-  ]
-
-
 
   const subjects = [
     'Matemática',
@@ -150,7 +133,8 @@ const StudentManagement = () => {
       aulasPrevistas: 20, // 20 aulas previstas por bimestre
     }))
   }
-  const studentSituations = {
+
+  const enrollmentStatuss = {
     TR: 'Transferência recebida (foi transferido de outra escola para essa)',
     RM: 'Mudança de sala (apenas mudou de sala)',
     TE: 'Transferência emitida (foi transferido para outra escola)',
@@ -160,8 +144,11 @@ const StudentManagement = () => {
   const filteredStudents = students.filter((student) => {
     const matchesSearch =
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesClass = classFilter === 'all' || student.class?.name === classFilter
+      student.registrationNumber
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    const matchesClass =
+      classFilter === 'all' || student.class?.name === classFilter
     return matchesSearch && matchesClass
   })
 
@@ -179,19 +166,18 @@ const StudentManagement = () => {
   const handleEditClick = (e: React.MouseEvent, student: any) => {
     e.stopPropagation()
     setEditingStudent(student)
-    
+
     setEditForm({
       name: student.name,
-      status: student.status,
-      class: safeValue(student.class?.name),
-      address: safeValue(student.guardianAddress),
-      parentName: safeValue(student.guardianName),
-      parentPhone: safeValue(student.guardianPhone),
-      enrollmentDate: formatDateForInput(student.registrationDate),
-      period: safeValue(student.period?.name),
-      studentSituation: safeValue(student.enrollmentStatus),
-      situationDate: formatDateForInput(student.enrollmentDate),
-      enrollmentNumber: safeValue(student.registrationNumber),
+      classId: student.class?.id,
+      address: student.guardianAddress,
+      parentName: student.guardianName,
+      parentPhone: student.guardianPhone,
+      registrationDate: formatDateForInput(student.registrationDate),
+      periodId: student.period?.id,
+      enrollmentStatus: student.enrollmentStatus,
+      enrollmentDate: formatDateForInput(student.enrollmentDate),
+      enrollmentNumber: student.registrationNumber,
     })
     setEditModalOpen(true)
   }
@@ -203,39 +189,13 @@ const StudentManagement = () => {
   }
 
   const handleConfirmDelete = async () => {
-    if (!studentToDelete?.id) {
-      toast({
-        title: 'Erro',
-        description: 'ID do aluno não encontrado.',
-        variant: 'destructive',
-      })
-      return
-    }
-
     try {
-      setLoading(true)
-      
       await api.delete(`/students/${studentToDelete.id}`)
-      
+      getStudents()
+    } catch (error) {
+    } finally {
       setDeleteDialogOpen(false)
       setStudentToDelete(null)
-      
-      // Recarrega a lista de alunos
-      await fetchStudents()
-      
-      toast({
-        title: 'Aluno excluído',
-        description: `${studentToDelete.name} foi excluído com sucesso.`,
-      })
-    } catch (error: any) {
-      console.error('Error deleting student:', error)
-      toast({
-        title: 'Erro',
-        description: error.response?.data?.error || 'Erro ao excluir aluno.',
-        variant: 'destructive',
-      })
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -245,90 +205,36 @@ const StudentManagement = () => {
   }
 
   const handleSaveEdit = async () => {
-    if (!editingStudent?.id) {
-      toast({
-        title: 'Erro',
-        description: 'ID do aluno não encontrado.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!editForm.name.trim()) {
-      toast({
-        title: 'Erro',
-        description: 'Nome do aluno é obrigatório.',
-        variant: 'destructive',
-      })
-      return
-    }
-
     try {
-      setLoading(true)
-      
-      // Preparar dados para atualização
-      const updateData: any = {}
-      
-      if (editForm.name !== editingStudent.name) updateData.name = editForm.name
-      if (editForm.status !== editingStudent.status) updateData.status = editForm.status
-      if (editForm.enrollmentNumber !== editingStudent.registrationNumber) updateData.registrationNumber = editForm.enrollmentNumber
-      if (editForm.parentName !== editingStudent.guardianName) updateData.guardianName = editForm.parentName
-      if (editForm.parentPhone !== editingStudent.guardianPhone) updateData.guardianPhone = editForm.parentPhone
-      if (editForm.address !== editingStudent.guardianAddress) updateData.guardianAddress = editForm.address
-      if (editForm.studentSituation !== editingStudent.enrollmentStatus) updateData.enrollmentStatus = editForm.studentSituation
-      
-      // Comparar datas formatadas
-      const originalEnrollmentDate = formatDateForInput(editingStudent.enrollmentDate)
-      const originalRegistrationDate = formatDateForInput(editingStudent.registrationDate)
-      
-      if (editForm.situationDate !== originalEnrollmentDate) updateData.enrollmentDate = editForm.situationDate
-      if (editForm.enrollmentDate !== originalRegistrationDate) updateData.registrationDate = editForm.enrollmentDate
-
-      // Se não há mudanças, não faz a requisição
-      if (Object.keys(updateData).length === 0) {
-        setEditModalOpen(false)
-        setEditingStudent(null)
-        toast({
-          title: 'Nenhuma alteração',
-          description: 'Nenhuma alteração foi feita.',
-        })
-        return
-      }
-
-      const response = await api.put(`/students/${editingStudent.id}`, updateData)
-      
+      await api.put(`/students/${editingStudent.id}`, {
+        name: editForm.name,
+        registrationNumber: editForm.enrollmentNumber,
+        guardianName: editForm.parentName,
+        guardianPhone: editForm.parentPhone,
+        guardianAddress: editForm.address,
+        enrollmentStatus: editForm.enrollmentStatus,
+        enrollmentDate: new Date(editForm.enrollmentDate).toISOString(),
+        registrationDate: new Date(editForm.registrationDate).toISOString(),
+        periodId: editForm.periodId,
+        classId: editForm.classId,
+      })
+      getStudents()
+    } catch (error) {
+    } finally {
       setEditModalOpen(false)
       setEditingStudent(null)
       setEditForm({
         name: '',
-        status: '',
-        class: '',
+        classId: '',
         address: '',
         parentName: '',
         parentPhone: '',
+        periodId: '',
+        enrollmentStatus: '',
+        registrationDate: '',
         enrollmentDate: '',
-        period: '',
-        studentSituation: '',
-        situationDate: '',
         enrollmentNumber: '',
       })
-      
-      // Recarrega a lista de alunos
-      await fetchStudents()
-      
-      toast({
-        title: 'Aluno atualizado',
-        description: `${editForm.name} foi atualizado com sucesso.`,
-      })
-    } catch (error: any) {
-      console.error('Error updating student:', error)
-      toast({
-        title: 'Erro',
-        description: error.response?.data?.error || 'Erro ao atualizar aluno.',
-        variant: 'destructive',
-      })
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -337,105 +243,44 @@ const StudentManagement = () => {
     setEditingStudent(null)
     setEditForm({
       name: '',
-      status: '',
-      class: '',
+      classId: '',
       address: '',
       parentName: '',
       parentPhone: '',
       enrollmentDate: '',
-      period: '',
-      studentSituation: '',
-      situationDate: '',
+      registrationDate: '',
+      periodId: '',
+      enrollmentStatus: '',
       enrollmentNumber: '',
     })
   }
 
   const handleCreateStudent = async () => {
-    if (!newStudentForm.name.trim()) {
-      toast({
-        title: 'Erro',
-        description: 'Nome do aluno é obrigatório.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!newStudentForm.registrationNumber.trim()) {
-      toast({
-        title: 'Erro',
-        description: 'Número de matrícula é obrigatório.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!newStudentForm.registrationDate) {
-      toast({
-        title: 'Erro',
-        description: 'Data de matrícula é obrigatória.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!newStudentForm.periodId) {
-      toast({
-        title: 'Erro',
-        description: 'Período é obrigatório.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!newStudentForm.classId) {
-      toast({
-        title: 'Erro',
-        description: 'Turma é obrigatória.',
-        variant: 'destructive',
-      })
-      return
-    }
-
     try {
       setLoading(true)
-      
-      // Preparar dados para envio, convertendo valores vazios para null
       const studentData = {
         ...newStudentForm,
-        enrollmentDate: toNullIfEmpty(newStudentForm.situationDate),
-        enrollmentStatus: toNullIfEmpty(newStudentForm.studentSituation),
+        enrollmentDate: new Date(newStudentForm.enrollmentDate).toISOString(),
+        registrationDate: new Date(
+          newStudentForm.registrationDate
+        ).toISOString(),
       }
-      
-      const response = await api.post('/students', studentData)
-      setNewStudentModalOpen(false)
+      await api.post('/students', studentData)
+      getStudents()
       setNewStudentForm({
         name: '',
         registrationNumber: '',
         registrationDate: '',
         periodId: '',
         classId: '',
-        status: 'Ativo',
         enrollmentStatus: '',
         enrollmentDate: '',
-        studentSituation: '',
-        situationDate: '',
         guardianName: '',
         guardianPhone: '',
         guardianAddress: '',
       })
-      // Recarrega a lista de alunos
-      await fetchStudents()
-      toast({
-        title: 'Aluno criado',
-        description: `${newStudentForm.name} foi criado com sucesso.`,
-      })
-    } catch (error: any) {
-      console.error('Error creating student:', error)
-      toast({
-        title: 'Erro',
-        description: error.response?.data?.error || 'Erro ao criar aluno.',
-        variant: 'destructive',
-      })
+      setNewStudentModalOpen(false)
+    } catch (error) {
     } finally {
       setLoading(false)
     }
@@ -449,32 +294,21 @@ const StudentManagement = () => {
       registrationDate: '',
       periodId: '',
       classId: '',
-      status: 'Ativo',
       enrollmentStatus: '',
       enrollmentDate: '',
-      studentSituation: '',
-      situationDate: '',
       guardianName: '',
       guardianPhone: '',
       guardianAddress: '',
     })
   }
 
-  // Função auxiliar para formatar datas
   const formatDateForInput = (dateString: string | Date | null) => {
     if (!dateString) return ''
     const date = new Date(dateString)
     return date.toISOString().split('T')[0]
   }
 
-  // Função auxiliar para tratar valores nulos/undefined
-  const safeValue = (value: any) => value ?? ''
-  
-  // Função auxiliar para converter valores vazios em null
-  const toNullIfEmpty = (value: any) => value || null
-
-  // Função para buscar turmas
-  const fetchClasses = async () => {
+  const getClasses = async () => {
     try {
       const response = await api.get('/classes')
       setClasses(response.data.data || [])
@@ -483,8 +317,7 @@ const StudentManagement = () => {
     }
   }
 
-  // Função para buscar períodos
-  const fetchPeriods = async () => {
+  const getPeriods = async () => {
     try {
       const response = await api.get('/periods')
       setPeriods(response.data.data || [])
@@ -493,8 +326,7 @@ const StudentManagement = () => {
     }
   }
 
-  // Função para buscar alunos
-  const fetchStudents = async () => {
+  const getStudents = async () => {
     try {
       setLoading(true)
       setError(null)
@@ -502,21 +334,22 @@ const StudentManagement = () => {
       setStudents(response.data.data || [])
     } catch (err: any) {
       console.error('Error fetching students:', err)
-      setError(err.response?.data?.error || err.message || 'Erro ao carregar alunos')
+      setError(
+        err.response?.data?.error || err.message || 'Erro ao carregar alunos'
+      )
     } finally {
       setLoading(false)
     }
   }
 
-  // Carrega as turmas, períodos e alunos ao montar o componente
   useEffect(() => {
-    fetchClasses()
-    fetchPeriods()
-    fetchStudents()
+    getClasses()
+    getPeriods()
+    getStudents()
   }, [])
 
   const getStatusColor = (status: string) => {
-    return status === 'Ativo'
+    return status === 'active'
       ? 'bg-green-100 text-green-800'
       : 'bg-red-100 text-red-800'
   }
@@ -606,7 +439,10 @@ const StudentManagement = () => {
                   </TableRow>
                 ) : error ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-red-600">
+                    <TableCell
+                      colSpan={5}
+                      className="text-center py-8 text-red-600"
+                    >
                       {error}
                     </TableCell>
                   </TableRow>
@@ -619,13 +455,14 @@ const StudentManagement = () => {
                         </div>
                         <div className="text-center">
                           <h3 className="text-lg font-medium text-gray-900 mb-2">
-                            {searchTerm || classFilter !== 'all' ? 'Nenhum aluno encontrado' : 'Nenhum aluno cadastrado'}
+                            {searchTerm || classFilter !== 'all'
+                              ? 'Nenhum aluno encontrado'
+                              : 'Nenhum aluno cadastrado'}
                           </h3>
                           <p className="text-gray-500 mb-4">
-                            {searchTerm || classFilter !== 'all' 
-                              ? 'Tente ajustar os filtros de busca ou turma.' 
-                              : 'Cadastre o primeiro aluno para começar a gerenciar a lista de estudantes.'
-                            }
+                            {searchTerm || classFilter !== 'all'
+                              ? 'Tente ajustar os filtros de busca ou turma.'
+                              : 'Cadastre o primeiro aluno para começar a gerenciar a lista de estudantes.'}
                           </p>
                         </div>
                       </div>
@@ -645,7 +482,9 @@ const StudentManagement = () => {
                         {student.registrationNumber}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary">{safeValue(student.class?.name) || '-'}</Badge>
+                        <Badge variant="secondary">
+                          {student.class?.name || '-'}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(student.status)}>
@@ -723,11 +562,15 @@ const StudentManagement = () => {
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Período</Label>
-                  <p className="text-sm mt-1">{safeValue(selectedStudent.period?.name) || '-'}</p>
+                  <p className="text-sm mt-1">
+                    {selectedStudent.period?.name || '-'}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Turma</Label>
-                  <p className="text-sm mt-1">{safeValue(selectedStudent.class?.name) || '-'}</p>
+                  <p className="text-sm mt-1">
+                    {selectedStudent.class?.name || '-'}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Status</Label>
@@ -746,8 +589,8 @@ const StudentManagement = () => {
                       <span
                         className="inline-block cursor-help"
                         title={
-                          studentSituations[
-                            (selectedStudent.enrollmentStatus as keyof typeof studentSituations) ||
+                          enrollmentStatuss[
+                            (selectedStudent.enrollmentStatus as keyof typeof enrollmentStatuss) ||
                               'TR'
                           ]
                         }
@@ -770,7 +613,9 @@ const StudentManagement = () => {
               <div className="space-y-3">
                 <div>
                   <Label className="text-sm font-medium">Endereço</Label>
-                  <p className="text-sm mt-1">{safeValue(selectedStudent.guardianAddress) || '-'}</p>
+                  <p className="text-sm mt-1">
+                    {selectedStudent.guardianAddress || '-'}
+                  </p>
                 </div>
               </div>
 
@@ -779,11 +624,15 @@ const StudentManagement = () => {
                 <h4 className="font-medium">Informações dos Responsáveis</h4>
                 <div>
                   <Label className="text-sm font-medium">Nome</Label>
-                  <p className="text-sm mt-1">{safeValue(selectedStudent.guardianName) || '-'}</p>
+                  <p className="text-sm mt-1">
+                    {selectedStudent.guardianName || '-'}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Telefone</Label>
-                  <p className="text-sm mt-1">{safeValue(selectedStudent.guardianPhone) || '-'}</p>
+                  <p className="text-sm mt-1">
+                    {selectedStudent.guardianPhone || '-'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -804,16 +653,26 @@ const StudentManagement = () => {
               {/* Primeira linha: Nome e Período */}
               <div className="space-y-2">
                 <Label htmlFor="fullName">Nome Completo</Label>
-                <Input 
-                  id="fullName" 
+                <Input
+                  id="fullName"
                   placeholder="João Silva"
                   value={newStudentForm.name}
-                  onChange={(e) => setNewStudentForm({...newStudentForm, name: e.target.value})}
+                  onChange={(e) =>
+                    setNewStudentForm({
+                      ...newStudentForm,
+                      name: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="period">Período</Label>
-                <Select value={newStudentForm.periodId} onValueChange={(value) => setNewStudentForm({...newStudentForm, periodId: value})}>
+                <Select
+                  value={newStudentForm.periodId}
+                  onValueChange={(value) =>
+                    setNewStudentForm({ ...newStudentForm, periodId: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o período" />
                   </SelectTrigger>
@@ -829,26 +688,41 @@ const StudentManagement = () => {
               {/* Segunda linha: Matrícula e Data da Matrícula */}
               <div className="space-y-2">
                 <Label htmlFor="enrollmentNumber">Número de Matrícula</Label>
-                <Input 
-                  id="enrollmentNumber" 
+                <Input
+                  id="enrollmentNumber"
                   placeholder="LN2024001"
                   value={newStudentForm.registrationNumber}
-                  onChange={(e) => setNewStudentForm({...newStudentForm, registrationNumber: e.target.value})}
+                  onChange={(e) =>
+                    setNewStudentForm({
+                      ...newStudentForm,
+                      registrationNumber: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="enrollmentDate">Data da Matrícula</Label>
-                <Input 
-                  id="enrollmentDate" 
+                <Input
+                  id="enrollmentDate"
                   type="date"
                   value={newStudentForm.registrationDate}
-                  onChange={(e) => setNewStudentForm({...newStudentForm, registrationDate: e.target.value})}
+                  onChange={(e) =>
+                    setNewStudentForm({
+                      ...newStudentForm,
+                      registrationDate: e.target.value,
+                    })
+                  }
                 />
               </div>
               {/* Terceira linha: Turma e Status */}
               <div className="space-y-2">
                 <Label htmlFor="class">Turma</Label>
-                <Select value={newStudentForm.classId} onValueChange={(value) => setNewStudentForm({...newStudentForm, classId: value})}>
+                <Select
+                  value={newStudentForm.classId}
+                  onValueChange={(value) =>
+                    setNewStudentForm({ ...newStudentForm, classId: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a turma" />
                   </SelectTrigger>
@@ -861,27 +735,23 @@ const StudentManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select value={newStudentForm.status} onValueChange={(value) => setNewStudentForm({...newStudentForm, status: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Ativo">Ativo</SelectItem>
-                    <SelectItem value="Inativo">Inativo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
               {/* Quarta linha: Situação do Aluno e Data da Situação */}
               <div className="space-y-2">
-                <Label htmlFor="studentSituation">Situação do Aluno</Label>
-                <Select value={newStudentForm.studentSituation} onValueChange={(value) => setNewStudentForm({...newStudentForm, studentSituation: value})}>
+                <Label htmlFor="enrollmentStatus">Situação do Aluno</Label>
+                <Select
+                  value={newStudentForm.enrollmentStatus}
+                  onValueChange={(value) =>
+                    setNewStudentForm({
+                      ...newStudentForm,
+                      enrollmentStatus: value,
+                    })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a situação" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(studentSituations).map(([key, label]) => (
+                    {Object.entries(enrollmentStatuss).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
                         {key}
                       </SelectItem>
@@ -890,12 +760,17 @@ const StudentManagement = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="situationDate">Data da Situação</Label>
-                <Input 
-                  id="situationDate" 
+                <Label htmlFor="enrollmentDate">Data da Situação</Label>
+                <Input
+                  id="enrollmentDate"
                   type="date"
-                  value={newStudentForm.situationDate}
-                  onChange={(e) => setNewStudentForm({...newStudentForm, situationDate: e.target.value})}
+                  value={newStudentForm.enrollmentDate}
+                  onChange={(e) =>
+                    setNewStudentForm({
+                      ...newStudentForm,
+                      enrollmentDate: e.target.value,
+                    })
+                  }
                 />
               </div>
             </div>
@@ -905,20 +780,30 @@ const StudentManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="parentName">Nome do Responsável</Label>
-                  <Input 
-                    id="parentName" 
+                  <Input
+                    id="parentName"
                     placeholder="Maria da Silva"
                     value={newStudentForm.guardianName}
-                    onChange={(e) => setNewStudentForm({...newStudentForm, guardianName: e.target.value})}
+                    onChange={(e) =>
+                      setNewStudentForm({
+                        ...newStudentForm,
+                        guardianName: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="parentPhone">Telefone do Responsável</Label>
-                  <Input 
-                    id="parentPhone" 
+                  <Input
+                    id="parentPhone"
                     placeholder="(99) 99999-9999"
                     value={newStudentForm.guardianPhone}
-                    onChange={(e) => setNewStudentForm({...newStudentForm, guardianPhone: e.target.value})}
+                    onChange={(e) =>
+                      setNewStudentForm({
+                        ...newStudentForm,
+                        guardianPhone: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -931,7 +816,12 @@ const StudentManagement = () => {
                 placeholder="Rua Exemplo, 123, Bairro, Cidade"
                 className="w-full min-h-[60px] border rounded-md p-2 text-sm"
                 value={newStudentForm.guardianAddress}
-                onChange={(e) => setNewStudentForm({...newStudentForm, guardianAddress: e.target.value})}
+                onChange={(e) =>
+                  setNewStudentForm({
+                    ...newStudentForm,
+                    guardianAddress: e.target.value,
+                  })
+                }
               />
             </div>
 
@@ -939,10 +829,15 @@ const StudentManagement = () => {
               <Button
                 variant="outline"
                 onClick={handleCancelCreate}
+                type="button"
               >
                 Cancelar
               </Button>
-              <Button onClick={handleCreateStudent} disabled={loading}>
+              <Button
+                onClick={handleCreateStudent}
+                disabled={loading}
+                type="button"
+              >
                 {loading ? 'Criando...' : 'Criar Aluno'}
               </Button>
             </div>
@@ -977,9 +872,9 @@ const StudentManagement = () => {
                 <div className="space-y-2">
                   <Label htmlFor="edit-period">Período</Label>
                   <Select
-                    value={editForm.period}
+                    value={editForm.periodId}
                     onValueChange={(value) =>
-                      setEditForm({ ...editForm, period: value })
+                      setEditForm({ ...editForm, periodId: value })
                     }
                   >
                     <SelectTrigger>
@@ -987,7 +882,7 @@ const StudentManagement = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {periods.map((period) => (
-                        <SelectItem key={period.id} value={period.name}>
+                        <SelectItem key={period.id} value={period.id}>
                           {period.name}
                         </SelectItem>
                       ))}
@@ -1012,15 +907,17 @@ const StudentManagement = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-enrollmentDate">Data da Matrícula</Label>
+                  <Label htmlFor="edit-registrationDate">
+                    Data da Matrícula
+                  </Label>
                   <Input
-                    id="edit-enrollmentDate"
+                    id="edit-registrationDate"
                     type="date"
-                    value={editForm.enrollmentDate}
+                    value={editForm.registrationDate}
                     onChange={(e) =>
                       setEditForm({
                         ...editForm,
-                        enrollmentDate: e.target.value,
+                        registrationDate: e.target.value,
                       })
                     }
                   />
@@ -1028,9 +925,9 @@ const StudentManagement = () => {
                 <div className="space-y-2">
                   <Label htmlFor="edit-class">Turma</Label>
                   <Select
-                    value={editForm.class}
+                    value={editForm.classId}
                     onValueChange={(value) =>
-                      setEditForm({ ...editForm, class: value })
+                      setEditForm({ ...editForm, classId: value })
                     }
                   >
                     <SelectTrigger>
@@ -1038,7 +935,7 @@ const StudentManagement = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {classes.map((cls) => (
-                        <SelectItem key={cls.id} value={cls.name}>
+                        <SelectItem key={cls.id} value={cls.id}>
                           {cls.name}
                         </SelectItem>
                       ))}
@@ -1046,37 +943,20 @@ const StudentManagement = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-status">Status</Label>
-                  <Select
-                    value={editForm.status}
-                    onValueChange={(value) =>
-                      setEditForm({ ...editForm, status: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Ativo">Ativo</SelectItem>
-                      <SelectItem value="Inativo">Inativo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-studentSituation">
+                  <Label htmlFor="edit-enrollmentStatus">
                     Situação do Aluno
                   </Label>
                   <Select
-                    value={editForm.studentSituation}
+                    value={editForm.enrollmentStatus}
                     onValueChange={(value) =>
-                      setEditForm({ ...editForm, studentSituation: value })
+                      setEditForm({ ...editForm, enrollmentStatus: value })
                     }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a situação" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(studentSituations).map(([key, label]) => (
+                      {Object.entries(enrollmentStatuss).map(([key, label]) => (
                         <SelectItem key={key} value={key}>
                           {key}
                         </SelectItem>
@@ -1085,15 +965,15 @@ const StudentManagement = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-situationDate">Data da Situação</Label>
+                  <Label htmlFor="edit-enrollmentDate">Data da Situação</Label>
                   <Input
-                    id="edit-situationDate"
+                    id="edit-enrollmentDate"
                     type="date"
-                    value={editForm.situationDate}
+                    value={editForm.enrollmentDate}
                     onChange={(e) =>
                       setEditForm({
                         ...editForm,
-                        situationDate: e.target.value,
+                        enrollmentDate: e.target.value,
                       })
                     }
                   />
@@ -1149,10 +1029,19 @@ const StudentManagement = () => {
                 />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={handleCancelEdit} disabled={loading}>
+                <Button
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  disabled={loading}
+                  type="button"
+                >
                   Cancelar
                 </Button>
-                <Button onClick={handleSaveEdit} disabled={loading}>
+                <Button
+                  onClick={handleSaveEdit}
+                  disabled={loading}
+                  type="button"
+                >
                   {loading ? 'Salvando...' : 'Salvar Alterações'}
                 </Button>
               </div>
@@ -1197,7 +1086,7 @@ const StudentManagement = () => {
                   Matrícula: {selectedStudentForAcademic.registrationNumber}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Turma: {safeValue(selectedStudentForAcademic.class?.name) || '-'}
+                  Turma: {selectedStudentForAcademic.class?.name || '-'}
                 </p>
               </div>
 
