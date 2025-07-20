@@ -45,12 +45,10 @@ import {
 } from '@/components/ui/sheet'
 import { DeleteConfirmationDialog } from '@/components/shared'
 import { useNavigate } from 'react-router-dom'
-import { useToast } from '@/hooks/use-toast'
 import api from '@/lib/api'
 
 const StudentManagement = () => {
   const navigate = useNavigate()
-  const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
   const [classFilter, setClassFilter] = useState('all')
   const [selectedStudent, setSelectedStudent] = useState<any>(null)
@@ -79,8 +77,6 @@ const StudentManagement = () => {
     classId: '',
     enrollmentStatus: '',
     enrollmentDate: '',
-    studentSituation: '',
-    situationDate: '',
     guardianName: '',
     guardianPhone: '',
     guardianAddress: '',
@@ -93,19 +89,11 @@ const StudentManagement = () => {
     parentName: '',
     parentPhone: '',
     enrollmentDate: '',
+    registrationDate: '',
     period: '',
-    studentSituation: '',
-    situationDate: '',
+    enrollmentStatus: '',
     enrollmentNumber: '',
   })
-
-  // Mock data
-  const schools = [
-    { id: 'lincoln', name: 'Lincoln Elementary' },
-    { id: 'washington', name: 'Washington High School' },
-    { id: 'roosevelt', name: 'Roosevelt Middle School' },
-    { id: 'jefferson', name: 'Jefferson Academy' },
-  ]
 
   const subjects = [
     'Matemática',
@@ -145,7 +133,8 @@ const StudentManagement = () => {
       aulasPrevistas: 20, // 20 aulas previstas por bimestre
     }))
   }
-  const studentSituations = {
+
+  const enrollmentStatuss = {
     TR: 'Transferência recebida (foi transferido de outra escola para essa)',
     RM: 'Mudança de sala (apenas mudou de sala)',
     TE: 'Transferência emitida (foi transferido para outra escola)',
@@ -180,15 +169,15 @@ const StudentManagement = () => {
 
     setEditForm({
       name: student.name,
-      class: safeValue(student.class?.name),
-      address: safeValue(student.guardianAddress),
-      parentName: safeValue(student.guardianName),
-      parentPhone: safeValue(student.guardianPhone),
-      enrollmentDate: formatDateForInput(student.registrationDate),
-      period: safeValue(student.period?.name),
-      studentSituation: safeValue(student.enrollmentStatus),
-      situationDate: formatDateForInput(student.enrollmentDate),
-      enrollmentNumber: safeValue(student.registrationNumber),
+      class: student.class?.name,
+      address: student.guardianAddress,
+      parentName: student.guardianName,
+      parentPhone: student.guardianPhone,
+      registrationDate: formatDateForInput(student.registrationDate),
+      period: student.period?.name,
+      enrollmentStatus: student.enrollmentStatus,
+      enrollmentDate: formatDateForInput(student.enrollmentDate),
+      enrollmentNumber: student.registrationNumber,
     })
     setEditModalOpen(true)
   }
@@ -200,39 +189,13 @@ const StudentManagement = () => {
   }
 
   const handleConfirmDelete = async () => {
-    if (!studentToDelete?.id) {
-      toast({
-        title: 'Erro',
-        description: 'ID do aluno não encontrado.',
-        variant: 'destructive',
-      })
-      return
-    }
-
     try {
-      setLoading(true)
-
       await api.delete(`/students/${studentToDelete.id}`)
-
+      getStudents()
+    } catch (error) {
+    } finally {
       setDeleteDialogOpen(false)
       setStudentToDelete(null)
-
-      // Recarrega a lista de alunos
-      await fetchStudents()
-
-      toast({
-        title: 'Aluno excluído',
-        description: `${studentToDelete.name} foi excluído com sucesso.`,
-      })
-    } catch (error: any) {
-      console.error('Error deleting student:', error)
-      toast({
-        title: 'Erro',
-        description: error.response?.data?.error || 'Erro ao excluir aluno.',
-        variant: 'destructive',
-      })
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -242,103 +205,34 @@ const StudentManagement = () => {
   }
 
   const handleSaveEdit = async () => {
-    if (!editingStudent?.id) {
-      toast({
-        title: 'Erro',
-        description: 'ID do aluno não encontrado.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!editForm.name.trim()) {
-      toast({
-        title: 'Erro',
-        description: 'Nome do aluno é obrigatório.',
-        variant: 'destructive',
-      })
-      return
-    }
-
     try {
-      setLoading(true)
-
-      // Preparar dados para atualização
-      const updateData: any = {}
-
-      if (editForm.name !== editingStudent.name) updateData.name = editForm.name
-      if (editForm.enrollmentNumber !== editingStudent.registrationNumber)
-        updateData.registrationNumber = editForm.enrollmentNumber
-      if (editForm.parentName !== editingStudent.guardianName)
-        updateData.guardianName = editForm.parentName
-      if (editForm.parentPhone !== editingStudent.guardianPhone)
-        updateData.guardianPhone = editForm.parentPhone
-      if (editForm.address !== editingStudent.guardianAddress)
-        updateData.guardianAddress = editForm.address
-      if (editForm.studentSituation !== editingStudent.enrollmentStatus)
-        updateData.enrollmentStatus = editForm.studentSituation
-
-      // Comparar datas formatadas
-      const originalEnrollmentDate = formatDateForInput(
-        editingStudent.enrollmentDate
-      )
-      const originalRegistrationDate = formatDateForInput(
-        editingStudent.registrationDate
-      )
-
-      if (editForm.situationDate !== originalEnrollmentDate)
-        updateData.enrollmentDate = editForm.situationDate
-      if (editForm.enrollmentDate !== originalRegistrationDate)
-        updateData.registrationDate = editForm.enrollmentDate
-
-      // Se não há mudanças, não faz a requisição
-      if (Object.keys(updateData).length === 0) {
-        setEditModalOpen(false)
-        setEditingStudent(null)
-        toast({
-          title: 'Nenhuma alteração',
-          description: 'Nenhuma alteração foi feita.',
-        })
-        return
-      }
-
-      const response = await api.put(
-        `/students/${editingStudent.id}`,
-        updateData
-      )
-
+      await api.put(`/students/${editingStudent.id}`, {
+        name: editForm.name,
+        registrationNumber: editForm.enrollmentNumber,
+        guardianName: editForm.parentName,
+        guardianPhone: editForm.parentPhone,
+        guardianAddress: editForm.address,
+        enrollmentStatus: editForm.enrollmentStatus,
+        enrollmentDate: editForm.enrollmentDate,
+        registrationDate: editForm.registrationDate,
+      })
+      getStudents()
+    } catch (error) {
+    } finally {
       setEditModalOpen(false)
       setEditingStudent(null)
       setEditForm({
         name: '',
-        status: '',
         class: '',
         address: '',
         parentName: '',
         parentPhone: '',
-        enrollmentDate: '',
         period: '',
-        studentSituation: '',
-        situationDate: '',
+        enrollmentStatus: '',
+        registrationDate: '',
+        enrollmentDate: '',
         enrollmentNumber: '',
       })
-
-      // Recarrega a lista de alunos
-      await fetchStudents()
-
-      toast({
-        title: 'Aluno atualizado',
-        description: `${editForm.name} foi atualizado com sucesso.`,
-      })
-    } catch (error: any) {
-      console.error('Error updating student:', error)
-      toast({
-        title: 'Erro',
-        description: error.response?.data?.error || 'Erro ao atualizar aluno.',
-        variant: 'destructive',
-      })
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -347,77 +241,30 @@ const StudentManagement = () => {
     setEditingStudent(null)
     setEditForm({
       name: '',
-      status: '',
       class: '',
       address: '',
       parentName: '',
       parentPhone: '',
       enrollmentDate: '',
+      registrationDate: '',
       period: '',
-      studentSituation: '',
-      situationDate: '',
+      enrollmentStatus: '',
       enrollmentNumber: '',
     })
   }
 
   const handleCreateStudent = async () => {
-    if (!newStudentForm.name.trim()) {
-      toast({
-        title: 'Erro',
-        description: 'Nome do aluno é obrigatório.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!newStudentForm.registrationNumber.trim()) {
-      toast({
-        title: 'Erro',
-        description: 'Número de matrícula é obrigatório.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!newStudentForm.registrationDate) {
-      toast({
-        title: 'Erro',
-        description: 'Data de matrícula é obrigatória.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!newStudentForm.periodId) {
-      toast({
-        title: 'Erro',
-        description: 'Período é obrigatório.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (!newStudentForm.classId) {
-      toast({
-        title: 'Erro',
-        description: 'Turma é obrigatória.',
-        variant: 'destructive',
-      })
-      return
-    }
-
     try {
       setLoading(true)
-
-      // Preparar dados para envio, convertendo valores vazios para null
       const studentData = {
         ...newStudentForm,
-        enrollmentDate: toNullIfEmpty(newStudentForm.situationDate),
-        enrollmentStatus: toNullIfEmpty(newStudentForm.studentSituation),
+        enrollmentDate: new Date(newStudentForm.enrollmentDate).toISOString(),
+        registrationDate: new Date(
+          newStudentForm.registrationDate
+        ).toISOString(),
       }
-
-      const response = await api.post('/students', studentData)
-      setNewStudentModalOpen(false)
+      await api.post('/students', studentData)
+      getStudents()
       setNewStudentForm({
         name: '',
         registrationNumber: '',
@@ -426,25 +273,12 @@ const StudentManagement = () => {
         classId: '',
         enrollmentStatus: '',
         enrollmentDate: '',
-        studentSituation: '',
-        situationDate: '',
         guardianName: '',
         guardianPhone: '',
         guardianAddress: '',
       })
-      // Recarrega a lista de alunos
-      await fetchStudents()
-      toast({
-        title: 'Aluno criado',
-        description: `${newStudentForm.name} foi criado com sucesso.`,
-      })
-    } catch (error: any) {
-      console.error('Error creating student:', error)
-      toast({
-        title: 'Erro',
-        description: error.response?.data?.error || 'Erro ao criar aluno.',
-        variant: 'destructive',
-      })
+      setNewStudentModalOpen(false)
+    } catch (error) {
     } finally {
       setLoading(false)
     }
@@ -460,29 +294,19 @@ const StudentManagement = () => {
       classId: '',
       enrollmentStatus: '',
       enrollmentDate: '',
-      studentSituation: '',
-      situationDate: '',
       guardianName: '',
       guardianPhone: '',
       guardianAddress: '',
     })
   }
 
-  // Função auxiliar para formatar datas
   const formatDateForInput = (dateString: string | Date | null) => {
     if (!dateString) return ''
     const date = new Date(dateString)
     return date.toISOString().split('T')[0]
   }
 
-  // Função auxiliar para tratar valores nulos/undefined
-  const safeValue = (value: any) => value ?? ''
-
-  // Função auxiliar para converter valores vazios em null
-  const toNullIfEmpty = (value: any) => value || null
-
-  // Função para buscar turmas
-  const fetchClasses = async () => {
+  const getClasses = async () => {
     try {
       const response = await api.get('/classes')
       setClasses(response.data.data || [])
@@ -491,8 +315,7 @@ const StudentManagement = () => {
     }
   }
 
-  // Função para buscar períodos
-  const fetchPeriods = async () => {
+  const getPeriods = async () => {
     try {
       const response = await api.get('/periods')
       setPeriods(response.data.data || [])
@@ -501,8 +324,7 @@ const StudentManagement = () => {
     }
   }
 
-  // Função para buscar alunos
-  const fetchStudents = async () => {
+  const getStudents = async () => {
     try {
       setLoading(true)
       setError(null)
@@ -518,15 +340,14 @@ const StudentManagement = () => {
     }
   }
 
-  // Carrega as turmas, períodos e alunos ao montar o componente
   useEffect(() => {
-    fetchClasses()
-    fetchPeriods()
-    fetchStudents()
+    getClasses()
+    getPeriods()
+    getStudents()
   }, [])
 
   const getStatusColor = (status: string) => {
-    return status === 'Ativo'
+    return status === 'active'
       ? 'bg-green-100 text-green-800'
       : 'bg-red-100 text-red-800'
   }
@@ -660,7 +481,7 @@ const StudentManagement = () => {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {safeValue(student.class?.name) || '-'}
+                          {student.class?.name || '-'}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -740,13 +561,13 @@ const StudentManagement = () => {
                 <div>
                   <Label className="text-sm font-medium">Período</Label>
                   <p className="text-sm mt-1">
-                    {safeValue(selectedStudent.period?.name) || '-'}
+                    {selectedStudent.period?.name || '-'}
                   </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Turma</Label>
                   <p className="text-sm mt-1">
-                    {safeValue(selectedStudent.class?.name) || '-'}
+                    {selectedStudent.class?.name || '-'}
                   </p>
                 </div>
                 <div>
@@ -766,8 +587,8 @@ const StudentManagement = () => {
                       <span
                         className="inline-block cursor-help"
                         title={
-                          studentSituations[
-                            (selectedStudent.enrollmentStatus as keyof typeof studentSituations) ||
+                          enrollmentStatuss[
+                            (selectedStudent.enrollmentStatus as keyof typeof enrollmentStatuss) ||
                               'TR'
                           ]
                         }
@@ -791,7 +612,7 @@ const StudentManagement = () => {
                 <div>
                   <Label className="text-sm font-medium">Endereço</Label>
                   <p className="text-sm mt-1">
-                    {safeValue(selectedStudent.guardianAddress) || '-'}
+                    {selectedStudent.guardianAddress || '-'}
                   </p>
                 </div>
               </div>
@@ -802,13 +623,13 @@ const StudentManagement = () => {
                 <div>
                   <Label className="text-sm font-medium">Nome</Label>
                   <p className="text-sm mt-1">
-                    {safeValue(selectedStudent.guardianName) || '-'}
+                    {selectedStudent.guardianName || '-'}
                   </p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Telefone</Label>
                   <p className="text-sm mt-1">
-                    {safeValue(selectedStudent.guardianPhone) || '-'}
+                    {selectedStudent.guardianPhone || '-'}
                   </p>
                 </div>
               </div>
@@ -914,13 +735,13 @@ const StudentManagement = () => {
               </div>
               {/* Quarta linha: Situação do Aluno e Data da Situação */}
               <div className="space-y-2">
-                <Label htmlFor="studentSituation">Situação do Aluno</Label>
+                <Label htmlFor="enrollmentStatus">Situação do Aluno</Label>
                 <Select
-                  value={newStudentForm.studentSituation}
+                  value={newStudentForm.enrollmentStatus}
                   onValueChange={(value) =>
                     setNewStudentForm({
                       ...newStudentForm,
-                      studentSituation: value,
+                      enrollmentStatus: value,
                     })
                   }
                 >
@@ -928,7 +749,7 @@ const StudentManagement = () => {
                     <SelectValue placeholder="Selecione a situação" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(studentSituations).map(([key, label]) => (
+                    {Object.entries(enrollmentStatuss).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
                         {key}
                       </SelectItem>
@@ -937,15 +758,15 @@ const StudentManagement = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="situationDate">Data da Situação</Label>
+                <Label htmlFor="enrollmentDate">Data da Situação</Label>
                 <Input
-                  id="situationDate"
+                  id="enrollmentDate"
                   type="date"
-                  value={newStudentForm.situationDate}
+                  value={newStudentForm.enrollmentDate}
                   onChange={(e) =>
                     setNewStudentForm({
                       ...newStudentForm,
-                      situationDate: e.target.value,
+                      enrollmentDate: e.target.value,
                     })
                   }
                 />
@@ -1076,15 +897,17 @@ const StudentManagement = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-enrollmentDate">Data da Matrícula</Label>
+                  <Label htmlFor="edit-registrationDate">
+                    Data da Matrícula
+                  </Label>
                   <Input
-                    id="edit-enrollmentDate"
+                    id="edit-registrationDate"
                     type="date"
-                    value={editForm.enrollmentDate}
+                    value={editForm.registrationDate}
                     onChange={(e) =>
                       setEditForm({
                         ...editForm,
-                        enrollmentDate: e.target.value,
+                        registrationDate: e.target.value,
                       })
                     }
                   />
@@ -1110,20 +933,20 @@ const StudentManagement = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-studentSituation">
+                  <Label htmlFor="edit-enrollmentStatus">
                     Situação do Aluno
                   </Label>
                   <Select
-                    value={editForm.studentSituation}
+                    value={editForm.enrollmentStatus}
                     onValueChange={(value) =>
-                      setEditForm({ ...editForm, studentSituation: value })
+                      setEditForm({ ...editForm, enrollmentStatus: value })
                     }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a situação" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(studentSituations).map(([key, label]) => (
+                      {Object.entries(enrollmentStatuss).map(([key, label]) => (
                         <SelectItem key={key} value={key}>
                           {key}
                         </SelectItem>
@@ -1132,15 +955,15 @@ const StudentManagement = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-situationDate">Data da Situação</Label>
+                  <Label htmlFor="edit-enrollmentDate">Data da Situação</Label>
                   <Input
-                    id="edit-situationDate"
+                    id="edit-enrollmentDate"
                     type="date"
-                    value={editForm.situationDate}
+                    value={editForm.enrollmentDate}
                     onChange={(e) =>
                       setEditForm({
                         ...editForm,
-                        situationDate: e.target.value,
+                        enrollmentDate: e.target.value,
                       })
                     }
                   />
@@ -1248,8 +1071,7 @@ const StudentManagement = () => {
                   Matrícula: {selectedStudentForAcademic.registrationNumber}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Turma:{' '}
-                  {safeValue(selectedStudentForAcademic.class?.name) || '-'}
+                  Turma: {selectedStudentForAcademic.class?.name || '-'}
                 </p>
               </div>
 
