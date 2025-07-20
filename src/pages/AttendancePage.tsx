@@ -113,6 +113,22 @@ const AttendancePage = () => {
     }
   }, [selectedDate, selectedClass, selectedSubject])
 
+  useEffect(() => {
+    if (selectedAttendance) {
+      setAttendance(
+        students.reduce(
+          (acc, student) => {
+            acc[student.id as string] = student.AttendanceStudent[0].isPresent
+            return acc
+          },
+          {} as { [key: string]: boolean }
+        )
+      )
+    } else {
+      setAttendance({})
+    }
+  }, [selectedAttendance])
+
   // Calendar navigation
   const navigateMonth = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate)
