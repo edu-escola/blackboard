@@ -30,6 +30,7 @@ const SchoolSelection = () => {
       const response = await api.post('/auth/school/verify', { schoolId: selectedSchool })
       const { user } = response.data
       const { roles } = user
+      // Exibe o loading antes de redirecionar
       setTimeout(() => {
         if (roles.includes('admin') && roles.includes('teacher')) {
           window.location.href = '/dashboard-selection'
@@ -41,9 +42,9 @@ const SchoolSelection = () => {
           window.location.href = '/'
         }
       }, 1000)
+      return // Garante que o loading continue até o redirecionamento
     } catch (err: any) {
       setError('Erro ao selecionar escola. Tente novamente.')
-    } finally {
       setIsLoading(false)
     }
   }
