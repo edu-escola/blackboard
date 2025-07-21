@@ -43,28 +43,21 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
       setIsVerifying(true)
       setError('')
 
-      const response = await api.post(`/auth/verify`, {
-        code,
-        email,
-      })
+      const { data: userInJWT }: any = await api.get(`/auth/me`)
 
       await new Promise((resolve) => setTimeout(resolve, 500))
 
-      const {
-        data: { user },
-      } = response
-
-      const { isAdmin, isTeacher } = user
-
+      const roles = userInJWT.roles || []
       setIsRedirecting(true)
-
       setTimeout(() => {
-        if (isAdmin && isTeacher) {
+        if (roles.includes('admin') && roles.includes('teacher')) {
           window.location.href = '/dashboard-selection'
-        } else if (isAdmin) {
+        } else if (roles.includes('admin')) {
           window.location.href = '/admin/dashboard'
-        } else if (isTeacher) {
+        } else if (roles.includes('teacher')) {
           window.location.href = '/professor/dashboard'
+        } else {
+          window.location.href = '/login'
         }
       }, 2000)
 

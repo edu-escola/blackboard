@@ -22,23 +22,22 @@ export const ProtectedRoute = ({ role }: ProtectedRouteProps) => {
     api
       .get('/auth/me')
       .then((res) => {
-        const { isAdmin, isTeacher, name, id } = res.data
+        const { roles, name, id } = res.data
 
         if (name) {
           localStorage.setItem('name', name)
         }
-
         localStorage.setItem('userId', id)
 
-        if (role === 'admin' && isAdmin) {
+        if (role === 'admin' && roles.includes('admin')) {
           setStatus('authorized')
-        } else if (role === 'teacher' && isTeacher) {
+        } else if (role === 'teacher' && roles.includes('teacher')) {
           setStatus('authorized')
-        } else if (role === 'both' && (isAdmin || isTeacher)) {
+        } else if (role === 'both' && (roles.includes('admin') || roles.includes('teacher'))) {
           setStatus('authorized')
-        } else if (isTeacher) {
+        } else if (roles.includes('teacher')) {
           setStatus('unauthorized-teacher')
-        } else if (isAdmin) {
+        } else if (roles.includes('admin')) {
           setStatus('unauthorized-admin')
         } else {
           setStatus('unauthorized')

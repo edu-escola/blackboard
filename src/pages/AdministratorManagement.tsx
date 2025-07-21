@@ -77,7 +77,7 @@ const AdministratorManagement = () => {
   const getAdminList = async () => {
     const response = await api.get('/users', {
       params: {
-        isAdmin: true,
+        roles: 'admin',
       },
     })
     setAdminList(response.data.data)
@@ -122,7 +122,7 @@ const AdministratorManagement = () => {
     setEditForm({
       name: admin.name,
       email: admin.email,
-      status: admin.status,
+      status: admin.UserSchool?.[0]?.status,
     })
     setEditModalOpen(true)
   }
@@ -188,7 +188,7 @@ const AdministratorManagement = () => {
       const response = await api.post('/users', {
         name: adminForm.name,
         email: adminForm.email.trim().toLowerCase(),
-        isAdmin: true,
+        roles: ['admin'],
       })
 
       console.log('Administrador criado com sucesso:', response.data)
@@ -228,6 +228,12 @@ const AdministratorManagement = () => {
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('pt-BR')
+  }
+
+  // Função para obter o status do primeiro UserSchool ativo
+  const getAdminStatus = (admin: any) => {
+    const activeUserSchool = admin.UserSchool?.find((userSchool: any) => !userSchool.deleted)
+    return activeUserSchool?.status
   }
 
   return (
@@ -301,8 +307,8 @@ const AdministratorManagement = () => {
                     <TableCell>{admin.email}</TableCell>
                     <TableCell>{formatDate(admin.createdAt)}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(admin.status)}>
-                        {getStatusText(admin.status)}
+                      <Badge className={getStatusColor(getAdminStatus(admin))}>
+                        {getStatusText(getAdminStatus(admin))}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -364,8 +370,8 @@ const AdministratorManagement = () => {
                     <Shield className="h-4 w-4 text-gray-400" />
                     <div className="text-sm">
                       <div className="font-medium">Status:</div>
-                      <Badge className={getStatusColor(selectedAdmin.status)}>
-                        {getStatusText(selectedAdmin.status)}
+                      <Badge className={getStatusColor(getAdminStatus(selectedAdmin))}>
+                        {getStatusText(getAdminStatus(selectedAdmin))}
                       </Badge>
                     </div>
                   </div>
