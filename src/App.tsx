@@ -20,6 +20,7 @@ import DashboardSelection from './pages/DashboardSelection'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import GradesManagement from './pages/GradesManagement'
 import GradesClosingEdit from './pages/GradesClosingEdit'
+import SchoolSelection from './pages/SchoolSelection'
 
 const queryClient = new QueryClient()
 
@@ -31,6 +32,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route element={<ProtectedRoute role="any" />}>
+            <Route path="/school-selection" element={<SchoolSelection />} />
+          </Route>
 
           <Route element={<ProtectedRoute role="both" />}>
             <Route

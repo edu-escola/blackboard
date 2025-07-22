@@ -54,12 +54,14 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
         data: { user },
       } = response
 
-      const { roles } = user
-
+      const { roles, schools, schoolId } = user
       setIsRedirecting(true)
 
       setTimeout(() => {
-        if (roles.includes('admin') && roles.includes('teacher')) {
+        if (!schoolId && schools && schools.length > 0) {
+          localStorage.setItem('schools', JSON.stringify(schools))
+          window.location.href = '/school-selection'
+        } else if (roles.includes('admin') && roles.includes('teacher')) {
           window.location.href = '/dashboard-selection'
         } else if (roles.includes('admin')) {
           window.location.href = '/admin/dashboard'
