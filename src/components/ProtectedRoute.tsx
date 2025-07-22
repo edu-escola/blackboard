@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { api } from '@/lib'
 import LoadingSplash from './LoadingSplash'
 
-type Role = 'admin' | 'teacher' | 'both'
+type Role = 'admin' | 'teacher' | 'both' | 'any'
 
 interface ProtectedRouteProps {
   role: Role
@@ -30,7 +30,13 @@ export const ProtectedRoute = ({ role }: ProtectedRouteProps) => {
 
         localStorage.setItem('userId', id)
 
-        if (role === 'admin' && roles.includes('admin')) {
+        if (role === 'any' && (
+          roles.includes('admin') ||
+          roles.includes('teacher') ||
+          roles.includes('both')
+        )) {
+          setStatus('authorized')
+        } else if (role === 'admin' && roles.includes('admin')) {
           setStatus('authorized')
         } else if (role === 'teacher' && roles.includes('teacher')) {
           setStatus('authorized')

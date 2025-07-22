@@ -59,7 +59,7 @@ const VerificationForm = ({ email, onBackToLogin }: VerificationFormProps) => {
 
       setTimeout(() => {
         if (!schoolId && schools && schools.length > 0) {
-          sessionStorage.setItem('schools', JSON.stringify(schools))
+          localStorage.setItem('schools', JSON.stringify(schools))
           window.location.href = '/school-selection'
         } else if (roles.includes('admin') && roles.includes('teacher')) {
           window.location.href = '/dashboard-selection'

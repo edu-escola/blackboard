@@ -16,7 +16,7 @@ const SchoolSelection = () => {
   const [error, setError] = useState('')
   const schools: School[] = (() => {
     try {
-      return JSON.parse(sessionStorage.getItem('schools') || '[]')
+      return JSON.parse(localStorage.getItem('schools') || '[]')
     } catch {
       return []
     }
@@ -30,7 +30,7 @@ const SchoolSelection = () => {
       const response = await api.post('/auth/school/verify', { schoolId: selectedSchool })
       const { user } = response.data
       const { roles } = user
-      // Exibe o loading antes de redirecionar
+      localStorage.removeItem('schools')
       setTimeout(() => {
         if (roles.includes('admin') && roles.includes('teacher')) {
           window.location.href = '/dashboard-selection'
