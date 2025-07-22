@@ -32,8 +32,7 @@ export const ProtectedRoute = ({ role }: ProtectedRouteProps) => {
 
         if (role === 'any' && (
           roles.includes('admin') ||
-          roles.includes('teacher') ||
-          roles.includes('both')
+          roles.includes('teacher')
         )) {
           setStatus('authorized')
         } else if (role === 'admin' && roles.includes('admin')) {
