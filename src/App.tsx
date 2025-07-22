@@ -32,7 +32,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/school-selection" element={<SchoolSelection />} />
+          <Route element={<ProtectedRoute role="any" />}>
+            <Route path="/school-selection" element={<SchoolSelection />} />
+          </Route>
 
           <Route element={<ProtectedRoute role="both" />}>
             <Route
