@@ -30,10 +30,7 @@ export const ProtectedRoute = ({ role }: ProtectedRouteProps) => {
 
         localStorage.setItem('userId', id)
 
-        if (role === 'any' && (
-          roles.includes('admin') ||
-          roles.includes('teacher')
-        )) {
+        if (role === 'any') {
           setStatus('authorized')
         } else if (role === 'admin' && roles.includes('admin')) {
           setStatus('authorized')
