@@ -3,13 +3,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useState } from 'react'
 
@@ -45,7 +38,7 @@ const students = [
   { id: 3, name: 'Carol Brown', average: '', absences: '', justifiedAbsences: '' },
 ]
 
-const GradesClosingEdit = () => {
+const GradesManagementEdit = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const initial = location.state || {}
@@ -175,4 +168,4 @@ const GradesClosingEdit = () => {
   )
 }
 
-export default GradesClosingEdit 
+export default GradesManagementEdit 

@@ -82,7 +82,7 @@ const students = [
 ]
 
 // Mock de fechamentos já realizados
-const closedGrades = [
+const managedGrades = [
   {
     id: 1,
     bimester: '1',
@@ -116,9 +116,9 @@ const GradesManagement = () => {
   const [editingStudent, setEditingStudent] = useState<any>(null)
   const [plannedLessons, setPlannedLessons] = useState('')
   const [givenLessons, setGivenLessons] = useState('')
-  const [selectedClosing, setSelectedClosing] = useState<any>(null)
-  const [newClosingModalOpen, setNewClosingModalOpen] = useState(false)
-  const [newClosing, setNewClosing] = useState({
+  const [selectedManagement, setSelectedManagement] = useState<any>(null)
+  const [newManagementModalOpen, setNewManagementModalOpen] = useState(false)
+  const [newManagement, setNewManagement] = useState({
     bimester: undefined,
     period: undefined,
     class: undefined,
@@ -133,7 +133,7 @@ const GradesManagement = () => {
   const [editLessons, setEditLessons] = useState({ plannedLessons: '', givenLessons: '' })
 
   // Filtro para alunos só na tela de detalhes
-  const filteredStudents = (selectedClosing?.students || students).filter((student: any) => {
+  const filteredStudents = (selectedManagement?.students || students).filter((student: any) => {
     const matchesSearch =
       student.name.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesSearch
@@ -149,8 +149,8 @@ const GradesManagement = () => {
               variant="ghost"
               size="icon"
               onClick={() => {
-                if (selectedClosing) {
-                  setSelectedClosing(null)
+                if (selectedManagement) {
+                  setSelectedManagement(null)
                 } else {
                   navigate('/professor/dashboard')
                 }
@@ -160,15 +160,15 @@ const GradesManagement = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <h1 className="text-2xl font-bold text-gray-900">
-              {selectedClosing ? 'Detalhes do Fechamento de Notas' : 'Fechamentos de Notas'}
+              {selectedManagement ? 'Detalhes do Fechamento de Notas' : 'Fechamentos de Notas'}
             </h1>
           </div>
           {/* Botão e subtítulo só na tela inicial */}
-          {!selectedClosing && (
+          {!selectedManagement && (
             <div className="flex flex-col sm:items-end">              
               <Button
                 className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
-                onClick={() => setNewClosingModalOpen(true)}
+                onClick={() => setNewManagementModalOpen(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Fechamento
@@ -181,7 +181,7 @@ const GradesManagement = () => {
       {/* Main Content */}
       <main className="p-6 max-w-7xl mx-auto space-y-6">
         {/* Filtros - só na tela inicial */}
-        {!selectedClosing && (
+        {!selectedManagement && (
           <Card className="border-0 shadow-sm">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-4">
@@ -242,7 +242,7 @@ const GradesManagement = () => {
           </Card>
         )}
         {/* Listagem de fechamentos ou detalhes */}
-        {!selectedClosing ? (
+        {!selectedManagement ? (
           <Card className="border-0 shadow-sm">
             <CardContent className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Fechamentos Concluídos</h2>
@@ -256,16 +256,16 @@ const GradesManagement = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {closedGrades.map((closing) => (
+                  {managedGrades.map((management) => (
                     <TableRow
-                      key={closing.id}
+                      key={management.id}
                       className="cursor-pointer hover:bg-gray-50"
-                      onClick={() => setSelectedClosing(closing)}
+                      onClick={() => setSelectedManagement(management)}
                     >
-                      <TableCell>{bimesters.find(b => b.value === closing.bimester)?.label}</TableCell>
-                      <TableCell>{closing.period}</TableCell>
-                      <TableCell>{closing.class}</TableCell>
-                      <TableCell>{closing.subject}</TableCell>
+                      <TableCell>{bimesters.find(b => b.value === management.bimester)?.label}</TableCell>
+                      <TableCell>{management.period}</TableCell>
+                      <TableCell>{management.class}</TableCell>
+                      <TableCell>{management.subject}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -280,10 +280,10 @@ const GradesManagement = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   Gerenciamento de aulas
                   <span className="ml-4 text-sm font-normal text-gray-500">
-                    {bimesters.find(b => b.value === selectedClosing.bimester)?.label}
-                    {selectedClosing.period ? ` | Período: ${selectedClosing.period}` : ''}
-                    {selectedClosing.class ? ` | Turma: ${selectedClosing.class}` : ''}
-                    {selectedClosing.subject ? ` | Matéria: ${selectedClosing.subject}` : ''}
+                    {bimesters.find(b => b.value === selectedManagement.bimester)?.label}
+                    {selectedManagement.period ? ` | Período: ${selectedManagement.period}` : ''}
+                    {selectedManagement.class ? ` | Turma: ${selectedManagement.class}` : ''}
+                    {selectedManagement.subject ? ` | Matéria: ${selectedManagement.subject}` : ''}
                   </span>
                 </h3>
                 <Table>
@@ -296,16 +296,16 @@ const GradesManagement = () => {
                   </TableHeader>
                   <TableBody>
                     <TableRow>
-                      <TableCell>{selectedClosing.plannedLessons}</TableCell>
-                      <TableCell>{selectedClosing.givenLessons}</TableCell>
+                      <TableCell>{selectedManagement.plannedLessons}</TableCell>
+                      <TableCell>{selectedManagement.givenLessons}</TableCell>
                       <TableCell>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => {
                             setEditLessons({
-                              plannedLessons: selectedClosing.plannedLessons,
-                              givenLessons: selectedClosing.givenLessons,
+                              plannedLessons: selectedManagement.plannedLessons,
+                              givenLessons: selectedManagement.givenLessons,
                             })
                             setEditLessonsModalOpen(true)
                           }}
@@ -342,11 +342,11 @@ const GradesManagement = () => {
                               min={0}
                               max={10}
                               step={0.1}
-                              value={selectedClosing.students[idx].average}
+                              value={selectedManagement.students[idx].average}
                               onChange={e => {
-                                const updated = [...selectedClosing.students]
+                                const updated = [...selectedManagement.students]
                                 updated[idx].average = e.target.value
-                                setSelectedClosing({ ...selectedClosing, students: updated })
+                                setSelectedManagement({ ...selectedManagement, students: updated })
                               }}
                             />
                           ) : (
@@ -358,11 +358,11 @@ const GradesManagement = () => {
                             <Input
                               type="number"
                               min={0}
-                              value={selectedClosing.students[idx].absences}
+                              value={selectedManagement.students[idx].absences}
                               onChange={e => {
-                                const updated = [...selectedClosing.students]
+                                const updated = [...selectedManagement.students]
                                 updated[idx].absences = e.target.value
-                                setSelectedClosing({ ...selectedClosing, students: updated })
+                                setSelectedManagement({ ...selectedManagement, students: updated })
                               }}
                             />
                           ) : (
@@ -374,11 +374,11 @@ const GradesManagement = () => {
                             <Input
                               type="number"
                               min={0}
-                              value={selectedClosing.students[idx].justifiedAbsences}
+                              value={selectedManagement.students[idx].justifiedAbsences}
                               onChange={e => {
-                                const updated = [...selectedClosing.students]
+                                const updated = [...selectedManagement.students]
                                 updated[idx].justifiedAbsences = e.target.value
-                                setSelectedClosing({ ...selectedClosing, students: updated })
+                                setSelectedManagement({ ...selectedManagement, students: updated })
                               }}
                             />
                           ) : (
@@ -487,8 +487,8 @@ const GradesManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* New Closing Modal */}
-      <Dialog open={newClosingModalOpen} onOpenChange={setNewClosingModalOpen}>
+      {/* New Grades Management Modal */}
+      <Dialog open={newManagementModalOpen} onOpenChange={setNewManagementModalOpen}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Novo Fechamento de Notas</DialogTitle>
@@ -498,8 +498,8 @@ const GradesManagement = () => {
             <div>
               <Label htmlFor="new-bimester">Bimestre</Label>
               <Select
-                value={newClosing.bimester}
-                onValueChange={v => setNewClosing(c => ({ ...c, bimester: v }))}
+                value={newManagement.bimester}
+                onValueChange={v => setNewManagement(c => ({ ...c, bimester: v }))}
               >
                 <SelectTrigger id="new-bimester">
                   <SelectValue placeholder="Bimestre" />
@@ -514,8 +514,8 @@ const GradesManagement = () => {
             <div>
               <Label htmlFor="new-period">Período</Label>
               <Select
-                value={newClosing.period}
-                onValueChange={v => setNewClosing(c => ({ ...c, period: v }))}
+                value={newManagement.period}
+                onValueChange={v => setNewManagement(c => ({ ...c, period: v }))}
               >
                 <SelectTrigger id="new-period">
                   <SelectValue placeholder="Período" />
@@ -530,8 +530,8 @@ const GradesManagement = () => {
             <div>
               <Label htmlFor="new-class">Turma</Label>
               <Select
-                value={newClosing.class}
-                onValueChange={v => setNewClosing(c => ({ ...c, class: v }))}
+                value={newManagement.class}
+                onValueChange={v => setNewManagement(c => ({ ...c, class: v }))}
               >
                 <SelectTrigger id="new-class">
                   <SelectValue placeholder="Turma" />
@@ -546,8 +546,8 @@ const GradesManagement = () => {
             <div>
               <Label htmlFor="new-subject">Matéria</Label>
               <Select
-                value={newClosing.subject}
-                onValueChange={v => setNewClosing(c => ({ ...c, subject: v }))}
+                value={newManagement.subject}
+                onValueChange={v => setNewManagement(c => ({ ...c, subject: v }))}
               >
                 <SelectTrigger id="new-subject">
                   <SelectValue placeholder="Matéria" />
@@ -565,8 +565,8 @@ const GradesManagement = () => {
                 id="new-planned-lessons"
                 type="number"
                 min={0}
-                value={newClosing.plannedLessons || ''}
-                onChange={e => setNewClosing(c => ({ ...c, plannedLessons: e.target.value }))}
+                value={newManagement.plannedLessons || ''}
+                onChange={e => setNewManagement(c => ({ ...c, plannedLessons: e.target.value }))}
               />
             </div>
             <div>
@@ -575,23 +575,23 @@ const GradesManagement = () => {
                 id="new-given-lessons"
                 type="number"
                 min={0}
-                value={newClosing.givenLessons || ''}
-                onChange={e => setNewClosing(c => ({ ...c, givenLessons: e.target.value }))}
+                value={newManagement.givenLessons || ''}
+                onChange={e => setNewManagement(c => ({ ...c, givenLessons: e.target.value }))}
               />
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setNewClosingModalOpen(false)}>
+              <Button variant="outline" onClick={() => setNewManagementModalOpen(false)}>
                 Cancelar
               </Button>
               <Button
                 onClick={() => {
-                  if (newClosing.bimester && newClosing.period && newClosing.class && newClosing.subject && newClosing.plannedLessons && newClosing.givenLessons) {
-                    navigate('/professor/grades-managament/new', { state: newClosing })
-                    setNewClosingModalOpen(false)
-                    setNewClosing({ bimester: undefined, period: undefined, class: undefined, subject: undefined, plannedLessons: undefined, givenLessons: undefined })
+                  if (newManagement.bimester && newManagement.period && newManagement.class && newManagement.subject && newManagement.plannedLessons && newManagement.givenLessons) {
+                    navigate('/professor/grades-managament/new', { state: newManagement })
+                    setNewManagementModalOpen(false)
+                    setNewManagement({ bimester: undefined, period: undefined, class: undefined, subject: undefined, plannedLessons: undefined, givenLessons: undefined })
                   }
                 }}
-                disabled={!(newClosing.bimester && newClosing.period && newClosing.class && newClosing.subject && newClosing.plannedLessons && newClosing.givenLessons)}
+                disabled={!(newManagement.bimester && newManagement.period && newManagement.class && newManagement.subject && newManagement.plannedLessons && newManagement.givenLessons)}
               >
                 Criar Fechamento
               </Button>
@@ -634,8 +634,8 @@ const GradesManagement = () => {
               </Button>
               <Button
                 onClick={() => {
-                  setSelectedClosing({
-                    ...selectedClosing,
+                  setSelectedManagement({
+                    ...selectedManagement,
                     plannedLessons: editLessons.plannedLessons,
                     givenLessons: editLessons.givenLessons,
                   })
