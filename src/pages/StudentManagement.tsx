@@ -264,8 +264,8 @@ const StudentManagement = () => {
       status: '',
     })
   }
-
-  const handleCreateStudent = async () => {    
+  
+  const handleCreateStudent = async () => {
     if (
       !newStudentForm.name.trim() ||
       !newStudentForm.registrationNumber.trim() ||
@@ -286,7 +286,7 @@ const StudentManagement = () => {
           : undefined,
         registrationDate: editForm.registrationDate
           ? new Date(editForm.registrationDate).toISOString()
-          : undefined,
+          : undefined,        
       }
       await api.post('/students', studentData)
       getStudents()
@@ -675,7 +675,7 @@ const StudentManagement = () => {
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">              
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">            
               <div className="space-y-2">
                 <Label htmlFor="fullName">Nome Completo *</Label>
                 <Input
@@ -708,8 +708,8 @@ const StudentManagement = () => {
                       </SelectItem>
                     ))}
                   </SelectContent>
-                </Select>
-              </div>              
+                </Select>             
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="period">Período *</Label>
                 <Select
@@ -774,7 +774,7 @@ const StudentManagement = () => {
                     })
                   }
                 />
-              </div>              
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="enrollmentStatus">Situação do Aluno</Label>
                 <Select
@@ -812,7 +812,7 @@ const StudentManagement = () => {
                   }
                 />
               </div>
-            </div>           
+            </div>
             <div className="col-span-2 border-t pt-4 mb-2">
               <h4 className="font-medium mb-2">Dados do Responsável</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -845,7 +845,7 @@ const StudentManagement = () => {
                   />
                 </div>
               </div>
-            </div>            
+            </div>
             <div className="space-y-2">
               <Label htmlFor="address">Endereço</Label>
               <textarea
@@ -1025,7 +1025,7 @@ const StudentManagement = () => {
                     }
                   />
                 </div>
-              </div>              
+              </div>
               <div className="col-span-2 space-y-2">
                 <Label htmlFor="edit-address">Endereço</Label>
                 <textarea
