@@ -304,7 +304,6 @@ const StudentManagement = () => {
       })
       setNewStudentModalOpen(false)
     } catch (error) {
-      console.error('Erro ao criar aluno:', error)
       setError('Erro ao criar aluno')
     } finally {
       setLoading(false)
