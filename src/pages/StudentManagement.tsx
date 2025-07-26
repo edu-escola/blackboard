@@ -75,7 +75,6 @@ const StudentManagement = () => {
     registrationDate: '',
     periodId: '',
     classId: '',
-    status: 'active',
     enrollmentStatus: '',
     enrollmentDate: '',
     guardianName: '',
@@ -296,7 +295,6 @@ const StudentManagement = () => {
         registrationDate: '',
         periodId: '',
         classId: '',
-        status: 'active',
         enrollmentStatus: '',
         enrollmentDate: '',
         guardianName: '',
@@ -319,7 +317,6 @@ const StudentManagement = () => {
       registrationDate: '',
       periodId: '',
       classId: '',
-      status: 'active',
       enrollmentStatus: '',
       enrollmentDate: '',
       guardianName: '',
@@ -731,22 +728,9 @@ const StudentManagement = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="status">Status *</Label>
-                <Select
-                  value={newStudentForm.status || 'active'}
-                  onValueChange={(value) =>
-                    setNewStudentForm({ ...newStudentForm, status: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Ativo</SelectItem>
-                    <SelectItem value="inactive">Inativo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>              
+                {/* coluna vazia para não bagunçar o layout */}
+              </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="enrollmentNumber">Número de Matrícula *</Label>
                 <Input
@@ -918,9 +902,9 @@ const StudentManagement = () => {
                       <SelectValue placeholder="Selecione a turma" />
                     </SelectTrigger>
                     <SelectContent>
-                      {classes.map((cls) => (
-                        <SelectItem key={cls.id} value={cls.id}>
-                          {cls.name}
+                      {classes.map((classItem) => (
+                        <SelectItem key={classItem.id} value={classItem.id}>
+                          {classItem.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -1024,6 +1008,43 @@ const StudentManagement = () => {
                       setEditForm({ ...editForm, enrollmentDate: e.target.value })
                     }
                   />
+                </div>
+              </div>
+              <div className="col-span-2 border-t pt-4 mb-2">
+                <h4 className="font-medium mb-2">Dados do Responsável</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-parent-name">
+                      Nome do Responsável
+                    </Label>
+                    <Input
+                      id="edit-parent-name"
+                      value={editForm.parentName}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          parentName: e.target.value,
+                        })
+                      }
+                      placeholder="Digite o nome do responsável"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-parent-phone">
+                      Telefone do Responsável
+                    </Label>
+                    <Input
+                      id="edit-parent-phone"
+                      value={editForm.parentPhone}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          parentPhone: e.target.value,
+                        })
+                      }
+                      placeholder="Digite o telefone do responsável"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="col-span-2 space-y-2">
