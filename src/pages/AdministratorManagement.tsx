@@ -77,7 +77,7 @@ const AdministratorManagement = () => {
   const getAdminList = async () => {
     const response = await api.get('/users', {
       params: {
-        isAdmin: true,
+        role: 'admin',
       },
     })
     setAdminList(response.data.data)
@@ -122,7 +122,7 @@ const AdministratorManagement = () => {
     setEditForm({
       name: admin.name,
       email: admin.email,
-      status: admin.status,
+      status: admin.UserSchool?.[0]?.status,
     })
     setEditModalOpen(true)
   }
@@ -188,7 +188,7 @@ const AdministratorManagement = () => {
       const response = await api.post('/users', {
         name: adminForm.name,
         email: adminForm.email.trim().toLowerCase(),
-        isAdmin: true,
+        role: 'admin',
       })
 
       console.log('Administrador criado com sucesso:', response.data)
@@ -301,8 +301,8 @@ const AdministratorManagement = () => {
                     <TableCell>{admin.email}</TableCell>
                     <TableCell>{formatDate(admin.createdAt)}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(admin.status)}>
-                        {getStatusText(admin.status)}
+                      <Badge className={getStatusColor(admin.UserSchool?.[0]?.status)}>
+                        {getStatusText(admin.UserSchool?.[0]?.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -364,8 +364,8 @@ const AdministratorManagement = () => {
                     <Shield className="h-4 w-4 text-gray-400" />
                     <div className="text-sm">
                       <div className="font-medium">Status:</div>
-                      <Badge className={getStatusColor(selectedAdmin.status)}>
-                        {getStatusText(selectedAdmin.status)}
+                      <Badge className={getStatusColor(selectedAdmin.UserSchool?.[0]?.status)}>
+                        {getStatusText(selectedAdmin.UserSchool?.[0]?.status)}
                       </Badge>
                     </div>
                   </div>
