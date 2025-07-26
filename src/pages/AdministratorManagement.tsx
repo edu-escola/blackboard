@@ -122,7 +122,7 @@ const AdministratorManagement = () => {
     setEditForm({
       name: admin.name,
       email: admin.email,
-      status: admin.UserSchool?.[0]?.status || 'active',
+      status: admin.UserSchool?.[0]?.status,
     })
     setEditModalOpen(true)
   }
@@ -301,8 +301,8 @@ const AdministratorManagement = () => {
                     <TableCell>{admin.email}</TableCell>
                     <TableCell>{formatDate(admin.createdAt)}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(admin.UserSchool?.[0]?.status || 'active')}>
-                        {getStatusText(admin.UserSchool?.[0]?.status || 'active')}
+                      <Badge className={getStatusColor(admin.UserSchool?.[0]?.status)}>
+                        {getStatusText(admin.UserSchool?.[0]?.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -364,8 +364,8 @@ const AdministratorManagement = () => {
                     <Shield className="h-4 w-4 text-gray-400" />
                     <div className="text-sm">
                       <div className="font-medium">Status:</div>
-                      <Badge className={getStatusColor(selectedAdmin.UserSchool?.[0]?.status || 'active')}>
-                        {getStatusText(selectedAdmin.UserSchool?.[0]?.status || 'active')}
+                      <Badge className={getStatusColor(selectedAdmin.UserSchool?.[0]?.status)}>
+                        {getStatusText(selectedAdmin.UserSchool?.[0]?.status)}
                       </Badge>
                     </div>
                   </div>

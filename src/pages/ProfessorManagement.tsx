@@ -133,7 +133,7 @@ const ProfessorManagement = () => {
     setEditForm({
       name: professor.name,
       email: professor.email,
-      status: professor.UserSchool?.[0]?.status || 'active',
+      status: professor.UserSchool?.[0]?.status,
       phone: professor.phone,
       subjects: professor.UserSubject.map(
         (userSubject: any) => userSubject.subject.id
@@ -323,8 +323,8 @@ const ProfessorManagement = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(professor.UserSchool?.[0]?.status || 'active')}>
-                        {getStatusText(professor.UserSchool?.[0]?.status || 'active')}
+                      <Badge className={getStatusColor(professor.UserSchool?.[0]?.status)}>
+                        {getStatusText(professor.UserSchool?.[0]?.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
