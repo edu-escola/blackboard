@@ -130,7 +130,7 @@ const AdministratorManagement = () => {
   const handleConfirmDelete = async () => {
     try {
       console.log('Deletando administrador:', adminToDelete)
-      await api.delete(`/users/${adminToDelete.id}`)
+      await api.delete(`/users/${adminToDelete.id}?role=admin`)
       getAdminList()
     } catch (error) {
       console.error('Erro ao deletar administrador:', error)
@@ -153,6 +153,7 @@ const AdministratorManagement = () => {
         name: editForm.name,
         email: editForm.email,
         status: editForm.status,
+        role: 'admin',
       })
       getAdminList()
     } catch (error) {

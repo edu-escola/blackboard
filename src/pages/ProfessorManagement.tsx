@@ -145,7 +145,7 @@ const ProfessorManagement = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      const response = await api.delete(`/users/${professorToDelete.id}`)
+      const response = await api.delete(`/users/${professorToDelete.id}?role=teacher`)
       getProfessorList()
     } catch (error) {
     } finally {
@@ -165,6 +165,7 @@ const ProfessorManagement = () => {
         name: editForm.name,
         email: editForm.email,
         status: editForm.status,
+        role: 'teacher',
         subjects: editForm.subjects,
         phone: editForm.phone,
         classes: editForm.classes,
