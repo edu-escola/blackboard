@@ -404,25 +404,21 @@ const ProfessorManagement = () => {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="space-y-3 pt-4 border-t">
-                <Button className="w-full" variant="outline">
-                  <GraduationCap className="h-4 w-4 mr-2" />
-                  Atribuir escola
-                </Button>
-                <Button className="w-full" variant="outline">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Atribuir assunto
-                </Button>
-                <Button className="w-full" variant="outline">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Editar perfil
-                </Button>
-                <Button className="w-full" variant="destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Remover Professor
-                </Button>
+              {/* Classes */}
+              <div>
+                <h4 className="font-medium mb-2">Turmas</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProfessor.UserClass.map(
+                    (userClass: any, index: number) => (
+                      <Badge key={index} variant="outline">
+                        {userClass.class.name}
+                      </Badge>
+                    )
+                  )}
+                </div>
               </div>
+
+
             </div>
           )}
         </SheetContent>
