@@ -280,11 +280,11 @@ const StudentManagement = () => {
       setLoading(true)
       const studentData = {
         ...newStudentForm,
-        enrollmentDate: editForm.enrollmentDate
-          ? new Date(editForm.enrollmentDate).toISOString()
+        enrollmentDate: newStudentForm.enrollmentDate
+          ? new Date(newStudentForm.enrollmentDate).toISOString()
           : undefined,
-        registrationDate: editForm.registrationDate
-          ? new Date(editForm.registrationDate).toISOString()
+        registrationDate: newStudentForm.registrationDate
+          ? new Date(newStudentForm.registrationDate).toISOString()
           : undefined,        
       }
       await api.post('/students', studentData)
