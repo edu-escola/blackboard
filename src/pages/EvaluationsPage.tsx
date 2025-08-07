@@ -225,7 +225,6 @@ const EvaluationsPage = () => {
       setStudentGrades(initialGrades)
       setGradeModalOpen(true)
     } catch (error) {
-      console.error('Error fetching students and grades:', error)
       toast({
         title: 'Erro',
         description: 'Erro ao carregar alunos e notas',
@@ -362,11 +361,11 @@ const EvaluationsPage = () => {
       title: activity.title,
       type: activity.type,
       schoolId: '',
-      bimester: activity.bimester || '',
-      class: activity.classId || activity.class?.id || '',
-      subjectId: activity.subjectId || activity.subject?.id || '',
+      bimester: activity.bimester,
+      class: activity.classId,
+      subjectId: activity.subjectId,
       date: new Date(activity.date),
-      description: activity.description || '',
+      description: activity.description,
     })
     setEditActivityModalOpen(true)
   }
@@ -456,7 +455,6 @@ const EvaluationsPage = () => {
       // Refresh activities list
       await fetchActivities()
     } catch (error) {
-      console.error('Error updating activity:', error)
       toast({
         title: 'Erro',
         description: 'Erro ao atualizar atividade',
