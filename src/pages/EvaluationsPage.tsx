@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   ArrowLeft,
   Plus,
@@ -47,6 +47,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
 import DeleteConfirmationDialog from '@/components/shared/DeleteConfirmationDialog'
+import api from '@/lib/api'
 
 const EvaluationsPage = () => {
   const navigate = useNavigate()
@@ -65,73 +66,15 @@ const EvaluationsPage = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [activityToDelete, setActivityToDelete] = useState<any>(null)
 
-  // Mock data
-  const classes = [
-    { id: 'math101', name: 'Matemática 101' },
-    { id: 'science102', name: 'Ciências 102' },
-    { id: 'english201', name: 'Inglês 201' },
-  ]
+  // API Data States
+  const [classes, setClasses] = useState<any[]>([])
+  const [subjects, setSubjects] = useState<any[]>([])
+  const [schools, setSchools] = useState<any[]>([])
+  const [activities, setActivities] = useState<any[]>([])
+  const [students, setStudents] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
 
-  const subjects = [
-    'Matemática',
-    'Ciências',
-    'Inglês',
-    'História',
-    'Física',
-    'Química',
-  ]
-
-  const schools = [
-    { id: 'lincoln', name: 'Lincoln Elementary' },
-    { id: 'washington', name: 'Washington High School' },
-    { id: 'roosevelt', name: 'Roosevelt Middle School' },
-  ]
-
-  const activities = [
-    {
-      id: 1,
-      title: 'Algebra Quiz #1',
-      class: 'Matemática 101',
-      subject: 'Matemática',
-      dueDate: '2024-01-20',
-      status: 'Open',
-      avgScore: 8.5,
-      maxScore: 10,
-      type: 'Quiz',
-    },
-    {
-      id: 2,
-      title: 'Midterm Exam',
-      class: 'Matemática 101',
-      subject: 'Matemática',
-      dueDate: '2024-01-25',
-      status: 'Graded',
-      avgScore: 7.8,
-      maxScore: 100,
-      type: 'Test',
-    },
-    {
-      id: 3,
-      title: 'Geometry Assignment',
-      class: 'Matemática 101',
-      subject: 'Matemática',
-      dueDate: '2024-01-30',
-      status: 'Draft',
-      avgScore: null,
-      maxScore: 20,
-      type: 'Assignment',
-    },
-  ]
-
-  const students = [
-    { id: '1', name: 'Alice Johnson', enrollmentNumber: 'LN2024001' },
-    { id: '2', name: 'Bob Wilson', enrollmentNumber: 'LN2024002' },
-    { id: '3', name: 'Carol Brown', enrollmentNumber: 'LN2024003' },
-    { id: '4', name: 'David Miller', enrollmentNumber: 'LN2024004' },
-    { id: '5', name: 'Eva Davis', enrollmentNumber: 'LN2024005' },
-    { id: '6', name: 'Frank Garcia', enrollmentNumber: 'LN2024006' },
-  ]
-
+  // Bimesters - Lista estática pois não há API específica
   const bimesters = [
     { value: '1', label: '1° Bimestre' },
     { value: '2', label: '2° Bimestre' },
@@ -139,41 +82,157 @@ const EvaluationsPage = () => {
     { value: '4', label: '4° Bimestre' },
   ]
 
+  const userId = localStorage.getItem('userId')
+  const schoolId = localStorage.getItem('schoolId')
+
+  // API Functions
+  const fetchClasses = async () => {
+    try {
+      const response = await api.get('/classes', {
+        params: {
+          userId,
+        },
+      })
+      setClasses(response.data.data || [])
+    } catch (error) {
+      console.error('Error fetching classes:', error)
+      toast({
+        title: 'Erro',
+        description: 'Erro ao carregar turmas',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const fetchSubjects = async () => {
+    try {
+      const response = await api.get('/subjects', {
+        params: {
+          userId,
+        },
+      })
+      setSubjects(response.data.data || [])
+    } catch (error) {
+      console.error('Error fetching subjects:', error)
+      toast({
+        title: 'Erro',
+        description: 'Erro ao carregar disciplinas',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const fetchSchools = async () => {
+    try {
+      const response = await api.get('/schools')
+      setSchools(response.data.data || [])
+    } catch (error) {
+      console.error('Error fetching schools:', error)
+      toast({
+        title: 'Erro',
+        description: 'Erro ao carregar escolas',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const fetchActivities = async () => {
+    try {
+      setLoading(true)
+      const response = await api.get('/evaluations')
+      setActivities(response.data.data || [])
+    } catch (error) {
+      console.error('Error fetching activities:', error)
+      toast({
+        title: 'Erro',
+        description: 'Erro ao carregar atividades',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchStudents = async () => {
+    try {
+      const response = await api.get('/students', {
+        params: {
+          userId,
+        },
+      })
+      setStudents(response.data.data || [])
+    } catch (error) {
+      console.error('Error fetching students:', error)
+      toast({
+        title: 'Erro',
+        description: 'Erro ao carregar alunos',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchClasses()
+    fetchSubjects()
+    fetchSchools()
+    fetchActivities()
+    fetchStudents()
+  }, [])
+
   // Form state
   const [newActivity, setNewActivity] = useState<{
     title: string
     type: string
-    school: string
+    schoolId: string
     bimester: string
     class: string
-    subject: string
+    subjectId: string
     date: Date | undefined
     description: string
   }>({
     title: '',
     type: '',
-    school: '',
+    schoolId: '',
     bimester: '',
     class: '',
-    subject: '',
+    subjectId: '',
     date: undefined,
     description: '',
   })
 
-  const handleActivityClick = (activity: any) => {
+  const handleActivityClick = async (activity: any) => {
     setSelectedActivity(activity)
-    // Initialize grades for students
-    const initialGrades: { [key: string]: number } = {}
-    students.forEach((student) => {
-      // Mock some existing grades
-      if (activity.status === 'Graded') {
-        initialGrades[student.id] = Math.floor(
-          Math.random() * activity.maxScore
-        )
-      }
-    })
-    setStudentGrades(initialGrades)
-    setGradeModalOpen(true)
+    setLoading(true)
+    
+    try {
+      // Buscar alunos da turma da atividade
+      const studentsResponse = await api.get(`/evaluations/${activity.id}/students`)
+      const classStudents = studentsResponse.data.data || []
+      
+      // Buscar notas existentes
+      const gradesResponse = await api.get(`/evaluations/${activity.id}/grades`)
+      const existingGrades = gradesResponse.data.data || []
+      
+      // Inicializar notas
+      const initialGrades: { [key: string]: number } = {}
+      classStudents.forEach((student: any) => {
+        const existingGrade = existingGrades.find((g: any) => g.studentId === student.id)
+        initialGrades[student.id] = existingGrade?.grade || 0
+      })
+      
+      setStudents(classStudents)
+      setStudentGrades(initialGrades)
+      setGradeModalOpen(true)
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao carregar alunos e notas',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGradeChange = (studentId: string, grade: string) => {
@@ -183,23 +242,62 @@ const EvaluationsPage = () => {
         ...prev,
         [studentId]: numericGrade,
       }))
-
-      // Auto-save simulation
-      toast({
-        title: 'Nota Salva',
-        description: `Nota para ${students.find((s) => s.id === studentId)?.name} salva automaticamente`,
-      })
     }
   }
 
-  const handleCreateActivity = () => {
+  const handleSaveAllGrades = async () => {
+    if (!selectedActivity) return
+
+    try {
+      setLoading(true)
+      
+      // Preparar array de notas para envio
+      const gradesToSave = Object.entries(studentGrades)
+        .filter(([_, grade]) => grade > 0) // Só salvar notas maiores que 0
+        .map(([studentId, grade]) => ({
+          studentId,
+          grade,
+        }))
+
+      if (gradesToSave.length === 0) {
+        toast({
+          title: 'Aviso',
+          description: 'Nenhuma nota foi digitada',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      // Salvar todas as notas de uma vez
+      await api.post(`/evaluations/${selectedActivity.id}/grades/bulk`, {
+        grades: gradesToSave,
+      })
+
+      toast({
+        title: 'Notas Salvas',
+        description: `${gradesToSave.length} nota(s) salva(s) com sucesso!`,
+      })
+
+      setGradeModalOpen(false)
+    } catch (error) {
+      console.error('Error saving grades:', error)
+      toast({
+        title: 'Erro',
+        description: 'Erro ao salvar notas',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCreateActivity = async () => {
     if (
       !newActivity.title ||
       !newActivity.type ||
-      !newActivity.school ||
       !newActivity.bimester ||
       !newActivity.class ||
-      !newActivity.subject ||
+      !newActivity.subjectId ||
       !newActivity.date
     ) {
       toast({
@@ -210,25 +308,50 @@ const EvaluationsPage = () => {
       return
     }
 
-    toast({
-      title: 'Atividade criada com sucesso!',
-      description: `${newActivity.title} foi criado e está pronto para envios dos alunos.`,
-    })
+    try {
+      setLoading(true)
+      await api.post('/evaluations', {
+        title: newActivity.title,
+        type: newActivity.type,
+        bimester: newActivity.bimester,
+        classId: newActivity.class,
+        subjectId: newActivity.subjectId,
+        date: newActivity.date?.toISOString(),
+        description: newActivity.description,
+      })
 
-    // Reset form
-    setNewActivity({
-      title: '',
-      type: '',
-      school: '',
-      bimester: '',
-      class: '',
-      subject: '',
-      date: undefined,
-      description: '',
-    })
+      toast({
+        title: 'Atividade criada com sucesso!',
+        description: `${newActivity.title} foi criado e está pronto para envios dos alunos.`,
+      })
 
-    // Close modal
-    setNewActivityModalOpen(false)
+      // Reset form
+      setNewActivity({
+        title: '',
+        type: '',
+        schoolId: '',
+        bimester: '',
+        class: '',
+        subjectId: '',
+        date: undefined,
+        description: '',
+      })
+
+      // Close modal
+      setNewActivityModalOpen(false)
+
+      // Refresh activities list
+      await fetchActivities()
+    } catch (error) {
+      console.error('Error creating activity:', error)
+      toast({
+        title: 'Erro',
+        description: 'Erro ao criar atividade',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleEditClick = (e: React.MouseEvent, activity: any) => {
@@ -237,12 +360,12 @@ const EvaluationsPage = () => {
     setNewActivity({
       title: activity.title,
       type: activity.type,
-      school: '',
-      bimester: '',
-      class: activity.class,
-      subject: activity.subject,
-      date: new Date(activity.dueDate),
-      description: '',
+      schoolId: '',
+      bimester: activity.bimester,
+      class: activity.classId,
+      subjectId: activity.subjectId,
+      date: new Date(activity.date),
+      description: activity.description,
     })
     setEditActivityModalOpen(true)
   }
@@ -253,15 +376,29 @@ const EvaluationsPage = () => {
     setDeleteDialogOpen(true)
   }
 
-  const handleConfirmDelete = () => {
-    // Aqui você implementaria a lógica para deletar a atividade
-    console.log('Deletando atividade:', activityToDelete)
-    setDeleteDialogOpen(false)
-    setActivityToDelete(null)
-    toast({
-      title: 'Atividade excluída',
-      description: `${activityToDelete?.title} foi excluída com sucesso.`,
-    })
+  const handleConfirmDelete = async () => {
+    try {
+      setLoading(true)
+      await api.delete(`/evaluations/${activityToDelete.id}`)
+      setDeleteDialogOpen(false)
+      setActivityToDelete(null)
+      toast({
+        title: 'Atividade excluída',
+        description: `${activityToDelete?.title} foi excluída com sucesso.`,
+      })
+      
+      // Refresh activities list
+      await fetchActivities()
+    } catch (error) {
+      console.error('Error deleting activity:', error)
+      toast({
+        title: 'Erro',
+        description: 'Erro ao excluir atividade',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleCancelDelete = () => {
@@ -269,14 +406,13 @@ const EvaluationsPage = () => {
     setActivityToDelete(null)
   }
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (
       !newActivity.title ||
       !newActivity.type ||
-      !newActivity.school ||
       !newActivity.bimester ||
       !newActivity.class ||
-      !newActivity.subject ||
+      !newActivity.subjectId ||
       !newActivity.date
     ) {
       toast({
@@ -287,24 +423,46 @@ const EvaluationsPage = () => {
       return
     }
 
-    // Aqui você implementaria a lógica para salvar as alterações
-    console.log('Salvando alterações:', newActivity)
-    setEditActivityModalOpen(false)
-    setEditingActivity(null)
-    setNewActivity({
-      title: '',
-      type: '',
-      school: '',
-      bimester: '',
-      class: '',
-      subject: '',
-      date: undefined,
-      description: '',
-    })
-    toast({
-      title: 'Atividade atualizada',
-      description: `${newActivity.title} foi atualizada com sucesso.`,
-    })
+    try {
+      setLoading(true)
+      await api.put(`/evaluations/${editingActivity.id}`, {
+        title: newActivity.title,
+        type: newActivity.type,
+        bimester: newActivity.bimester,
+        classId: newActivity.class,
+        subjectId: newActivity.subjectId,
+        date: newActivity.date?.toISOString(),
+        description: newActivity.description,
+      })
+
+      setEditActivityModalOpen(false)
+      setEditingActivity(null)
+      setNewActivity({
+        title: '',
+        type: '',
+        schoolId: '',
+        bimester: '',
+        class: '',
+        subjectId: '',
+        date: undefined,
+        description: '',
+      })
+      toast({
+        title: 'Atividade atualizada',
+        description: `${newActivity.title} foi atualizada com sucesso.`,
+      })
+
+      // Refresh activities list
+      await fetchActivities()
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao atualizar atividade',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleCancelEdit = () => {
@@ -313,10 +471,10 @@ const EvaluationsPage = () => {
     setNewActivity({
       title: '',
       type: '',
-      school: '',
+      schoolId: '',
       bimester: '',
       class: '',
-      subject: '',
+      subjectId: '',
       date: undefined,
       description: '',
     })
@@ -350,8 +508,8 @@ const EvaluationsPage = () => {
 
   const filteredActivities = activities.filter(
     (activity) =>
-      (classFilter === 'all' || activity.class === classFilter) &&
-      (subjectFilter === 'all' || activity.subject === subjectFilter)
+      (classFilter === 'all' || activity.class?.name === classFilter) &&
+      (subjectFilter === 'all' || activity.subject?.name === subjectFilter)
   )
 
   return (
@@ -390,24 +548,6 @@ const EvaluationsPage = () => {
             </CardTitle>
             <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
               <Select
-                value={newActivity.class}
-                onValueChange={(value) =>
-                  setNewActivity((prev) => ({ ...prev, class: value }))
-                }
-              >
-                <SelectTrigger className="w-full sm:w-40">
-                  <SelectValue placeholder="Escola" />
-                </SelectTrigger>
-                <SelectContent>
-                  {schools.map((school) => (
-                    <SelectItem key={school.id} value={school.id}>
-                      {school.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select
                 value={newActivity.bimester}
                 onValueChange={(value) =>
                   setNewActivity((prev) => ({ ...prev, subject: value }))
@@ -442,8 +582,8 @@ const EvaluationsPage = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {subjects.map((subject) => (
-                    <SelectItem key={subject} value={subject}>
-                      {subject}
+                    <SelectItem key={subject.id} value={subject.name}>
+                      {subject.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -451,8 +591,13 @@ const EvaluationsPage = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-              <Table className="min-w-[600px]">
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-gray-500">Carregando atividades...</div>
+              </div>
+            ) : (
+              <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                <Table className="min-w-[600px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Título</TableHead>
@@ -481,26 +626,20 @@ const EvaluationsPage = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{activity.class}</TableCell>
-                      <TableCell>{activity.subject}</TableCell>
+                      <TableCell>{activity.class?.name || 'N/A'}</TableCell>
+                      <TableCell>{activity.subject?.name || 'N/A'}</TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Calendar className="h-4 w-4 text-gray-500" />
                           <span>
-                            {new Date(activity.dueDate).toLocaleDateString()}
+                            {new Date(activity.date).toLocaleDateString()}
                           </span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        {activity.avgScore !== null ? (
-                          <span className="font-medium">
-                            {activity.avgScore}/{activity.maxScore}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">
-                            Não classificado
-                          </span>
-                        )}
+                        <span className="text-gray-400">
+                          Não classificado
+                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
@@ -525,6 +664,7 @@ const EvaluationsPage = () => {
                 </TableBody>
               </Table>
             </div>
+            )}
           </CardContent>
         </Card>
       </main>
@@ -570,33 +710,14 @@ const EvaluationsPage = () => {
                     <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Quiz">Atividade</SelectItem>
-                    <SelectItem value="Test">Avaliação</SelectItem>
-                    <SelectItem value="Assignment">Tarefa</SelectItem>
+                    <SelectItem value="Atividade">Atividade</SelectItem>
+                    <SelectItem value="Avaliação">Avaliação</SelectItem>
+                    <SelectItem value="Tarefa">Tarefa</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="school">Escola *</Label>
-                <Select
-                  value={newActivity.school}
-                  onValueChange={(value) =>
-                    setNewActivity((prev) => ({ ...prev, school: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a escola" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {schools.map((school) => (
-                      <SelectItem key={school.id} value={school.id}>
-                        {school.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="shift">Período *</Label>
@@ -636,9 +757,9 @@ const EvaluationsPage = () => {
               <div className="space-y-2">
                 <Label htmlFor="subject">Disciplina *</Label>
                 <Select
-                  value={newActivity.subject}
+                  value={newActivity.subjectId}
                   onValueChange={(value) =>
-                    setNewActivity((prev) => ({ ...prev, subject: value }))
+                    setNewActivity((prev) => ({ ...prev, subjectId: value }))
                   }
                 >
                   <SelectTrigger>
@@ -646,8 +767,8 @@ const EvaluationsPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {subjects.map((subject) => (
-                      <SelectItem key={subject} value={subject}>
-                        {subject}
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -732,9 +853,9 @@ const EvaluationsPage = () => {
               >
                 Cancelar
               </Button>
-              <Button onClick={handleCreateActivity}>
+              <Button onClick={handleCreateActivity} disabled={loading}>
                 <Plus className="h-4 w-4 mr-2" />
-                Criar Atividade
+                {loading ? 'Criando...' : 'Criar Atividade'}
               </Button>
             </div>
           </div>
@@ -782,30 +903,9 @@ const EvaluationsPage = () => {
                     <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Quiz">Atividade</SelectItem>
-                    <SelectItem value="Test">Avaliação</SelectItem>
-                    <SelectItem value="Assignment">Tarefa</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-school">Escola *</Label>
-                <Select
-                  value={newActivity.school}
-                  onValueChange={(value) =>
-                    setNewActivity((prev) => ({ ...prev, school: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a escola" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {schools.map((school) => (
-                      <SelectItem key={school.id} value={school.id}>
-                        {school.name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="Atividade">Atividade</SelectItem>
+                    <SelectItem value="Avaliação">Avaliação</SelectItem>
+                    <SelectItem value="Tarefa">Tarefa</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -848,9 +948,9 @@ const EvaluationsPage = () => {
               <div className="space-y-2">
                 <Label htmlFor="edit-subject">Disciplina *</Label>
                 <Select
-                  value={newActivity.subject}
+                  value={newActivity.subjectId}
                   onValueChange={(value) =>
-                    setNewActivity((prev) => ({ ...prev, subject: value }))
+                    setNewActivity((prev) => ({ ...prev, subjectId: value }))
                   }
                 >
                   <SelectTrigger>
@@ -858,8 +958,8 @@ const EvaluationsPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {subjects.map((subject) => (
-                      <SelectItem key={subject} value={subject}>
-                        {subject}
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -941,7 +1041,9 @@ const EvaluationsPage = () => {
               <Button variant="outline" onClick={handleCancelEdit}>
                 Cancelar
               </Button>
-              <Button onClick={handleSaveEdit}>Salvar Alterações</Button>
+              <Button onClick={handleSaveEdit} disabled={loading}>
+                {loading ? 'Salvando...' : 'Salvar Alterações'}
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -976,15 +1078,15 @@ const EvaluationsPage = () => {
               <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div>
                   <Label className="text-sm font-medium">Turma</Label>
-                  <p className="text-sm">{selectedActivity.class}</p>
+                  <p className="text-sm">{selectedActivity.class?.name || 'N/A'}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium">Disciplina</Label>
-                  <p className="text-sm">{selectedActivity.subject}</p>
+                  <p className="text-sm">{selectedActivity.subject?.name || 'N/A'}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Nota Máxima</Label>
-                  <p className="text-sm">{selectedActivity.maxScore}</p>
+                  <Label className="text-sm font-medium">Alunos</Label>
+                  <p className="text-sm">{students.length} alunos</p>
                 </div>
               </div>
 
@@ -1005,28 +1107,34 @@ const EvaluationsPage = () => {
                       <Input
                         type="number"
                         min="0"
-                        max={selectedActivity.maxScore}
+                        max="10"
                         value={studentGrades[student.id] || ''}
                         onChange={(e) =>
-                          handleGradeChange(student.id, e.target.value)
-                        }
-                        onBlur={(e) =>
                           handleGradeChange(student.id, e.target.value)
                         }
                         placeholder="Nota"
                         className="w-20 text-center"
                       />
                       <span className="text-sm text-gray-500">
-                        / {selectedActivity.maxScore}
+                        / 10
                       </span>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="flex justify-end">
-                <Button onClick={() => setGradeModalOpen(false)}>
-                  Concluir
+              <div className="flex justify-end space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setGradeModalOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={handleSaveAllGrades}
+                  disabled={loading}
+                >
+                  {loading ? 'Salvando...' : 'Salvar Notas'}
                 </Button>
               </div>
             </div>
