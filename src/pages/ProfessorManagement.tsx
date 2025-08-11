@@ -81,7 +81,7 @@ const ProfessorManagement = () => {
   const getProfessorList = async () => {
     const response = await api.get('/users', {
       params: {
-        isTeacher: true,
+        role: 'teacher',
       },
     })
     setProfessorList(response.data.data)
@@ -133,7 +133,7 @@ const ProfessorManagement = () => {
     setEditForm({
       name: professor.name,
       email: professor.email,
-      status: professor.status,
+      status: professor.UserSchool?.[0]?.status,
       phone: professor.phone,
       subjects: professor.UserSubject.map(
         (userSubject: any) => userSubject.subject.id
@@ -145,7 +145,7 @@ const ProfessorManagement = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      const response = await api.delete(`/users/${professorToDelete.id}`)
+      const response = await api.delete(`/users/${professorToDelete.id}?role=teacher`)
       getProfessorList()
     } catch (error) {
     } finally {
@@ -165,6 +165,7 @@ const ProfessorManagement = () => {
         name: editForm.name,
         email: editForm.email,
         status: editForm.status,
+        role: 'teacher',
         subjects: editForm.subjects,
         phone: editForm.phone,
         classes: editForm.classes,
@@ -215,7 +216,7 @@ const ProfessorManagement = () => {
         name: createProfessorForm.name,
         email: createProfessorForm.email,
         subjects: createProfessorForm.subjects,
-        isTeacher: true,
+        role: 'teacher',
         phone: createProfessorForm.phone,
         classes: createProfessorForm.classes,
       })
@@ -323,8 +324,8 @@ const ProfessorManagement = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(professor.status)}>
-                        {getStatusText(professor.status)}
+                      <Badge className={getStatusColor(professor.UserSchool?.[0]?.status)}>
+                        {getStatusText(professor.UserSchool?.[0]?.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -379,10 +380,10 @@ const ProfessorManagement = () => {
               <div>
                 <h4 className="font-medium mb-2">Escolas</h4>
                 <div className="flex flex-wrap gap-2">
-                  {selectedProfessor.schools?.map(
-                    (school: any, index: number) => (
+                  {selectedProfessor.UserSchool?.map(
+                    (userSchool: any, index: number) => (
                       <Badge key={index} variant="secondary">
-                        {school.name}
+                        {userSchool.school.name}
                       </Badge>
                     )
                   )}
@@ -403,25 +404,21 @@ const ProfessorManagement = () => {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="space-y-3 pt-4 border-t">
-                <Button className="w-full" variant="outline">
-                  <GraduationCap className="h-4 w-4 mr-2" />
-                  Atribuir escola
-                </Button>
-                <Button className="w-full" variant="outline">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Atribuir assunto
-                </Button>
-                <Button className="w-full" variant="outline">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Editar perfil
-                </Button>
-                <Button className="w-full" variant="destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Remover Professor
-                </Button>
+              {/* Classes */}
+              <div>
+                <h4 className="font-medium mb-2">Turmas</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProfessor.UserClass.map(
+                    (userClass: any, index: number) => (
+                      <Badge key={index} variant="outline">
+                        {userClass.class.name}
+                      </Badge>
+                    )
+                  )}
+                </div>
               </div>
+
+
             </div>
           )}
         </SheetContent>
@@ -501,10 +498,11 @@ const ProfessorManagement = () => {
                       onChange={(e) =>
                         setCreateProfessorForm({
                           ...createProfessorForm,
-                          subjects: [
-                            ...createProfessorForm.subjects,
-                            subject.id,
-                          ],
+                          subjects: e.target.checked
+                            ? [...createProfessorForm.subjects, subject.id]
+                            : createProfessorForm.subjects.filter(
+                                (id: string) => id !== subject.id
+                              ),
                         })
                       }
                     />
@@ -533,10 +531,11 @@ const ProfessorManagement = () => {
                       onChange={(e) =>
                         setCreateProfessorForm({
                           ...createProfessorForm,
-                          classes: [
-                            ...createProfessorForm.classes,
-                            classItem.id,
-                          ],
+                          classes: e.target.checked
+                            ? [...createProfessorForm.classes, classItem.id]
+                            : createProfessorForm.classes.filter(
+                                (id: string) => id !== classItem.id
+                              ),
                         })
                       }
                     />
@@ -635,11 +634,11 @@ const ProfessorManagement = () => {
                       onChange={(e) =>
                         setEditForm({
                           ...editForm,
-                          subjects: editForm.subjects.includes(subject.id)
-                            ? editForm.subjects.filter(
-                                (id: number) => id !== subject.id
-                              )
-                            : [...editForm.subjects, subject.id],
+                          subjects: e.target.checked
+                            ? [...editForm.subjects, subject.id]
+                            : editForm.subjects.filter(
+                                (id: string) => id !== subject.id
+                              ),
                         })
                       }
                     />
@@ -669,11 +668,11 @@ const ProfessorManagement = () => {
                       onChange={(e) =>
                         setEditForm({
                           ...editForm,
-                          classes: editForm.classes.includes(classItem.id)
-                            ? editForm.classes.filter(
-                                (id: number) => id !== classItem.id
-                              )
-                            : [...editForm.classes, classItem.id],
+                          classes: e.target.checked
+                            ? [...editForm.classes, classItem.id]
+                            : editForm.classes.filter(
+                                (id: string) => id !== classItem.id
+                              ),
                         })
                       }
                     />

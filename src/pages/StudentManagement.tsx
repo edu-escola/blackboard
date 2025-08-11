@@ -93,6 +93,7 @@ const StudentManagement = () => {
     periodId: '',
     enrollmentStatus: '',
     enrollmentNumber: '',
+    status: '',
   })
 
   const subjects = [
@@ -178,6 +179,7 @@ const StudentManagement = () => {
       enrollmentStatus: student.enrollmentStatus,
       enrollmentDate: formatDateForInput(student.enrollmentDate),
       enrollmentNumber: student.registrationNumber,
+      status: student.status,
     })
     setEditModalOpen(true)
   }
@@ -213,10 +215,15 @@ const StudentManagement = () => {
         guardianPhone: editForm.parentPhone,
         guardianAddress: editForm.address,
         enrollmentStatus: editForm.enrollmentStatus,
-        enrollmentDate: new Date(editForm.enrollmentDate).toISOString(),
-        registrationDate: new Date(editForm.registrationDate).toISOString(),
+        enrollmentDate: editForm.enrollmentDate
+          ? new Date(editForm.enrollmentDate).toISOString()
+          : undefined,
+        registrationDate: editForm.registrationDate
+          ? new Date(editForm.registrationDate).toISOString()
+          : undefined,
         periodId: editForm.periodId,
         classId: editForm.classId,
+        status: editForm.status,
       })
       getStudents()
     } catch (error) {
@@ -234,6 +241,7 @@ const StudentManagement = () => {
         registrationDate: '',
         enrollmentDate: '',
         enrollmentNumber: '',
+        status: '',
       })
     }
   }
@@ -252,18 +260,32 @@ const StudentManagement = () => {
       periodId: '',
       enrollmentStatus: '',
       enrollmentNumber: '',
+      status: '',
     })
   }
-
+  
   const handleCreateStudent = async () => {
+    if (
+      !newStudentForm.name.trim() ||
+      !newStudentForm.registrationNumber.trim() ||
+      !newStudentForm.registrationDate ||
+      !newStudentForm.periodId ||
+      !newStudentForm.classId
+    ) {
+      setError('Preencha todos os campos obrigatórios.')
+      return
+    }
+
     try {
       setLoading(true)
       const studentData = {
         ...newStudentForm,
-        enrollmentDate: new Date(newStudentForm.enrollmentDate).toISOString(),
-        registrationDate: new Date(
-          newStudentForm.registrationDate
-        ).toISOString(),
+        enrollmentDate: newStudentForm.enrollmentDate
+          ? new Date(newStudentForm.enrollmentDate).toISOString()
+          : undefined,
+        registrationDate: newStudentForm.registrationDate
+          ? new Date(newStudentForm.registrationDate).toISOString()
+          : undefined,        
       }
       await api.post('/students', studentData)
       getStudents()
@@ -281,6 +303,7 @@ const StudentManagement = () => {
       })
       setNewStudentModalOpen(false)
     } catch (error) {
+      setError('Erro ao criar aluno')
     } finally {
       setLoading(false)
     }
@@ -649,10 +672,9 @@ const StudentManagement = () => {
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Primeira linha: Nome e Período */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">            
               <div className="space-y-2">
-                <Label htmlFor="fullName">Nome Completo</Label>
+                <Label htmlFor="fullName">Nome Completo *</Label>
                 <Input
                   id="fullName"
                   placeholder="João Silva"
@@ -666,7 +688,27 @@ const StudentManagement = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="period">Período</Label>
+                <Label htmlFor="class">Turma *</Label>
+                <Select
+                  value={newStudentForm.classId}
+                  onValueChange={(value) =>
+                    setNewStudentForm({ ...newStudentForm, classId: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a turma" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classes.map((cls) => (
+                      <SelectItem key={cls.id} value={cls.id}>
+                        {cls.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>             
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="period">Período *</Label>
                 <Select
                   value={newStudentForm.periodId}
                   onValueChange={(value) =>
@@ -685,9 +727,12 @@ const StudentManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              {/* Segunda linha: Matrícula e Data da Matrícula */}
               <div className="space-y-2">
-                <Label htmlFor="enrollmentNumber">Número de Matrícula</Label>
+                {/* coluna vazia para não bagunçar o layout */}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="enrollmentNumber">Número de Matrícula *</Label>
                 <Input
                   id="enrollmentNumber"
                   placeholder="LN2024001"
@@ -701,7 +746,7 @@ const StudentManagement = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="enrollmentDate">Data da Matrícula</Label>
+                <Label htmlFor="enrollmentDate">Data da Matrícula *</Label>
                 <Input
                   id="enrollmentDate"
                   type="date"
@@ -714,28 +759,6 @@ const StudentManagement = () => {
                   }
                 />
               </div>
-              {/* Terceira linha: Turma e Status */}
-              <div className="space-y-2">
-                <Label htmlFor="class">Turma</Label>
-                <Select
-                  value={newStudentForm.classId}
-                  onValueChange={(value) =>
-                    setNewStudentForm({ ...newStudentForm, classId: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a turma" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {classes.map((cls) => (
-                      <SelectItem key={cls.id} value={cls.id}>
-                        {cls.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {/* Quarta linha: Situação do Aluno e Data da Situação */}
               <div className="space-y-2">
                 <Label htmlFor="enrollmentStatus">Situação do Aluno</Label>
                 <Select
@@ -774,7 +797,6 @@ const StudentManagement = () => {
                 />
               </div>
             </div>
-            {/* Responsável */}
             <div className="col-span-2 border-t pt-4 mb-2">
               <h4 className="font-medium mb-2">Dados do Responsável</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -808,7 +830,6 @@ const StudentManagement = () => {
                 </div>
               </div>
             </div>
-            {/* Endereço */}
             <div className="space-y-2">
               <Label htmlFor="address">Endereço</Label>
               <textarea
@@ -857,7 +878,7 @@ const StudentManagement = () => {
           {editForm && (
             <form className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Primeira linha: Nome e Período */}
+                {/* Primeira linha: Nome e Turma */}
                 <div className="space-y-2">
                   <Label htmlFor="edit-name">Nome Completo</Label>
                   <Input
@@ -869,6 +890,27 @@ const StudentManagement = () => {
                     placeholder="Digite o nome completo"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-class">Turma</Label>
+                  <Select
+                    value={editForm.classId}
+                    onValueChange={(value) =>
+                      setEditForm({ ...editForm, classId: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a turma" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {classes.map((classItem) => (
+                        <SelectItem key={classItem.id} value={classItem.id}>
+                          {classItem.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {/* Segunda linha: Período e Status */}
                 <div className="space-y-2">
                   <Label htmlFor="edit-period">Período</Label>
                   <Select
@@ -889,11 +931,26 @@ const StudentManagement = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                {/* Segunda linha: Matrícula e Data da Matrícula */}
                 <div className="space-y-2">
-                  <Label htmlFor="edit-enrollmentNumber">
-                    Número de Matrícula
-                  </Label>
+                  <Label htmlFor="edit-status">Status</Label>
+                  <Select
+                    value={editForm.status || 'active'}
+                    onValueChange={(value) =>
+                      setEditForm({ ...editForm, status: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Ativo</SelectItem>
+                      <SelectItem value="inactive">Inativo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {/* Terceira linha: Matrícula e Data da Matrícula */}
+                <div className="space-y-2">
+                  <Label htmlFor="edit-enrollmentNumber">Número de Matrícula</Label>
                   <Input
                     id="edit-enrollmentNumber"
                     value={editForm.enrollmentNumber || ''}
@@ -907,9 +964,7 @@ const StudentManagement = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-registrationDate">
-                    Data da Matrícula
-                  </Label>
+                  <Label htmlFor="edit-registrationDate">Data da Matrícula</Label>
                   <Input
                     id="edit-registrationDate"
                     type="date"
@@ -922,30 +977,9 @@ const StudentManagement = () => {
                     }
                   />
                 </div>
+                {/* Quarta linha: Situação do Aluno e Data da Situação */}
                 <div className="space-y-2">
-                  <Label htmlFor="edit-class">Turma</Label>
-                  <Select
-                    value={editForm.classId}
-                    onValueChange={(value) =>
-                      setEditForm({ ...editForm, classId: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a turma" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {classes.map((cls) => (
-                        <SelectItem key={cls.id} value={cls.id}>
-                          {cls.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-enrollmentStatus">
-                    Situação do Aluno
-                  </Label>
+                  <Label htmlFor="edit-enrollmentStatus">Situação do Aluno</Label>
                   <Select
                     value={editForm.enrollmentStatus}
                     onValueChange={(value) =>
@@ -971,48 +1005,45 @@ const StudentManagement = () => {
                     type="date"
                     value={editForm.enrollmentDate}
                     onChange={(e) =>
-                      setEditForm({
-                        ...editForm,
-                        enrollmentDate: e.target.value,
-                      })
+                      setEditForm({ ...editForm, enrollmentDate: e.target.value })
                     }
                   />
                 </div>
-                <div className="col-span-2 border-t pt-4 mb-2">
-                  <h4 className="font-medium mb-2">Dados do Responsável</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="edit-parent-name">
-                        Nome do Responsável
-                      </Label>
-                      <Input
-                        id="edit-parent-name"
-                        value={editForm.parentName}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            parentName: e.target.value,
-                          })
-                        }
-                        placeholder="Digite o nome do responsável"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="edit-parent-phone">
-                        Telefone do Responsável
-                      </Label>
-                      <Input
-                        id="edit-parent-phone"
-                        value={editForm.parentPhone}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            parentPhone: e.target.value,
-                          })
-                        }
-                        placeholder="Digite o telefone do responsável"
-                      />
-                    </div>
+              </div>
+              <div className="col-span-2 border-t pt-4 mb-2">
+                <h4 className="font-medium mb-2">Dados do Responsável</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-parent-name">
+                      Nome do Responsável
+                    </Label>
+                    <Input
+                      id="edit-parent-name"
+                      value={editForm.parentName}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          parentName: e.target.value,
+                        })
+                      }
+                      placeholder="Digite o nome do responsável"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-parent-phone">
+                      Telefone do Responsável
+                    </Label>
+                    <Input
+                      id="edit-parent-phone"
+                      value={editForm.parentPhone}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          parentPhone: e.target.value,
+                        })
+                      }
+                      placeholder="Digite o telefone do responsável"
+                    />
                   </div>
                 </div>
               </div>
